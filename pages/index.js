@@ -144,7 +144,7 @@ function AuthModal({ onClose, onSuccess }) {
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,20,0.92)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
       <div style={{ background: 'linear-gradient(145deg,#0a1628,#060e1c)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '420px', position: 'relative', boxShadow: '0 0 60px rgba(0,150,255,0.1)' }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <img src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png" alt="RewireMode" style={{ height: '40px', marginBottom: '16px', objectFit: 'contain' }} onError={e => { e.target.style.display='none' }} />
+          <img src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png" alt="RewireMode" style={{ height: '40px', marginBottom: '16px', objectFit: 'contain' }} onError={e => { e.target.style.display='none' }} />
           <h2 style={{ fontSize: '22px', color: '#00d4ff', fontWeight: '600', marginBottom: '6px', letterSpacing: '0.02em' }}>
             {mode === 'signup' ? 'Enter Rewrite Mode' : 'Welcome back'}
           </h2>
@@ -328,7 +328,7 @@ export default function Home({ user, profile, refreshProfile }) {
         {/* Nav */}
         <nav style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.8)' }}>
           <img
-            src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png"
+            src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png"
             alt="RewireMode"
             style={{ height: '36px', objectFit: 'contain' }}
             onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block' }}
