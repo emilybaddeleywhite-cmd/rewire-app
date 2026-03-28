@@ -1,5 +1,4 @@
-{
-  "name": "rewire-app",
+  "name": "rewrite-mode",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,6 +9,8 @@
   "dependencies": {
     "next": "14.1.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "@supabase/supabase-js": "^2.39.0",
+    "stripe": "^14.0.0"
   }
 }
