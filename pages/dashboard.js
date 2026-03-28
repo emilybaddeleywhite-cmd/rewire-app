@@ -112,6 +112,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
             <div />
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <div style={{ fontSize: '13px', color: '#00d4ff', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)', cursor: 'pointer' }} onClick={() => setShowCredits(true)}>✦ {profile?.credits || 0} credits</div>
+              <a href="/faq" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>FAQ</a>
               <button onClick={signOut} style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>Sign out</button>
             </div>
           </div>
@@ -149,7 +150,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
 
           {profile?.streak_count > 0 && (
             <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(255,159,67,0.06)', border: '1px solid rgba(255,159,67,0.2)', marginBottom: '24px', textAlign: 'center', fontSize: '14px', color: '#ff9f43', fontStyle: 'italic', animation: 'fadeUp 0.6s ease 0.15s both' }}>
-              🔥 You have been in Rewrite Mode for {profile.streak_count} day{profile.streak_count !== 1 ? 's' : ''}. Repetition is how neural pathways strengthen.
+              🔥 {profile.streak_count} day{profile.streak_count !== 1 ? '' : ''} streak — your brain is rewiring with every session. Keep going.
             </div>
           )}
 
