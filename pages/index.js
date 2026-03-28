@@ -326,11 +326,11 @@ export default function Home({ user, profile, refreshProfile }) {
         </div>
 
         {/* Nav */}
-        <nav style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px', borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.8)' }}>
+        <nav style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px', borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.8)' }}>
           <img
             src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png"
             alt="RewireMode"
-            style={{ height: '70px', objectFit: 'contain' }}
+            style={{ height: '90px', maxWidth: '280px', objectFit: 'contain', objectPosition: 'left center' }}
             onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block' }}
           />
           <span style={{ display: 'none', fontSize: '16px', fontWeight: '700', letterSpacing: '0.05em', background: 'linear-gradient(135deg,#00d4ff,#00ff88)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>REWRITE MODE</span>
