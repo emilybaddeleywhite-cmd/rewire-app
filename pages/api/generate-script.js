@@ -17,7 +17,6 @@ export default async function handler(req, res) {
 
   const { goal, productType, mood, moment, userId } = req.body
 
-  // Check and deduct credits
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('credits, plan')
@@ -31,29 +30,94 @@ export default async function handler(req, res) {
     return res.status(402).json({ error: 'Not enough credits', credits: profile.credits })
   }
 
-  // Build system prompt based on product type
-  const systemPrompts = {
-    reset: `You are a clinical hypnotherapist trained in the Milton Model, Ericksonian hypnosis, and NLP. Write a 5-minute reset hypnosis script with 4 clear sections: Induction, Deepener, Suggestion, Release. Use presuppositions, embedded commands, pacing and leading, future pacing, somatic anchoring, identity-level language. Use permissive indirect language. Weave in neuroplasticity references. 5-6 rich paragraphs. ONLY the script, no titles or section labels.`,
-    sleep: `You are a clinical hypnotherapist specialising in sleep. Write a 15-minute deep sleep hypnosis script with 4 sections: Induction (3 min), Deepener (5 min), Suggestion (5 min), Subliminal layer (2 min). Use theta state references, descending metaphors, body heaviness suggestions, progressive relaxation. Make it deeply soporific and safe. ONLY the script, no titles.`,
-    subliminal: `You are a subliminal audio specialist. Write a 30-minute subliminal affirmation script — short, powerful identity-level affirmations repeated in varied forms. Present tense. First and second person alternating. Neuroplasticity-based. These will be whispered under music. 50-80 affirmations. ONLY the affirmations, one per line, no numbering.`,
-    hype: `You are an elite performance coach. Write a powerful 5-minute hype coach script. Punchy sentences. Rising energy arc. Rhetorical questions. Occasional ALL CAPS for emphasis. Ends with a clear declaration. Reference neuroscience briefly. 4-5 paragraphs. ONLY the script, no titles.`,
-  }
+  const moodContext = mood <= 3
+    ? 'The user is really struggling right now. Acknowledge this gently at the start. Meet them where they are before lifting them.'
+    : mood <= 6
+    ? 'The user is feeling okay but not great. Meet them here and gradually elevate them through the session.'
+    : 'The user is feeling good and energised. Amplify and anchor this state deeply.'
 
   const momentContext = moment ? {
-    meeting: 'They are about to walk into a big important meeting.',
-    workout: 'They are about to do a workout and need energy and drive.',
-    sales: 'They are about to make an important sales call.',
-    convo: 'They are about to have a difficult conversation.',
-    launch: 'They are about to launch something or present publicly.',
+    meeting: 'The user is about to walk into a big important meeting.',
+    workout: 'The user is about to do a workout and needs energy and drive.',
+    sales: 'The user is about to make an important sales call.',
+    convo: 'The user is about to have a difficult conversation.',
+    launch: 'The user is about to launch something or present publicly.',
   }[moment] : ''
 
-  const moodContext = mood <= 3
-    ? 'They are really struggling right now. Meet them gently where they are before lifting them.'
-    : mood <= 6
-    ? 'They are feeling okay but not great. Meet them here and gradually elevate them.'
-    : 'They are feeling good and energised. Amplify and anchor this state deeply.'
+  const systemPrompts = {
 
-  const userPrompt = `Write a personalised script for: "${goal}". Mood: ${mood}/10. ${moodContext} ${momentContext ? `Context: ${momentContext}` : ''} Make it feel written for this exact person in this exact moment.`
+    reset: `You are a clinical hypnotherapist trained in the Milton Model, Ericksonian hypnosis, and NLP.
+
+TASK: Write a 5-minute Reset Hypnosis script for daily subconscious rewiring.
+
+ANALYSIS RULE: First analyse the user's intention. Identify the core limiting belief underneath it. Build the entire script to address and rewrite that belief.
+
+STRUCTURE (follow exactly, no section labels in output):
+1. INDUCTION (1 minute): Guide into relaxed state. Body scanning, breath awareness, progressive relaxation. Slow calm pacing. Cause-and-effect language ("as you breathe... you begin to notice...").
+2. DEEPENER (1 minute): Deepen the trance. Counting down, descending metaphors. Reinforce safety and relaxation.
+3. SUGGESTION (2-3 minutes): Core change work. Milton Model language — presuppositions, embedded commands, identity-level statements, future pacing, somatic anchoring. Present tense. Neuroplasticity references woven in naturally.
+4. GENTLE RETURN (30-60 seconds): Slowly bring them back. Count up 1-5. Anchor the new belief. End with an empowering statement.
+
+STYLE: Calm. Clear. Slightly repetitive for reinforcement. Present tense. Permissive language ("you might notice...", "perhaps you find..."). NO section titles in output.
+
+Write ONLY the script. Nothing else.`,
+
+    sleep: `You are a clinical hypnotherapist specialising in sleep and subconscious reprogramming.
+
+TASK: Write a 15-minute Sleep Hypnosis script that transitions into subliminal affirmations.
+
+ANALYSIS RULE: Identify the core limiting belief. Build the script to dissolve that belief while guiding into deep sleep.
+
+STRUCTURE (follow exactly, no section labels in output):
+1. INDUCTION (3 minutes): Guide into relaxation using breath, body scanning, progressive muscle relaxation. Slow, warm, reassuring tone.
+2. DEEPENER (5 minutes): Deepen trance significantly. Staircase or elevator descending. Theta state references. Body growing heavier. Mind quieter.
+3. SUGGESTION (5-7 minutes): Core change work while deeply relaxed. Identity-level suggestions. Future pacing their transformed self waking tomorrow. Neuroplasticity — brain rewiring during sleep. Embedded commands throughout.
+4. TRANSITION TO SUBLIMINAL (last 3-5 minutes): CRITICAL — gradually slow the pacing. Sentences become shorter. Intensity reduces. Shift to simple repeated affirmations. Short present tense identity statements. Repeat each 2-3 times with slight variations. Structure as a gentle loop winding down.
+
+STYLE: Deeply relaxing throughout. Final section feels like whispered affirmations fading into sleep. NO section titles in output.
+
+Write ONLY the script. Nothing else.`,
+
+    subliminal: `You are a subliminal audio specialist and identity change expert.
+
+TASK: Generate subliminal affirmations for a 30-minute passive listening session.
+
+ANALYSIS RULE: Analyse the user's intention. Identify 5-8 core limiting beliefs underneath it. Generate affirmations that directly overwrite each one.
+
+RULES:
+- These will be whispered quietly under calming music
+- Short, powerful, present tense only
+- First and second person alternating (I am... / You are...)
+- Identity-level statements only (never "I will" — always "I am")
+- Maximum 10 words per affirmation
+- Each affirmation repeated 3 times with slight variations
+- 60-80 total affirmations across 8-10 themes
+- Looping structure — end returns to beginning themes
+
+OUTPUT FORMAT: One affirmation per line. No numbering. No headers. No explanations. ONLY the affirmations.`,
+
+    hype: `You are an elite performance coach and identity activation specialist.
+
+TASK: Write a 5-minute Hype Coach script for immediate energy and identity activation.
+
+ANALYSIS RULE: Identify what is holding the user back. Attack that directly. Replace it with certainty and power.
+
+STRUCTURE (follow exactly, no section labels in output):
+1. IMMEDIATE ACTIVATION (no warm up — start with full energy): Open with a direct powerful statement. No induction. Hit them immediately.
+2. IDENTITY STATEMENTS (90 seconds): Bold declarations of who they already are. Present tense. Rhetorical questions. Challenge their limiting story directly.
+3. FUTURE PACING (90 seconds): Vivid picture of them already having achieved it. Sensory-rich. What does it feel, look, sound like? Make it completely real.
+4. STRONG CLOSE (60 seconds): Rising intensity. Short punchy sentences. Clear declaration. End at the absolute highest energy point.
+
+STYLE: Confident. Direct. Fast pacing. Powerful. Occasional ALL CAPS for peak moments — maximum 3 times total. Raw and real. NO corporate language. NO fluff. NO section titles in output.
+
+Write ONLY the script. Nothing else.`,
+  }
+
+  const userPrompt = `User intention: "${goal}"
+Mood: ${mood}/10. ${moodContext}
+${momentContext ? `Moment context: ${momentContext}` : ''}
+
+Analyse this intention deeply. Identify the core belief that needs rewriting. Then write the complete script personalised for this exact person in this exact moment.`
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -65,7 +129,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
+        max_tokens: 2000,
         system: systemPrompts[productType] || systemPrompts.reset,
         messages: [{ role: 'user', content: userPrompt }],
       }),
@@ -76,7 +140,6 @@ export default async function handler(req, res) {
 
     const script = data.content[0].text
 
-    // Deduct credits
     await supabase
       .from('profiles')
       .update({ credits: profile.credits - cost })
