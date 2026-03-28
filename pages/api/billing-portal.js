@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'No billing account found. Please subscribe first.' })
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://rewire-app-eight.vercel.app'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://rewiremode.com'
 
   try {
     const session = await stripe.billingPortal.sessions.create({
