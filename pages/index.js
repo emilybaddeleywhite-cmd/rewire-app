@@ -502,6 +502,7 @@ export default function Home({ user, profile, refreshProfile }) {
                 <button onClick={() => window.location.href = '/dashboard'} style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>Dashboard</button>
               </>
             )}
+            <a href="/faq" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>FAQ</a>
             {!user && <button onClick={() => setShowAuth(true)} style={{ fontSize: '13px', color: '#00d4ff', padding: '8px 18px', borderRadius: '10px', border: '1px solid rgba(0,212,255,0.3)', background: 'rgba(0,212,255,0.06)', fontWeight: '600' }}>Sign In</button>}
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 24px 10px' }}>
