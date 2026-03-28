@@ -143,13 +143,19 @@ export default function FAQ({ user, profile }) {
         </div>
 
         {/* Nav */}
-        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px' }}>
-          <a href="/">
-            <img src={LOGO} alt="RewireMode" style={{ height: '50px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
-          </a>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            {profile && <div style={{ fontSize: '13px', color: '#00d4ff', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)' }}>✦ {profile.credits} credits</div>}
-            <a href="/" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>← Back</a>
+        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px 0' }}>
+            <div />
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              {profile && <div style={{ fontSize: '13px', color: '#00d4ff', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)' }}>✦ {profile.credits} credits</div>}
+              <a href="/dashboard" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>Dashboard</a>
+              <a href="/" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>← Back</a>
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '0 24px 10px' }}>
+            <a href="/">
+              <img src={LOGO} alt="RewireMode" style={{ height: '120px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
+            </a>
           </div>
         </nav>
 
