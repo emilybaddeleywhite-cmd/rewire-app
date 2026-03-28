@@ -167,7 +167,8 @@ function VoiceCard({ voice, selected, onSelect, theme }) {
         </button>
       </div>
       <div style={{ fontSize: '15px', color: selected ? theme.color : BASE.text, fontWeight: '700', marginBottom: '3px' }}>{voice.name}</div>
-      <div style={{ fontSize: '12px', color: BASE.textMuted, marginBottom: previewing ? '10px' : '0' }}>{voice.desc}</div>
+      <div style={{ fontSize: '12px', color: BASE.textMuted, marginBottom: '6px' }}>{voice.desc}</div>
+      <div style={{ fontSize: '10px', color: BASE.textFaint }}>Free preview · ~15 sec</div>
       {previewing && (
         <div style={{ height: '2px', borderRadius: '2px', background: `${theme.color}25`, overflow: 'hidden' }}>
           <div style={{ height: '100%', width: '100%', background: `linear-gradient(90deg,transparent,${theme.color},transparent)`, animation: 'shimmer 1.5s linear infinite', backgroundSize: '200% auto' }} />
@@ -186,6 +187,26 @@ function AuthModal({ onClose, onSuccess }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [successMsg, setSuccessMsg] = useState('')
+
+  async function handleGoogleSignIn() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    })
+    if (error) setError(error.message)
+  }
+
+  async function handleForgotPassword() {
+    if (!email) { setError('Enter your email address first.'); return }
+    setLoading(true)
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    })
+    if (error) setError(error.message)
+    else setError(''); setSuccess(true); setSuccessMsg('Password reset email sent. Check your inbox.')
+    setLoading(false)
+  }
 
   async function handleSubmit() {
     if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
@@ -224,8 +245,8 @@ function AuthModal({ onClose, onSuccess }) {
           <div style={{ textAlign: 'center' }}>
             <div style={{ padding: '20px', borderRadius: '14px', background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.25)', marginBottom: '16px' }}>
               <div style={{ fontSize: '28px', marginBottom: '10px' }}>✦</div>
-              <p style={{ color: '#00d4ff', fontSize: '15px', fontWeight: '600', marginBottom: '6px' }}>Account created.</p>
-              <p style={{ color: BASE.textMuted, fontSize: '13px', lineHeight: 1.6 }}>Check your email to confirm your account, then sign in below.</p>
+              <p style={{ color: '#00d4ff', fontSize: '15px', fontWeight: '600', marginBottom: '6px' }}>{successMsg || 'Account created.'}</p>
+              <p style={{ color: BASE.textMuted, fontSize: '13px', lineHeight: 1.6 }}>Check your email, then sign in below.</p>
             </div>
             <button onClick={() => { setSuccess(false); setMode('signin') }} style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#050a14', fontSize: '14px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
               Sign In Now →
@@ -233,10 +254,25 @@ function AuthModal({ onClose, onSuccess }) {
           </div>
         ) : (
           <>
+            {/* Google Sign In */}
+            <button onClick={handleGoogleSignIn} style={{ width: '100%', padding: '13px', borderRadius: '12px', border: `1px solid ${BASE.border}`, background: 'rgba(255,255,255,0.04)', color: BASE.text, fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '16px' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Continue with Google
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1, height: '1px', background: BASE.border }} />
+              <span style={{ fontSize: '12px', color: BASE.textFaint }}>or</span>
+              <div style={{ flex: 1, height: '1px', background: BASE.border }} />
+            </div>
+
             {mode === 'signup' && <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={inp} />}
             <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" type="email" style={inp} />
-            <input value={password} onChange={e => setPassword(e.target.value)} placeholder="Password (min 6 characters)" type="password" style={{ ...inp, marginBottom: '8px' }}
+            <input value={password} onChange={e => setPassword(e.target.value)} placeholder="Password (min 6 characters)" type="password" style={{ ...inp, marginBottom: '4px' }}
               onKeyDown={e => e.key === 'Enter' && handleSubmit()} />
+            {mode === 'signin' && (
+              <p onClick={handleForgotPassword} style={{ fontSize: '12px', color: '#00d4ff', cursor: 'pointer', textAlign: 'right', marginBottom: '12px' }}>Forgot password?</p>
+            )}
             {error && <p style={{ color: '#ff6b6b', fontSize: '13px', marginBottom: '12px' }}>{error}</p>}
             <button onClick={handleSubmit} disabled={loading} style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#050a14', fontSize: '15px', fontWeight: '700', cursor: 'pointer', border: 'none', marginBottom: '14px', letterSpacing: '0.02em' }}>
               {loading ? 'Please wait...' : mode === 'signup' ? 'Create My Account →' : 'Sign In →'}
@@ -329,6 +365,7 @@ export default function Home({ user, profile, refreshProfile }) {
   const [error, setError] = useState('')
   const [showAuth, setShowAuth] = useState(false)
   const [showCredits, setShowCredits] = useState(false)
+  const [saveLimitHit, setSaveLimitHit] = useState(false)
   const [streak, setStreak] = useState(0)
   const [bonusCredits, setBonusCredits] = useState(0)
   const [firstName, setFirstName] = useState('')
@@ -403,6 +440,8 @@ export default function Home({ user, profile, refreshProfile }) {
       const saveData = await saveRes.json()
       if (saveData.bonusCredits > 0) setBonusCredits(saveData.bonusCredits)
       if (saveData.streak) setStreak(saveData.streak)
+      // Session limit reached is non-fatal — audio still plays, just not saved
+      if (saveRes.status === 403) setSaveLimitHit(true)
 
       clearInterval(progressRef.current)
       clearInterval(loadMsgRef.current)
@@ -450,7 +489,7 @@ export default function Home({ user, profile, refreshProfile }) {
     if (musicRef.current) { musicRef.current.pause(); musicRef.current.currentTime = 0 }
     setStep(0); setProduct(null); setGoal(''); setCustomGoal(''); setScript(''); setFirstName('')
     setPlaying(false); setTimer(0); setProgress(0); setMood(5)
-    setMoment(null); setSelectedVoice(null); setAudioUrl(null); setError(''); setBonusCredits(0); setLoadMsgIndex(0); setFirstName('')
+    setMoment(null); setSelectedVoice(null); setAudioUrl(null); setError(''); setBonusCredits(0); setLoadMsgIndex(0); setSaveLimitHit(false); setFirstName('')
   }
 
   const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -747,7 +786,7 @@ export default function Home({ user, profile, refreshProfile }) {
                   </div>
                 ))}
                 <div style={{ borderTop: `1px solid ${BASE.border}`, paddingTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '13px', color: BASE.textMuted }}>Cost</span>
+                  <span style={{ fontSize: '13px', color: BASE.textMuted }}>Cost <span style={{ fontSize: '11px', color: BASE.textFaint }}>(Reset/Hype = 1 credit · Sleep/Subliminal = 3)</span></span>
                   <span style={{ color: p.color, fontWeight: '700', fontSize: '15px' }}>✦ {product?.credits} credit{product?.credits > 1 ? 's' : ''}</span>
                 </div>
                 {profile && (
@@ -819,7 +858,7 @@ export default function Home({ user, profile, refreshProfile }) {
 
                   <div style={{ background: BASE.bgCard, border: `1px solid ${BASE.border}`, borderRadius: '16px', padding: '22px 24px', marginBottom: '14px', maxHeight: '200px', overflowY: 'auto' }}>
                     <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: p.color, marginBottom: '12px', fontWeight: '600' }}>YOUR SCRIPT</div>
-                    <div style={{ fontSize: '14px', lineHeight: '1.9', color: BASE.textMuted, whiteSpace: 'pre-wrap', fontFamily: "'Georgia',serif" }}>{script}</div>
+                    <div style={{ fontSize: '15px', lineHeight: '2', color: 'rgba(232,244,255,0.75)', whiteSpace: 'pre-wrap', fontFamily: "'Georgia',serif" }}>{script}</div>
                   </div>
 
                   <div style={{ background: BASE.bgCard, border: `1px solid ${p.color}22`, borderRadius: '14px', padding: '18px 20px', marginBottom: '12px' }}>
@@ -833,7 +872,7 @@ export default function Home({ user, profile, refreshProfile }) {
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '11px', color: BASE.textFaint, whiteSpace: 'nowrap' }}>🎵 Music</span>
+                          <span style={{ fontSize: '11px', color: BASE.textFaint, whiteSpace: 'nowrap' }}>🎵 Music volume</span>
                           <style>{`input[type=range].mv{background:linear-gradient(to right,${p.color},${p.color}33)} input[type=range].mv::-webkit-slider-thumb{background:${p.color};border:none;width:14px;height:14px}`}</style>
                           <input type="range" min="0" max="0.4" step="0.01" value={musicVolume} onChange={e => setMusicVolume(Number(e.target.value))} className="mv" style={{ flex: 1, height: '3px' }} />
                           <span style={{ fontSize: '11px', color: BASE.textFaint, whiteSpace: 'nowrap' }}>{Math.round(musicVolume * 250)}%</span>
@@ -849,12 +888,19 @@ export default function Home({ user, profile, refreshProfile }) {
                     </button>
                     {audioUrl && (
                       <a href={audioUrl} download="rewiremode-session.mp3"
-                        style={{ padding: '15px 16px', borderRadius: '12px', border: `1px solid ${p.color}44`, color: p.color, fontSize: '18px', display: 'flex', alignItems: 'center', textDecoration: 'none' }} title="Download">⬇</a>
+                        style={{ padding: '15px 16px', borderRadius: '12px', border: `1px solid ${p.color}44`, color: p.color, fontSize: '14px', display: 'flex', alignItems: 'center', textDecoration: 'none', fontWeight: '600', gap: '6px' }} title="Download audio">
+                        ⬇ <span style={{ fontSize: '11px' }}>Save</span>
+                      </a>
                     )}
-                    <button onClick={reset} style={{ padding: '15px 16px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>↩</button>
+                    <button onClick={reset} title="Start a new session" style={{ padding: '15px 16px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '12px', fontWeight: '600' }}>New session</button>
                   </div>
 
-                  <div style={{ padding: '13px 16px', borderRadius: '12px', background: BASE.bgCard, border: `1px solid ${BASE.border}`, marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {saveLimitHit && (
+                <div style={{ padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,159,67,0.08)', border: '1px solid rgba(255,159,67,0.25)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ fontSize: '13px', color: '#ff9f43' }}>⚠️ Your session played but could not be saved — you have reached your free plan limit.</div>
+                  <a href="/pricing" style={{ fontSize: '12px', color: '#ff9f43', fontWeight: '700', textDecoration: 'none', whiteSpace: 'nowrap', border: '1px solid rgba(255,159,67,0.4)', padding: '5px 10px', borderRadius: '8px' }}>Upgrade →</a>
+                </div>
+              )}
                     <div style={{ fontSize: '13px', color: BASE.textMuted }}>
                       🔥 <strong style={{ color: p.color }}>{streak} day{streak !== 1 ? 's' : ''}</strong> in Rewrite Mode
                     </div>
