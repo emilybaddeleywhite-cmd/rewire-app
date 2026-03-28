@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
 
-// ─── MUSIC TRACKS (royalty-free) ──────────────────────────────────────
+// ─── MUSIC TRACKS ─────────────────────────────────────────────────────
 const MUSIC = {
-  reset:      { url: 'https://cdn.pixabay.com/audio/2022/03/10/audio_270f5b2e39.mp3', volume: 0.18, label: 'Calm ambient' },
-  sleep:      { url: 'https://cdn.pixabay.com/audio/2022/01/18/audio_d0a13f69d2.mp3', volume: 0.15, label: 'Sleep ambient' },
-  subliminal: { url: 'https://cdn.pixabay.com/audio/2022/03/15/audio_8f6dc2a8b1.mp3', volume: 0.20, label: 'Subliminal ambient' },
-  hype:       { url: 'https://cdn.pixabay.com/audio/2022/10/16/audio_12b6b05a52.mp3', volume: 0.22, label: 'Motivational' },
+  reset:      { url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-calm.mp3.mp3',       volume: 0.18, label: 'Calm ambient' },
+  sleep:      { url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-sleep.mp3.mp3',      volume: 0.15, label: 'Sleep ambient' },
+  subliminal: { url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-subliminal.mp3.mp3', volume: 0.20, label: 'Subliminal ambient' },
+  hype:       { url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-hype.mp3.mp3',       volume: 0.22, label: 'Motivational' },
 }
 
 // ─── VOICES ───────────────────────────────────────────────────────────
