@@ -233,7 +233,7 @@ export default function Home({ user, profile, refreshProfile }) {
   const [showAuth, setShowAuth] = useState(false)
   const [streak, setStreak] = useState(0)
   const [bonusCredits, setBonusCredits] = useState(0)
-  const [musicVolume, setMusicVolume] = useState(0.18)
+  const [showCreditsModal, setShowCreditsModal] = useState(false)
   const audioRef = useRef(null)
   const musicRef = useRef(null)
   const timerRef = useRef(null)
@@ -370,7 +370,7 @@ export default function Home({ user, profile, refreshProfile }) {
             {profile && (
               <>
                 {streak > 0 && <div style={{ fontSize: '12px', color: BASE.textMuted }}>🔥 {streak} day{streak !== 1 ? 's' : ''}</div>}
-                <div style={{ fontSize: '13px', color: '#00d4ff', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)' }}>✦ {profile.credits} credits</div>
+                <div onClick={() => setShowCreditsModal(true)} style={{ fontSize: '13px', color: '#00d4ff', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)', cursor: 'pointer' }}>✦ {profile.credits} credits</div>
                 <button onClick={() => window.location.href = '/dashboard'} style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>Dashboard</button>
               </>
             )}
@@ -698,6 +698,52 @@ export default function Home({ user, profile, refreshProfile }) {
       </div>
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={() => { setShowAuth(false); if (step === 4) startGenerate() }} />}
+
+      {/* Credits Modal */}
+      {showCreditsModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,20,0.92)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
+          <div style={{ background: 'linear-gradient(145deg,#0a1628,#060e1c)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '24px', padding: '36px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 0 60px rgba(0,150,255,0.1)' }}>
+            <button onClick={() => setShowCreditsModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', color: BASE.textMuted, fontSize: '22px', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+              <div style={{ fontSize: '32px', marginBottom: '10px' }}>✦</div>
+              <h2 style={{ fontSize: '22px', color: '#00d4ff', fontWeight: '700', marginBottom: '6px' }}>Top up your credits</h2>
+              <p style={{ fontSize: '13px', color: BASE.textMuted }}>You have <strong style={{ color: '#00d4ff' }}>{profile?.credits || 0} credits</strong> remaining</p>
+            </div>
+
+            {/* Pro upsell if free */}
+            {(!profile || profile.plan === 'free') && (
+              <div style={{ padding: '18px', borderRadius: '14px', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.3)', marginBottom: '20px', textAlign: 'center' }}>
+                <div style={{ fontSize: '14px', color: '#a855f7', fontWeight: '700', marginBottom: '5px' }}>💎 Best value — Go Pro</div>
+                <div style={{ fontSize: '13px', color: BASE.textMuted, marginBottom: '14px' }}>100 credits/month for £14.99 — save 40%+</div>
+                <a href="/pricing" onClick={() => setShowCreditsModal(false)} style={{ display: 'inline-block', padding: '11px 24px', borderRadius: '10px', background: 'linear-gradient(135deg,#a855f7,#6d28d9)', color: '#fff', fontSize: '14px', fontWeight: '700', textDecoration: 'none' }}>Upgrade to Pro →</a>
+              </div>
+            )}
+
+            {/* Credit packs */}
+            <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: BASE.textMuted, marginBottom: '12px', fontWeight: '600' }}>OR BUY CREDITS</div>
+            <div style={{ display: 'grid', gap: '10px' }}>
+              {[
+                { key: 'credits_10',  label: '10 Credits', price: '£5',  per: '50p each' },
+                { key: 'credits_50',  label: '50 Credits', price: '£15', per: '30p each' },
+                { key: 'credits_100', label: '100 Credits', price: '£25', per: '25p each — best value' },
+              ].map(c => (
+                <button key={c.key} onClick={async () => {
+                  setShowCreditsModal(false)
+                  const res = await fetch('/api/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ productKey: c.key, userId: user.id, email: user.email }) })
+                  const data = await res.json()
+                  if (data.url) window.location.href = data.url
+                }} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderRadius: '12px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.04)', cursor: 'pointer', transition: 'all 0.18s ease' }}>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontSize: '14px', color: BASE.text, fontWeight: '700' }}>{c.label}</div>
+                    <div style={{ fontSize: '12px', color: BASE.textFaint }}>{c.per}</div>
+                  </div>
+                  <div style={{ fontSize: '18px', color: '#00d4ff', fontWeight: '800' }}>{c.price}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
