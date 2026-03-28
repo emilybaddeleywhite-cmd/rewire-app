@@ -234,6 +234,7 @@ export default function Home({ user, profile, refreshProfile }) {
   const [streak, setStreak] = useState(0)
   const [bonusCredits, setBonusCredits] = useState(0)
   const [showCreditsModal, setShowCreditsModal] = useState(false)
+  const [musicVolume, setMusicVolume] = useState(0.18)
   const audioRef = useRef(null)
   const musicRef = useRef(null)
   const timerRef = useRef(null)
