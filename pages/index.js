@@ -330,7 +330,7 @@ export default function Home({ user, profile, refreshProfile }) {
           <img
             src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png"
             alt="RewireMode"
-            style={{ height: '36px', objectFit: 'contain' }}
+            style={{ height: '52px', objectFit: 'contain' }}
             onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block' }}
           />
           <span style={{ display: 'none', fontSize: '16px', fontWeight: '700', letterSpacing: '0.05em', background: 'linear-gradient(135deg,#00d4ff,#00ff88)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>REWRITE MODE</span>
