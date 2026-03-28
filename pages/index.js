@@ -516,8 +516,9 @@ export default function Home({ user, profile, refreshProfile }) {
 
           {/* Hero */}
           <div style={{ textAlign: 'center', marginBottom: '44px', animation: 'fadeUp 0.8s ease both' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.06)', fontSize: '11px', letterSpacing: '0.15em', color: '#00d4ff', marginBottom: '20px', fontWeight: '600' }}>
-              ◈ THE WORLD'S FIRST AI HYPNOSIS AND SUBLIMINAL PLATFORM BUILT BY A QUALIFIED HYPNOTHERAPIST
+            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: '8px 20px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.06)', fontSize: '11px', letterSpacing: '0.15em', color: '#00d4ff', marginBottom: '20px', fontWeight: '600', textAlign: 'center' }}>
+              <span>◈ THE WORLD'S FIRST AI HYPNOSIS AND SUBLIMINAL PLATFORM ◈</span>
+              <span>BUILT BY A QUALIFIED HYPNOTHERAPIST</span>
             </div>
             <h1 style={{ fontSize: 'clamp(26px,5.5vw,44px)', fontWeight: '800', lineHeight: '1.1', letterSpacing: '-0.02em', marginBottom: '16px', background: 'linear-gradient(135deg,#ffffff 0%,#00d4ff 35%,#00ff88 65%,#a855f7 100%)', backgroundSize: '300% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 5s linear infinite' }}>
               Rewire your mind.<br />Rewrite your reality.
