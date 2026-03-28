@@ -14,15 +14,15 @@ const MUSIC = {
 const VOICES = {
   hypnosis: [
     { id: 'TKePFuDtAVp14EppI8GC', name: 'Emily',   gender: 'female', desc: 'Warm & grounding' },
-    { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel',  gender: 'female', desc: 'Soft & soothing' },
-    { id: 'AZnzlk1XvdvUeBnXmlld', name: 'Domi',    gender: 'female', desc: 'Clear & calming' },
-    { id: 'ErXwobaYiN019PkySvjV', name: 'Antoni',  gender: 'male',   desc: 'Deep & resonant' },
+    { id: 'xGDJhCwcqw94ypljc95Z', name: 'Voice 2', gender: 'female', desc: 'Calm & soothing' },
+    { id: 'KH1SQLVulwP6uG4O3nmT', name: 'Voice 3', gender: 'female', desc: 'Gentle & clear' },
+    { id: 'OOk3INdXVLRmSaQoAX9D', name: 'Voice 4', gender: 'male',   desc: 'Deep & grounding' },
   ],
   hype: [
-    { id: 'Fc5CaIGWKvLHapoOSM2K', name: 'Coach Alex', gender: 'male',   desc: 'High energy' },
-    { id: 'VR6AewLTigWG4xSOukaG', name: 'Arnold',     gender: 'male',   desc: 'Powerful & bold' },
-    { id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam',       gender: 'male',   desc: 'Authoritative' },
-    { id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli',       gender: 'female', desc: 'Fierce & fired up' },
+    { id: 'VlUmeC1Uzj3NnwiVR9K9', name: 'Coach 1', gender: 'male',   desc: 'Powerful & bold' },
+    { id: '85o4S4rAEvTIDGtpFNUq', name: 'Coach 2', gender: 'male',   desc: 'High energy' },
+    { id: '5IDurXorjffl4cXSosCI', name: 'Coach 3', gender: 'female', desc: 'Fierce & fired up' },
+    { id: 'ZF6FPAbjXT4488VcRRnw', name: 'Coach 4', gender: 'female', desc: 'Bold & commanding' },
   ],
 }
 
