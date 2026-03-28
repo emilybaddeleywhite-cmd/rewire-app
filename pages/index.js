@@ -2,28 +2,36 @@ import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
 
+// ─── MUSIC TRACKS (royalty-free) ──────────────────────────────────────
+const MUSIC = {
+  reset:      { url: 'https://cdn.pixabay.com/audio/2022/03/10/audio_270f5b2e39.mp3', volume: 0.18, label: 'Calm ambient' },
+  sleep:      { url: 'https://cdn.pixabay.com/audio/2022/01/18/audio_d0a13f69d2.mp3', volume: 0.15, label: 'Sleep ambient' },
+  subliminal: { url: 'https://cdn.pixabay.com/audio/2022/03/15/audio_8f6dc2a8b1.mp3', volume: 0.20, label: 'Subliminal ambient' },
+  hype:       { url: 'https://cdn.pixabay.com/audio/2022/10/16/audio_12b6b05a52.mp3', volume: 0.22, label: 'Motivational' },
+}
+
 // ─── VOICES ───────────────────────────────────────────────────────────
 const VOICES = {
   hypnosis: [
-    { id: 'TKePFuDtAVp14EppI8GC', name: 'Emily', gender: 'female', desc: 'Warm & grounding' },
-    { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', gender: 'female', desc: 'Soft & soothing' },
-    { id: 'AZnzlk1XvdvUeBnXmlld', name: 'Domi', gender: 'female', desc: 'Clear & calming' },
-    { id: 'ErXwobaYiN019PkySvjV', name: 'Antoni', gender: 'male', desc: 'Deep & resonant' },
+    { id: 'TKePFuDtAVp14EppI8GC', name: 'Emily',   gender: 'female', desc: 'Warm & grounding' },
+    { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel',  gender: 'female', desc: 'Soft & soothing' },
+    { id: 'AZnzlk1XvdvUeBnXmlld', name: 'Domi',    gender: 'female', desc: 'Clear & calming' },
+    { id: 'ErXwobaYiN019PkySvjV', name: 'Antoni',  gender: 'male',   desc: 'Deep & resonant' },
   ],
   hype: [
-    { id: 'Fc5CaIGWKvLHapoOSM2K', name: 'Coach Alex', gender: 'male', desc: 'High energy' },
-    { id: 'VR6AewLTigWG4xSOukaG', name: 'Arnold', gender: 'male', desc: 'Powerful & bold' },
-    { id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam', gender: 'male', desc: 'Authoritative' },
-    { id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli', gender: 'female', desc: 'Fierce & fired up' },
+    { id: 'Fc5CaIGWKvLHapoOSM2K', name: 'Coach Alex', gender: 'male',   desc: 'High energy' },
+    { id: 'VR6AewLTigWG4xSOukaG', name: 'Arnold',     gender: 'male',   desc: 'Powerful & bold' },
+    { id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam',       gender: 'male',   desc: 'Authoritative' },
+    { id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli',       gender: 'female', desc: 'Fierce & fired up' },
   ],
 }
 
 // ─── PRODUCTS ─────────────────────────────────────────────────────────
 const PRODUCTS = [
-  { id: 'reset', label: 'Reset Hypnosis', emoji: '🧠', duration: '5 min', credits: 1, desc: 'Induction · Deepener · Suggestion · Release', color: '#c8a96e' },
-  { id: 'sleep', label: 'Sleep Hypnosis', emoji: '🌙', duration: '15 min', credits: 3, desc: 'Deep sleep induction · Theta state · Subliminal layer', color: '#7b6fc7' },
-  { id: 'subliminal', label: 'Subliminal', emoji: '🌊', duration: '30 min', credits: 3, desc: 'Affirmations layered under music · Identity reprogramming', color: '#4a9eff' },
-  { id: 'hype', label: 'Hype Coach', emoji: '🔥', duration: '5 min', credits: 1, desc: 'High energy · Coach tone · Identity reinforcement', color: '#e040fb' },
+  { id: 'reset',      label: 'Reset Hypnosis', emoji: '🧠', duration: '5 min',  credits: 1, desc: 'Induction · Deepener · Suggestion · Release',             color: '#c8a96e' },
+  { id: 'sleep',      label: 'Sleep Hypnosis', emoji: '🌙', duration: '15 min', credits: 3, desc: 'Deep sleep induction · Theta state · Subliminal layer',    color: '#7b6fc7' },
+  { id: 'subliminal', label: 'Subliminal',     emoji: '🌊', duration: '30 min', credits: 3, desc: 'Affirmations layered under music · Identity reprogramming', color: '#4a9eff' },
+  { id: 'hype',       label: 'Hype Coach',     emoji: '🔥', duration: '5 min',  credits: 1, desc: 'High energy · Coach tone · Identity reinforcement',         color: '#e040fb' },
 ]
 
 const GOALS = [
@@ -34,9 +42,9 @@ const GOALS = [
 const MOMENTS = [
   { id: 'meeting', emoji: '💼', label: 'Big meeting' },
   { id: 'workout', emoji: '💪', label: 'Workout' },
-  { id: 'sales', emoji: '📞', label: 'Sales call' },
-  { id: 'convo', emoji: '😰', label: 'Difficult conversation' },
-  { id: 'launch', emoji: '🚀', label: 'Launch / presentation' },
+  { id: 'sales',   emoji: '📞', label: 'Sales call' },
+  { id: 'convo',   emoji: '😰', label: 'Difficult conversation' },
+  { id: 'launch',  emoji: '🚀', label: 'Launch / presentation' },
 ]
 
 // ─── THEMES ───────────────────────────────────────────────────────────
@@ -80,12 +88,9 @@ function AuthModal({ onClose, onSuccess }) {
   async function handleSubmit() {
     setLoading(true); setError('')
     if (mode === 'signup') {
-      const { error } = await supabase.auth.signUp({
-        email, password,
-        options: { data: { name } }
-      })
+      const { error } = await supabase.auth.signUp({ email, password, options: { data: { name } } })
       if (error) setError(error.message)
-      else { setMessage('Check your email to confirm your account!') }
+      else setMessage('Account created! You can now sign in.')
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(error.message)
@@ -96,7 +101,7 @@ function AuthModal({ onClose, onSuccess }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div style={{ background: '#0d0a06', border: '1px solid rgba(200,169,110,0.2)', borderRadius: '20px', padding: '36px', width: '100%', maxWidth: '420px' }}>
+      <div style={{ background: '#0d0a06', border: '1px solid rgba(200,169,110,0.2)', borderRadius: '20px', padding: '36px', width: '100%', maxWidth: '420px', position: 'relative' }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ fontSize: '28px', marginBottom: '8px' }}>✦</div>
           <h2 style={{ fontSize: '22px', color: '#f0d89a', fontFamily: 'Georgia,serif', fontWeight: '400', marginBottom: '6px' }}>
@@ -104,9 +109,11 @@ function AuthModal({ onClose, onSuccess }) {
           </h2>
           {mode === 'signup' && <p style={{ fontSize: '13px', color: 'rgba(232,220,200,0.45)' }}>Start with 5 free credits — no card needed</p>}
         </div>
-
         {message ? (
-          <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(200,169,110,0.1)', border: '1px solid rgba(200,169,110,0.3)', textAlign: 'center', color: '#f0d89a', fontSize: '14px' }}>{message}</div>
+          <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(200,169,110,0.1)', border: '1px solid rgba(200,169,110,0.3)', textAlign: 'center', color: '#f0d89a', fontSize: '14px', marginBottom: '14px' }}>
+            {message}<br /><br />
+            <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setMode('signin')}>Sign in now →</span>
+          </div>
         ) : (
           <>
             {mode === 'signup' && (
@@ -116,12 +123,13 @@ function AuthModal({ onClose, onSuccess }) {
             <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" type="email"
               style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid rgba(200,169,110,0.2)', background: 'rgba(255,255,255,0.03)', color: '#e8dcc8', fontSize: '14px', marginBottom: '12px', fontFamily: 'Georgia,serif', outline: 'none' }} />
             <input value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" type="password"
-              style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid rgba(200,169,110,0.2)', background: 'rgba(255,255,255,0.03)', color: '#e8dcc8', fontSize: '14px', marginBottom: '8px', fontFamily: 'Georgia,serif', outline: 'none' }} />
+              style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid rgba(200,169,110,0.2)', background: 'rgba(255,255,255,0.03)', color: '#e8dcc8', fontSize: '14px', marginBottom: '8px', fontFamily: 'Georgia,serif', outline: 'none' }}
+              onKeyDown={e => e.key === 'Enter' && handleSubmit()} />
             {error && <p style={{ color: '#ff8a80', fontSize: '13px', marginBottom: '12px' }}>{error}</p>}
             <button onClick={handleSubmit} disabled={loading} style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'linear-gradient(135deg,#c8a96e,#9a7040)', color: '#0d0a06', fontSize: '15px', fontWeight: '700', cursor: 'pointer', border: 'none', fontFamily: 'Georgia,serif', marginBottom: '14px' }}>
               {loading ? 'Please wait...' : mode === 'signup' ? 'Start Rewriting →' : 'Sign In →'}
             </button>
-            <p style={{ textAlign: 'center', fontSize: '13px', color: 'rgba(232,220,200,0.4)', cursor: 'pointer' }} onClick={() => setMode(mode === 'signup' ? 'signin' : 'signup')}>
+            <p style={{ textAlign: 'center', fontSize: '13px', color: 'rgba(232,220,200,0.4)', cursor: 'pointer' }} onClick={() => { setMode(mode === 'signup' ? 'signin' : 'signup'); setError('') }}>
               {mode === 'signup' ? 'Already have an account? Sign in' : "Don't have an account? Sign up free"}
             </p>
           </>
@@ -151,15 +159,26 @@ export default function Home({ user, profile, refreshProfile }) {
   const [showAuth, setShowAuth] = useState(false)
   const [streak, setStreak] = useState(0)
   const [bonusCredits, setBonusCredits] = useState(0)
+  const [musicVolume, setMusicVolume] = useState(0.18)
   const audioRef = useRef(null)
+  const musicRef = useRef(null)
   const timerRef = useRef(null)
 
   useEffect(() => { if (profile) setStreak(profile.streak_count || 0) }, [profile])
+
+  useEffect(() => {
+    if (product?.id) setMusicVolume(MUSIC[product.id]?.volume || 0.18)
+  }, [product])
+
+  useEffect(() => {
+    if (musicRef.current) musicRef.current.volume = musicVolume
+  }, [musicVolume])
 
   const theme = getTheme(product?.id)
   const isHype = product?.id === 'hype'
   const activeGoal = goal === 'custom' ? customGoal : goal
   const voices = VOICES[isHype ? 'hype' : 'hypnosis']
+  const currentMusic = product ? MUSIC[product.id] : null
 
   const moodEmoji = mood <= 2 ? '😔' : mood <= 4 ? '😕' : mood <= 6 ? '😐' : mood <= 8 ? '🙂' : '😄'
   const moodLabel = mood <= 2 ? 'Really struggling' : mood <= 4 ? 'Not great' : mood <= 6 ? 'Getting there' : mood <= 8 ? 'Pretty good' : 'Feeling amazing'
@@ -169,13 +188,10 @@ export default function Home({ user, profile, refreshProfile }) {
     if (!profile || profile.credits < (product?.credits || 1)) {
       setError('Not enough credits. Please top up to continue.'); return
     }
-
     setStep(5); setProgress(0); setError(''); setAudioUrl(null)
-
     try {
       setLoadMsg(isHype ? 'Building your battle speech... 💪' : 'Crafting your script...')
       setProgress(15)
-
       const scriptRes = await fetch('/api/generate-script', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -185,10 +201,8 @@ export default function Home({ user, profile, refreshProfile }) {
       if (!scriptRes.ok) throw new Error(scriptData.error)
       setScript(scriptData.script)
       setProgress(55)
-
       setLoadMsg(isHype ? 'Generating your coach audio... 🔥' : 'Generating your audio...')
       setProgress(65)
-
       const audioRes = await fetch('/api/generate-audio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -199,8 +213,6 @@ export default function Home({ user, profile, refreshProfile }) {
       const url = URL.createObjectURL(blob)
       setAudioUrl(url)
       setProgress(90)
-
-      // Save session
       const saveRes = await fetch('/api/save-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -220,16 +232,44 @@ export default function Home({ user, profile, refreshProfile }) {
 
   function togglePlay() {
     if (!audioRef.current) return
-    if (!playing) { audioRef.current.play(); setPlaying(true); timerRef.current = setInterval(() => setTimer(t => t + 1), 1000) }
-    else { audioRef.current.pause(); setPlaying(false); clearInterval(timerRef.current) }
+    if (!playing) {
+      audioRef.current.play()
+      if (musicRef.current) {
+        musicRef.current.volume = musicVolume
+        musicRef.current.loop = true
+        musicRef.current.play().catch(() => {})
+      }
+      setPlaying(true)
+      timerRef.current = setInterval(() => setTimer(t => t + 1), 1000)
+    } else {
+      audioRef.current.pause()
+      if (musicRef.current) musicRef.current.pause()
+      setPlaying(false)
+      clearInterval(timerRef.current)
+    }
+  }
+
+  function handleAudioEnd() {
+    if (musicRef.current) {
+      const startVol = musicRef.current.volume
+      let vol = startVol
+      const fadeOut = setInterval(() => {
+        vol = Math.max(0, vol - 0.02)
+        if (musicRef.current) musicRef.current.volume = vol
+        if (vol <= 0) { clearInterval(fadeOut); if (musicRef.current) musicRef.current.pause() }
+      }, 150)
+    }
+    setPlaying(false)
+    clearInterval(timerRef.current)
   }
 
   function reset() {
     clearInterval(timerRef.current)
     if (audioRef.current) audioRef.current.pause()
+    if (musicRef.current) { musicRef.current.pause(); musicRef.current.currentTime = 0 }
     setStep(0); setProduct(null); setGoal(''); setCustomGoal(''); setScript('')
-    setPlaying(false); setTimer(0); setProgress(0); setMood(5); setMoment(null)
-    setSelectedVoice(null); setAudioUrl(null); setError(''); setBonusCredits(0)
+    setPlaying(false); setTimer(0); setProgress(0); setMood(5)
+    setMoment(null); setSelectedVoice(null); setAudioUrl(null); setError(''); setBonusCredits(0)
   }
 
   const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -253,13 +293,16 @@ export default function Home({ user, profile, refreshProfile }) {
           @keyframes hypePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
           button{cursor:pointer;border:none;background:none;font-family:inherit}
           input,textarea{font-family:inherit;outline:none}
-          textarea:focus,input:focus{outline:none}
           input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:6px;cursor:pointer}
           input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;cursor:pointer}
           ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(200,169,110,0.25);border-radius:4px}
         `}</style>
 
-        {/* BG orbs */}
+        {/* Hidden audio elements */}
+        {audioUrl && <audio ref={audioRef} src={audioUrl} onEnded={handleAudioEnd} />}
+        {currentMusic && <audio ref={musicRef} src={currentMusic.url} loop preload="auto" />}
+
+        {/* BG */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
           <div style={{ position: 'absolute', top: '-25%', left: '-15%', width: '650px', height: '650px', borderRadius: '50%', background: `radial-gradient(circle,${theme.orb1} 0%,transparent 65%)`, filter: 'blur(70px)', animation: 'pulseOrb 7s ease-in-out infinite' }} />
           <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '550px', height: '550px', borderRadius: '50%', background: `radial-gradient(circle,${theme.orb2} 0%,transparent 65%)`, filter: 'blur(60px)', animation: 'pulseOrb 9s ease-in-out infinite 2s' }} />
@@ -286,9 +329,7 @@ export default function Home({ user, profile, refreshProfile }) {
 
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '40px', animation: 'fadeUp 0.8s ease both' }}>
-            <div style={{ fontSize: '10px', letterSpacing: '0.28em', color: theme.accent, marginBottom: '14px', fontFamily: 'monospace', opacity: 0.8 }}>
-              ✦  SUBCONSCIOUS REPROGRAMMING  ✦
-            </div>
+            <div style={{ fontSize: '10px', letterSpacing: '0.28em', color: theme.accent, marginBottom: '14px', fontFamily: 'monospace', opacity: 0.8 }}>✦  SUBCONSCIOUS REPROGRAMMING  ✦</div>
             <h1 style={{ fontSize: 'clamp(28px,6vw,48px)', fontWeight: '400', lineHeight: '1.13', letterSpacing: '-0.022em', marginBottom: '14px', background: `linear-gradient(135deg,#f5e4b0 0%,${theme.accent} 45%,#e8dcc8 75%,#f5e4b0 100%)`, backgroundSize: '300% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 4s linear infinite' }}>
               Rewire your mind.<br />Rewrite your reality.
             </h1>
@@ -311,54 +352,51 @@ export default function Home({ user, profile, refreshProfile }) {
             </div>
           )}
 
-          {/* ── STEP 0: PRODUCT SELECT ── */}
+          {/* STEP 0 */}
           {step === 0 && (
             <div style={{ animation: 'fadeUp 0.55s ease both' }}>
-              <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: theme.accent, marginBottom: '16px', fontFamily: 'monospace' }}>WHAT ARE YOU READY TO REWRITE?</div>
-
-              {/* Goals */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '24px' }}>
-                {GOALS.map(g => (
-                  <button key={g} onClick={() => setGoal(g)} style={{ padding: '10px 8px', borderRadius: '10px', fontSize: '13px', border: `1px solid ${goal === g ? theme.accent + '99' : 'rgba(255,255,255,0.08)'}`, background: goal === g ? theme.accent + '15' : 'rgba(255,255,255,0.02)', color: goal === g ? theme.accent : 'rgba(232,220,200,0.5)', transition: 'all 0.18s ease' }}>{g}</button>
-                ))}
+              <div style={{ marginBottom: '22px' }}>
+                <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: theme.accent, marginBottom: '16px', fontFamily: 'monospace' }}>WHAT ARE YOU READY TO REWRITE?</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                  {GOALS.map(g => (
+                    <button key={g} onClick={() => setGoal(g)} style={{ padding: '10px 8px', borderRadius: '10px', fontSize: '13px', border: `1px solid ${goal === g ? theme.accent + '99' : 'rgba(255,255,255,0.08)'}`, background: goal === g ? theme.accent + '15' : 'rgba(255,255,255,0.02)', color: goal === g ? theme.accent : 'rgba(232,220,200,0.5)', transition: 'all 0.18s ease' }}>{g}</button>
+                  ))}
+                </div>
+                <button onClick={() => setGoal('custom')} style={{ width: '100%', padding: '12px', borderRadius: '10px', textAlign: 'left', border: `1px solid ${goal === 'custom' ? theme.accent + '99' : 'rgba(255,255,255,0.08)'}`, background: 'rgba(255,255,255,0.02)', color: 'rgba(232,220,200,0.4)', fontSize: '13px', marginBottom: '8px' }}>
+                  ✍️  Something else — enter your intention...
+                </button>
+                {goal === 'custom' && (
+                  <textarea autoFocus value={customGoal} onChange={e => setCustomGoal(e.target.value)} placeholder="Describe what you want to rewrite..."
+                    style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `1px solid ${theme.accent}44`, background: 'rgba(255,255,255,0.03)', color: '#e8dcc8', fontSize: '14px', lineHeight: '1.65', resize: 'vertical', minHeight: '80px', marginBottom: '8px' }} />
+                )}
               </div>
 
-              <button onClick={() => setGoal('custom')} style={{ width: '100%', padding: '12px', borderRadius: '10px', textAlign: 'left', border: `1px solid ${goal === 'custom' ? theme.accent + '99' : 'rgba(255,255,255,0.08)'}`, background: 'rgba(255,255,255,0.02)', color: 'rgba(232,220,200,0.4)', fontSize: '13px', marginBottom: '8px' }}>
-                ✍️  Something else — enter your intention...
-              </button>
-              {goal === 'custom' && (
-                <textarea autoFocus value={customGoal} onChange={e => setCustomGoal(e.target.value)} placeholder="Describe what you want to rewrite..."
-                  style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `1px solid ${theme.accent}44`, background: 'rgba(255,255,255,0.03)', color: '#e8dcc8', fontSize: '14px', lineHeight: '1.65', resize: 'vertical', minHeight: '80px', marginBottom: '8px' }} />
-              )}
-
-              {/* Products */}
-              <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: theme.accent, marginBottom: '14px', marginTop: '8px', fontFamily: 'monospace' }}>CHOOSE YOUR SESSION TYPE</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '24px' }}>
-                {PRODUCTS.map(p => (
-                  <button key={p.id} onClick={() => setProduct(p)} style={{ padding: '18px 16px', borderRadius: '14px', textAlign: 'left', border: `1px solid ${product?.id === p.id ? p.color + '99' : 'rgba(255,255,255,0.08)'}`, background: product?.id === p.id ? p.color + '12' : 'rgba(255,255,255,0.02)', transition: 'all 0.18s ease' }}>
-                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>{p.emoji}</div>
-                    <div style={{ fontSize: '14px', color: product?.id === p.id ? p.color : '#e8dcc8', fontWeight: '600', marginBottom: '3px' }}>{p.label}</div>
-                    <div style={{ fontSize: '11px', color: 'rgba(232,220,200,0.4)', marginBottom: '6px', lineHeight: 1.4 }}>{p.desc}</div>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(232,220,200,0.35)' }}>{p.duration}</span>
-                      <span style={{ fontSize: '11px', color: p.color, background: p.color + '18', padding: '2px 8px', borderRadius: '100px' }}>✦ {p.credits} credit{p.credits > 1 ? 's' : ''}</span>
-                    </div>
-                  </button>
-                ))}
+              <div style={{ marginBottom: '28px' }}>
+                <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: theme.accent, marginBottom: '14px', fontFamily: 'monospace' }}>CHOOSE YOUR SESSION TYPE</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  {PRODUCTS.map(p => (
+                    <button key={p.id} onClick={() => setProduct(p)} style={{ padding: '18px 16px', borderRadius: '14px', textAlign: 'left', border: `1px solid ${product?.id === p.id ? p.color + '99' : 'rgba(255,255,255,0.08)'}`, background: product?.id === p.id ? p.color + '12' : 'rgba(255,255,255,0.02)', transition: 'all 0.18s ease' }}>
+                      <div style={{ fontSize: '24px', marginBottom: '8px' }}>{p.emoji}</div>
+                      <div style={{ fontSize: '14px', color: product?.id === p.id ? p.color : '#e8dcc8', fontWeight: '600', marginBottom: '3px' }}>{p.label}</div>
+                      <div style={{ fontSize: '11px', color: 'rgba(232,220,200,0.4)', marginBottom: '6px', lineHeight: 1.4 }}>{p.desc}</div>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '11px', color: 'rgba(232,220,200,0.35)' }}>{p.duration}</span>
+                        <span style={{ fontSize: '11px', color: p.color, background: p.color + '18', padding: '2px 8px', borderRadius: '100px' }}>✦ {p.credits} credit{p.credits > 1 ? 's' : ''}</span>
+                        <span style={{ fontSize: '10px', color: 'rgba(232,220,200,0.25)' }}>🎵 {MUSIC[p.id]?.label}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <button onClick={() => activeGoal.trim() && product && setStep(1)} disabled={!activeGoal.trim() || !product} style={{ width: '100%', padding: '17px', borderRadius: '13px', background: activeGoal.trim() && product ? theme.grad : 'rgba(255,255,255,0.04)', color: activeGoal.trim() && product ? (isHype ? '#fff' : '#0d0a06') : 'rgba(232,220,200,0.2)', fontSize: '15px', fontWeight: '700', transition: 'all 0.25s ease' }}>
+              <button onClick={() => activeGoal.trim() && product && setStep(1)} disabled={!activeGoal.trim() || !product} style={{ width: '100%', padding: '17px', borderRadius: '13px', background: activeGoal.trim() && product ? theme.grad : 'rgba(255,255,255,0.04)', color: activeGoal.trim() && product ? (isHype ? '#fff' : '#0d0a06') : 'rgba(232,220,200,0.2)', fontSize: '15px', fontWeight: '700', transition: 'all 0.25s ease', marginBottom: '12px' }}>
                 {activeGoal.trim() && product ? 'Next →' : 'Select your intention and session type'}
               </button>
-
-              {/* Science line */}
-              <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '12px', color: 'rgba(232,220,200,0.25)', lineHeight: 1.6 }}>
-                Based on neuroplasticity — repetition strengthens neural pathways
-              </p>
+              <p style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(232,220,200,0.2)', lineHeight: 1.6 }}>Based on neuroplasticity — repetition strengthens neural pathways</p>
             </div>
           )}
 
-          {/* ── STEP 1: MOOD ── */}
+          {/* STEP 1: MOOD */}
           {step === 1 && (
             <div style={{ animation: 'fadeUp 0.5s ease both' }}>
               <div style={{ textAlign: 'center', marginBottom: '28px' }}>
@@ -383,7 +421,7 @@ export default function Home({ user, profile, refreshProfile }) {
             </div>
           )}
 
-          {/* ── STEP 2: MOMENT (HYPE ONLY) ── */}
+          {/* STEP 2: MOMENT (HYPE) */}
           {step === 2 && (
             <div style={{ animation: 'fadeUp 0.5s ease both' }}>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -401,17 +439,17 @@ export default function Home({ user, profile, refreshProfile }) {
                   <div style={{ fontSize: '24px', marginBottom: '7px' }}>✨</div>Just hype me up
                 </button>
               </div>
-              {moment && <button onClick={() => setStep(3)} style={{ width: '100%', padding: '15px', borderRadius: '12px', background: theme.grad, color: '#fff', fontSize: '15px', fontWeight: '800', marginBottom: '10px', animation: 'hypePulse 1.8s ease-in-out infinite' }}>Next →</button>}
+              {moment && <button onClick={() => setStep(3)} style={{ width: '100%', padding: '15px', borderRadius: '12px', background: theme.grad, color: '#fff', fontSize: '15px', fontWeight: '800', marginBottom: '10px' }}>Next →</button>}
               <button onClick={() => setStep(1)} style={{ width: '100%', padding: '13px', borderRadius: '12px', border: `1px solid ${theme.accent}22`, color: 'rgba(232,220,200,0.4)', fontSize: '14px' }}>← Back</button>
             </div>
           )}
 
-          {/* ── STEP 3: VOICE SELECT ── */}
+          {/* STEP 3: VOICE */}
           {step === 3 && (
             <div style={{ animation: 'fadeUp 0.5s ease both' }}>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: theme.accent, marginBottom: '12px', fontFamily: 'monospace' }}>CHOOSE YOUR VOICE</div>
-                <p style={{ fontSize: '13px', color: 'rgba(232,220,200,0.42)' }}>This voice will guide your session.</p>
+                <p style={{ fontSize: '13px', color: 'rgba(232,220,200,0.42)' }}>This voice will guide your entire session.</p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
                 {voices.map(v => (
@@ -429,36 +467,37 @@ export default function Home({ user, profile, refreshProfile }) {
             </div>
           )}
 
-          {/* ── STEP 4: CONFIRM + GENERATE ── */}
+          {/* STEP 4: CONFIRM */}
           {step === 4 && (
             <div style={{ animation: 'fadeUp 0.5s ease both' }}>
               <div style={{ textAlign: 'center', marginBottom: '28px' }}>
                 <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: theme.accent, marginBottom: '12px', fontFamily: 'monospace' }}>YOUR SESSION</div>
               </div>
               <div style={{ padding: '24px', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${theme.accent}22`, marginBottom: '20px' }}>
-                <div style={{ display: 'grid', gap: '12px' }}>
-                  {[
-                    ['Intention', activeGoal],
-                    ['Session', `${product?.emoji} ${product?.label}`],
-                    ['Duration', product?.duration],
-                    ['Voice', selectedVoice?.name],
-                    ['Mood', `${mood}/10`],
-                    moment && ['Moment', MOMENTS.find(m => m.id === moment)?.label],
-                  ].filter(Boolean).map(([k, v]) => (
-                    <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-                      <span style={{ color: 'rgba(232,220,200,0.4)' }}>{k}</span>
-                      <span style={{ color: '#e8dcc8' }}>{v}</span>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px solid ${theme.accent}22`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {[
+                  ['Intention', activeGoal],
+                  ['Session', `${product?.emoji} ${product?.label}`],
+                  ['Duration', product?.duration],
+                  ['Voice', selectedVoice?.name],
+                  ['Music', currentMusic?.label],
+                  ['Mood', `${mood}/10`],
+                  moment && ['Moment', MOMENTS.find(m => m.id === moment)?.label],
+                ].filter(Boolean).map(([k, v]) => (
+                  <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '12px' }}>
+                    <span style={{ color: 'rgba(232,220,200,0.4)' }}>{k}</span>
+                    <span style={{ color: '#e8dcc8' }}>{v}</span>
+                  </div>
+                ))}
+                <div style={{ borderTop: `1px solid ${theme.accent}22`, paddingTop: '12px', display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: '13px', color: 'rgba(232,220,200,0.4)' }}>Cost</span>
                   <span style={{ color: theme.accent, fontWeight: '600' }}>✦ {product?.credits} credit{product?.credits > 1 ? 's' : ''}</span>
                 </div>
-                {profile && <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '13px', color: 'rgba(232,220,200,0.4)' }}>Your balance</span>
-                  <span style={{ fontSize: '13px', color: 'rgba(232,220,200,0.6)' }}>✦ {profile.credits} credits</span>
-                </div>}
+                {profile && (
+                  <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '13px', color: 'rgba(232,220,200,0.4)' }}>Your balance</span>
+                    <span style={{ fontSize: '13px', color: 'rgba(232,220,200,0.6)' }}>✦ {profile.credits} credits</span>
+                  </div>
+                )}
               </div>
               {error && <p style={{ color: '#ff8a80', fontSize: '13px', marginBottom: '12px', textAlign: 'center' }}>{error}</p>}
               <div style={{ display: 'flex', gap: '10px' }}>
@@ -470,7 +509,7 @@ export default function Home({ user, profile, refreshProfile }) {
             </div>
           )}
 
-          {/* ── STEP 5: LOADING ── */}
+          {/* STEP 5: LOADING */}
           {step === 5 && (
             <div style={{ animation: 'fadeUp 0.5s ease both', textAlign: 'center', padding: '20px 0' }}>
               {isHype
@@ -492,15 +531,14 @@ export default function Home({ user, profile, refreshProfile }) {
             </div>
           )}
 
-          {/* ── STEP 6: RESULT ── */}
+          {/* STEP 6: RESULT */}
           {step === 6 && (
             <div style={{ animation: 'fadeUp 0.6s ease both' }}>
               {bonusCredits > 0 && (
                 <div style={{ padding: '14px', borderRadius: '12px', marginBottom: '16px', background: `${theme.accent}18`, border: `1px solid ${theme.accent}44`, textAlign: 'center', fontSize: '14px', color: theme.accent }}>
-                  🎉 Streak bonus! +{bonusCredits} credits added — {streak} day streak!
+                  🎉 Streak bonus! +{bonusCredits} credits — {streak} day streak!
                 </div>
               )}
-
               {error ? (
                 <div style={{ padding: '20px', borderRadius: '14px', background: 'rgba(255,60,60,0.08)', border: '1px solid rgba(255,60,60,0.2)', marginBottom: '16px', textAlign: 'center' }}>
                   <div style={{ fontSize: '24px', marginBottom: '8px' }}>⚠️</div>
@@ -511,11 +549,9 @@ export default function Home({ user, profile, refreshProfile }) {
                 <>
                   <div style={{ textAlign: 'center', marginBottom: '22px' }}>
                     <div style={{ fontSize: '32px', marginBottom: '10px' }}>{product?.emoji}</div>
-                    <div style={{ fontSize: '19px', color: theme.accent, fontWeight: isHype ? '800' : '400', marginBottom: '5px' }}>
-                      Your {product?.label} is ready
-                    </div>
+                    <div style={{ fontSize: '19px', color: theme.accent, fontWeight: isHype ? '800' : '400', marginBottom: '5px' }}>Your {product?.label} is ready</div>
                     <div style={{ fontSize: '12px', color: 'rgba(232,220,200,0.35)' }}>
-                      {selectedVoice?.name} · Mood {mood}/10 · {product?.duration}
+                      {selectedVoice?.name} · {currentMusic?.label} · Mood {mood}/10
                     </div>
                   </div>
 
@@ -524,17 +560,23 @@ export default function Home({ user, profile, refreshProfile }) {
                     <div style={{ fontFamily: "'Georgia',serif", fontSize: '14px', lineHeight: '1.9', color: '#e8dcc8', whiteSpace: 'pre-wrap' }}>{script}</div>
                   </div>
 
-                  {audioUrl && <audio ref={audioRef} src={audioUrl} onEnded={() => { setPlaying(false); clearInterval(timerRef.current) }} />}
-
                   <div style={{ background: 'rgba(255,255,255,0.022)', border: `1px solid ${theme.accent}18`, borderRadius: '13px', padding: '16px 20px', marginBottom: '12px' }}>
                     <Waveform active={playing} theme={theme} />
                     {playing && (
-                      <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                        <div style={{ fontSize: '12px', color: theme.accent + 'bb', fontFamily: 'monospace', marginBottom: '3px' }}>{fmt(timer)} — Session in progress</div>
-                        <div style={{ fontSize: '11px', color: 'rgba(232,220,200,0.28)', fontStyle: 'italic' }}>
-                          {isHype ? 'Feel it. Believe it. OWN it.' : 'Close your eyes. Breathe slowly. Let the words reach you.'}
+                      <>
+                        <div style={{ textAlign: 'center', marginTop: '10px', marginBottom: '12px' }}>
+                          <div style={{ fontSize: '12px', color: theme.accent + 'bb', fontFamily: 'monospace', marginBottom: '3px' }}>{fmt(timer)} — {isHype ? 'Coach session 💪' : 'Session in progress'}</div>
+                          <div style={{ fontSize: '11px', color: 'rgba(232,220,200,0.28)', fontStyle: 'italic' }}>
+                            {isHype ? 'Feel it. Believe it. OWN it.' : 'Close your eyes. Breathe slowly. Let the words reach you.'}
+                          </div>
                         </div>
-                      </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '11px', color: 'rgba(232,220,200,0.3)', whiteSpace: 'nowrap' }}>🎵 Music</span>
+                          <style>{`input[type=range].mv{background:linear-gradient(to right,${theme.accent},${theme.accent}44)} input[type=range].mv::-webkit-slider-thumb{background:${theme.accent};border:none;width:14px;height:14px}`}</style>
+                          <input type="range" min="0" max="0.4" step="0.01" value={musicVolume} onChange={e => setMusicVolume(Number(e.target.value))} className="mv" style={{ flex: 1, height: '3px' }} />
+                          <span style={{ fontSize: '11px', color: 'rgba(232,220,200,0.3)', whiteSpace: 'nowrap' }}>{Math.round(musicVolume * 250)}%</span>
+                        </div>
+                      </>
                     )}
                   </div>
 
@@ -543,12 +585,11 @@ export default function Home({ user, profile, refreshProfile }) {
                       {playing ? '⏸ Pause' : (isHype ? '🔥 PLAY AUDIO' : '▶ Play Audio')}
                     </button>
                     {audioUrl && (
-                      <a href={audioUrl} download="rewrite-session.mp3" style={{ padding: '15px 16px', borderRadius: '12px', border: `1px solid ${theme.accent}44`, color: theme.accent, fontSize: '18px', display: 'flex', alignItems: 'center', textDecoration: 'none' }} title="Download">⬇</a>
+                      <a href={audioUrl} download="rewrite-session.mp3" style={{ padding: '15px 16px', borderRadius: '12px', border: `1px solid ${theme.accent}44`, color: theme.accent, fontSize: '18px', display: 'flex', alignItems: 'center', textDecoration: 'none' }} title="Download voice audio">⬇</a>
                     )}
                     <button onClick={reset} style={{ padding: '15px 16px', borderRadius: '12px', border: `1px solid ${theme.accent}22`, color: 'rgba(232,220,200,0.4)', fontSize: '14px' }}>↩</button>
                   </div>
 
-                  {/* Streak + credits */}
                   <div style={{ padding: '13px 16px', borderRadius: '11px', background: 'rgba(255,255,255,0.025)', border: `1px solid ${theme.accent}18`, marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ fontSize: '13px', color: 'rgba(232,220,200,0.5)' }}>
                       🔥 <strong style={{ color: theme.accent }}>{streak} day{streak !== 1 ? 's' : ''}</strong> in Rewrite Mode
@@ -556,7 +597,6 @@ export default function Home({ user, profile, refreshProfile }) {
                     {profile && <div style={{ fontSize: '13px', color: theme.accent }}>✦ {profile.credits} credits left</div>}
                   </div>
 
-                  {/* Upsell */}
                   {(!profile || profile.plan === 'free') && (
                     <div style={{ padding: '16px 18px', borderRadius: '12px', border: `1px solid ${theme.accent}22`, background: `${theme.accent}05`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
                       <div>
@@ -579,7 +619,7 @@ export default function Home({ user, profile, refreshProfile }) {
         </div>
       </div>
 
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={() => { setShowAuth(false); setStep(4) }} />}
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={() => { setShowAuth(false); if (step === 4) startGenerate() }} />}
     </>
   )
 }
