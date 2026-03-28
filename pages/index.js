@@ -13,16 +13,16 @@ const MUSIC = {
 // ─── VOICES ───────────────────────────────────────────────────────────
 const VOICES = {
   hypnosis: [
-    { id: 'TKePFuDtAVp14EppI8GC', name: 'Emily',   gender: 'female', desc: 'Warm & grounding' },
-    { id: 'xGDJhCwcqw94ypljc95Z', name: 'Voice 2', gender: 'female', desc: 'Calm & soothing' },
-    { id: 'KH1SQLVulwP6uG4O3nmT', name: 'Voice 3', gender: 'female', desc: 'Gentle & clear' },
-    { id: 'OOk3INdXVLRmSaQoAX9D', name: 'Voice 4', gender: 'male',   desc: 'Deep & grounding' },
+    { id: 'TKePFuDtAVp14EppI8GC', name: 'Emily',  gender: 'female', desc: 'Warm & grounding',   preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Emily_Sample.mp3' },
+    { id: 'xGDJhCwcqw94ypljc95Z', name: 'Callum', gender: 'male',   desc: 'Calm & measured',    preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice2_Sample.mp3' },
+    { id: 'KH1SQLVulwP6uG4O3nmT', name: 'River',  gender: 'male',   desc: 'Deep & soothing',    preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice3_Sample.mp3' },
+    { id: 'OOk3INdXVLRmSaQoAX9D', name: 'Serena', gender: 'female', desc: 'Soft & serene',       preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice4_Sample.mp3' },
   ],
   hype: [
-    { id: 'VlUmeC1Uzj3NnwiVR9K9', name: 'Coach 1', gender: 'male',   desc: 'Powerful & bold' },
-    { id: '85o4S4rAEvTIDGtpFNUq', name: 'Coach 2', gender: 'male',   desc: 'High energy' },
-    { id: '5IDurXorjffl4cXSosCI', name: 'Coach 3', gender: 'female', desc: 'Fierce & fired up' },
-    { id: 'ZF6FPAbjXT4488VcRRnw', name: 'Coach 4', gender: 'female', desc: 'Bold & commanding' },
+    { id: 'VlUmeC1Uzj3NnwiVR9K9', name: 'Ace',   gender: 'male',   desc: 'Sharp & direct',      preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Coach1_Sample.mp3' },
+    { id: '85o4S4rAEvTIDGtpFNUq', name: 'Blaze', gender: 'male',   desc: 'Bold & high energy',  preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Coach2_Sample.mp3' },
+    { id: '5IDurXorjffl4cXSosCI', name: 'Nova',  gender: 'female', desc: 'Fierce & powerful',   preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Coach3_Sample.mp3' },
+    { id: 'ZF6FPAbjXT4488VcRRnw', name: 'Storm', gender: 'female', desc: 'Commanding & fierce',  preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Coach4_Sample.mp3' },
   ],
 }
 
@@ -172,6 +172,44 @@ function AuthModal({ onClose, onSuccess }) {
         )}
         <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: BASE.textMuted, fontSize: '22px', cursor: 'pointer' }}>×</button>
       </div>
+    </div>
+  )
+}
+
+// ─── VOICE CARD WITH PREVIEW ──────────────────────────────────────────
+function VoiceCard({ voice, selected, onSelect, theme }) {
+  const audioRef = useRef(null)
+  const [previewing, setPreviewing] = useState(false)
+
+  function togglePreview(e) {
+    e.stopPropagation()
+    if (!audioRef.current) return
+    if (previewing) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      setPreviewing(false)
+    } else {
+      audioRef.current.play()
+      setPreviewing(true)
+    }
+  }
+
+  return (
+    <div onClick={onSelect} style={{ padding: '18px 16px', borderRadius: '14px', textAlign: 'left', border: `1px solid ${selected ? theme.color + 'aa' : BASE.border}`, background: selected ? theme.color + '0e' : BASE.bgCard, transition: 'all 0.2s ease', boxShadow: selected ? `0 0 20px ${theme.glow}` : 'none', cursor: 'pointer' }}>
+      <audio ref={audioRef} src={voice.preview} onEnded={() => setPreviewing(false)} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        <div style={{ fontSize: '22px' }}>{voice.gender === 'female' ? '👩' : '👨'}</div>
+        <button onClick={togglePreview} style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: '700', border: `1px solid ${theme.color}55`, background: previewing ? theme.color + '25' : 'transparent', color: theme.color, cursor: 'pointer', letterSpacing: '0.03em' }}>
+          {previewing ? '⏹ Stop' : '▶ Preview'}
+        </button>
+      </div>
+      <div style={{ fontSize: '15px', color: selected ? theme.color : BASE.text, fontWeight: '700', marginBottom: '3px' }}>{voice.name}</div>
+      <div style={{ fontSize: '12px', color: BASE.textMuted, marginBottom: previewing ? '10px' : '0' }}>{voice.desc}</div>
+      {previewing && (
+        <div style={{ height: '2px', borderRadius: '2px', background: `${theme.color}25`, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: '100%', background: `linear-gradient(90deg,transparent,${theme.color},transparent)`, animation: 'shimmer 1.5s linear infinite', backgroundSize: '200% auto' }} />
+        </div>
+      )}
     </div>
   )
 }
@@ -482,16 +520,11 @@ export default function Home({ user, profile, refreshProfile }) {
             <div style={{ animation: 'fadeUp 0.5s ease both' }}>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: BASE.textMuted, marginBottom: '12px', fontWeight: '600' }}>CHOOSE YOUR VOICE</div>
-                <p style={{ fontSize: '13px', color: BASE.textMuted }}>This voice will guide your entire session.</p>
+                <p style={{ fontSize: '13px', color: BASE.textMuted }}>Preview each voice before you choose.</p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
                 {voices.map(v => (
-                  <button key={v.id} onClick={() => setSelectedVoice(v)}
-                    style={{ padding: '20px 16px', borderRadius: '14px', textAlign: 'left', border: `1px solid ${selectedVoice?.id === v.id ? p.color + 'aa' : BASE.border}`, background: selectedVoice?.id === v.id ? p.color + '0e' : BASE.bgCard, transition: 'all 0.2s ease', boxShadow: selectedVoice?.id === v.id ? `0 0 20px ${p.glow}` : 'none' }}>
-                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>{v.gender === 'female' ? '👩' : '👨'}</div>
-                    <div style={{ fontSize: '15px', color: selectedVoice?.id === v.id ? p.color : BASE.text, fontWeight: '700', marginBottom: '3px' }}>{v.name}</div>
-                    <div style={{ fontSize: '12px', color: BASE.textMuted }}>{v.desc}</div>
-                  </button>
+                  <VoiceCard key={v.id} voice={v} selected={selectedVoice?.id === v.id} onSelect={() => setSelectedVoice(v)} theme={p} />
                 ))}
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
