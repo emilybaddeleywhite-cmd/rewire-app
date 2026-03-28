@@ -1,16 +1,14 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
- 
-  const { text, isHype } = req.body;
- 
-  const HYPNOSIS_VOICE_ID = 'TKePFuDtAVp14EppI8GC';
-  const HYPE_VOICE_ID = 'Fc5CaIGWKvLHapoOSM2K';
-  const voiceId = isHype ? HYPE_VOICE_ID : HYPNOSIS_VOICE_ID;
- 
-  const voiceSettings = isHype
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+
+  const { text, voiceId, productType } = req.body
+
+  const voiceSettings = productType === 'hype'
     ? { stability: 0.35, similarity_boost: 0.80, style: 0.65, use_speaker_boost: true }
-    : { stability: 0.75, similarity_boost: 0.85, style: 0.20, use_speaker_boost: false };
- 
+    : productType === 'subliminal'
+    ? { stability: 0.90, similarity_boost: 0.75, style: 0.05, use_speaker_boost: false }
+    : { stability: 0.75, similarity_boost: 0.85, style: 0.20, use_speaker_boost: false }
+
   try {
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
@@ -23,18 +21,18 @@ export default async function handler(req, res) {
         model_id: 'eleven_turbo_v2_5',
         voice_settings: voiceSettings,
       }),
-    });
- 
+    })
+
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      return res.status(500).json({ error: err.detail?.message || 'Audio generation failed' });
+      const err = await response.json().catch(() => ({}))
+      return res.status(500).json({ error: err.detail?.message || 'Audio generation failed' })
     }
- 
-    const audioBuffer = await response.arrayBuffer();
-    res.setHeader('Content-Type', 'audio/mpeg');
-    res.setHeader('Content-Disposition', 'attachment; filename="session.mp3"');
-    return res.send(Buffer.from(audioBuffer));
+
+    const audioBuffer = await response.arrayBuffer()
+    res.setHeader('Content-Type', 'audio/mpeg')
+    res.setHeader('Content-Disposition', 'attachment; filename="session.mp3"')
+    return res.send(Buffer.from(audioBuffer))
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message })
   }
 }
