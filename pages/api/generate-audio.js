@@ -4,12 +4,12 @@ export default async function handler(req, res) {
   const { text, voiceId, productType } = req.body
 
   const voiceSettings = productType === 'hype'
-    ? { stability: 0.40, similarity_boost: 0.80, style: 0.60, use_speaker_boost: true, speed: 1.1 }
+    ? { stability: 0.38, similarity_boost: 0.80, style: 0.62, use_speaker_boost: true, speed: 1.1 }
     : productType === 'subliminal'
     ? { stability: 0.95, similarity_boost: 0.75, style: 0.00, use_speaker_boost: false, speed: 0.80 }
     : productType === 'sleep'
-    ? { stability: 0.95, similarity_boost: 0.85, style: 0.00, use_speaker_boost: false, speed: 0.75 }
-    : { stability: 0.95, similarity_boost: 0.85, style: 0.00, use_speaker_boost: false, speed: 0.85 }
+    ? { stability: 0.95, similarity_boost: 0.85, style: 0.00, use_speaker_boost: false, speed: 0.72 }
+    : { stability: 0.95, similarity_boost: 0.85, style: 0.00, use_speaker_boost: false, speed: 0.82 }
 
   try {
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
