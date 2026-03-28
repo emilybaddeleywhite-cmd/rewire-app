@@ -203,7 +203,7 @@ export default function FAQ({ user, profile }) {
           </div>
 
           <p style={{ textAlign: 'center', marginTop: '32px', fontSize: '12px', color: BASE.textFaint }}>
-            Still have a question? Email us at hello@rewiremode.com
+            Still have a question? Email us at office@rewiremode.com
           </p>
         </div>
       </div>
