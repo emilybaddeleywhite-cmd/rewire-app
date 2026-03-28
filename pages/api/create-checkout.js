@@ -15,19 +15,19 @@ const PRODUCTS = {
   },
   credits_10: {
     type: 'payment',
-    amount: 500, // £5.00
+    amount: 500,
     credits: 10,
     name: '10 Credits',
   },
   credits_50: {
     type: 'payment',
-    amount: 1500, // £15.00
+    amount: 1500,
     credits: 50,
     name: '50 Credits',
   },
   credits_100: {
     type: 'payment',
-    amount: 2500, // £25.00
+    amount: 2500,
     credits: 100,
     name: '100 Credits',
   },
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
   const product = PRODUCTS[productKey]
   if (!product) return res.status(400).json({ error: 'Invalid product' })
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://rewrite-mode.vercel.app'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://rewire-app-eight.vercel.app'
 
   try {
     let session
@@ -50,6 +50,7 @@ export default async function handler(req, res) {
         mode: 'subscription',
         payment_method_types: ['card'],
         customer_email: email,
+        allow_promotion_codes: true,
         line_items: [{ price: product.priceId, quantity: 1 }],
         success_url: `${baseUrl}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/pricing`,
@@ -60,6 +61,7 @@ export default async function handler(req, res) {
         mode: 'payment',
         payment_method_types: ['card'],
         customer_email: email,
+        allow_promotion_codes: true,
         line_items: [{
           price_data: {
             currency: 'gbp',
