@@ -3,6 +3,25 @@ export default async function handler(req, res) {
 
   const { text, voiceId, productType } = req.body
 
+  // ElevenLabs character limits per plan
+  // Turbo v2.5 supports up to 5000 chars per request
+  // For longer scripts we truncate to the nearest sentence
+  const CHAR_LIMIT = 4800
+  let processedText = text
+
+  if (text.length > CHAR_LIMIT) {
+    // Truncate at the nearest sentence end before the limit
+    const truncated = text.substring(0, CHAR_LIMIT)
+    const lastSentence = Math.max(
+      truncated.lastIndexOf('. '),
+      truncated.lastIndexOf('.\n'),
+      truncated.lastIndexOf('... ')
+    )
+    processedText = lastSentence > 3000
+      ? truncated.substring(0, lastSentence + 1)
+      : truncated
+  }
+
   const voiceSettings = productType === 'hype'
     ? { stability: 0.38, similarity_boost: 0.80, style: 0.62, use_speaker_boost: true, speed: 1.1 }
     : productType === 'subliminal'
@@ -19,7 +38,7 @@ export default async function handler(req, res) {
         'xi-api-key': process.env.ELEVENLABS_API_KEY,
       },
       body: JSON.stringify({
-        text,
+        text: processedText,
         model_id: 'eleven_turbo_v2_5',
         voice_settings: voiceSettings,
       }),
