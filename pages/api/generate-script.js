@@ -88,17 +88,8 @@ No section headers in the output. Write continuously. Seamless transitions. ONLY
 
     const script = data.content[0].text
 
-    // Deduct credits
-    await supabase
-      .from('profiles')
-      .update({ credits: profile.credits - cost })
-      .eq('id', userId)
-
-    await supabase
-      .from('credit_transactions')
-      .insert({ user_id: userId, amount: -cost, reason: `generation:${productType}` })
-
-    return res.status(200).json({ script, creditsRemaining: profile.credits - cost })
+    // Credits are deducted in save-session only after audio succeeds
+    return res.status(200).json({ script, cost })
   } catch (err) {
     return res.status(500).json({ error: err.message })
   }
