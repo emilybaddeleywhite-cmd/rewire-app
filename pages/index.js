@@ -940,6 +940,12 @@ export default function Home({ user, profile, refreshProfile }) {
           <div style={{ textAlign: 'center', marginTop: '52px', fontSize: '11px', color: BASE.textFaint, letterSpacing: '0.12em', fontWeight: '500' }}>
             ✦ STAY IN REWRITE MODE ✦
           </div>
+          <div style={{ textAlign: 'center', marginTop: '16px', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
+            <a href="/terms" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Terms</a>
+            <a href="/privacy" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Privacy</a>
+            <a href="/faq" style={{ color: BASE.textFaint, textDecoration: 'none' }}>FAQ</a>
+            <a href="mailto:office@rewiremode.com" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Contact</a>
+          </div>
         </div>
       </div>
 
