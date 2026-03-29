@@ -120,7 +120,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
 
         {/* Nav */}
         <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '8px 14px 0' : '8px 24px 0' }}>
             <div />
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <div style={{ fontSize: '13px', color: '#00d4ff', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)', cursor: 'pointer' }} onClick={() => setShowCredits(true)}>✦ {profile?.credits || 0} credits</div>
@@ -135,7 +135,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
           </div>
         </nav>
 
-        <div style={{ maxWidth: '860px', margin: '0 auto', padding: '40px 20px 80px', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto', padding: isMobile ? '24px 14px 60px' : '40px 20px 80px', position: 'relative', zIndex: 1 }}>
 
           {/* Header */}
           <div style={{ marginBottom: '32px', animation: 'fadeUp 0.6s ease both' }}>
@@ -192,8 +192,8 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                 {['all', 'reset', 'sleep', 'subliminal', 'hype'].map(f => {
                   const cfg = TYPE_CONFIG[f]
                   return (
-                    <button key={f} onClick={() => setFilter(f)} style={{ padding: '5px 14px', borderRadius: '100px', fontSize: '12px', fontWeight: '600', border: `1px solid ${filter === f ? (cfg?.color || '#00d4ff') + '88' : BASE.border}`, background: filter === f ? (cfg?.color || '#00d4ff') + '12' : 'transparent', color: filter === f ? (cfg?.color || '#00d4ff') : BASE.textMuted, transition: 'all 0.18s ease' }}>
-                      {f === 'all' ? 'All' : `${cfg?.emoji} ${cfg?.label}`}
+                    <button key={f} onClick={() => setFilter(f)} style={{ padding: '5px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: '600', border: `1px solid ${filter === f ? (cfg?.color || '#00d4ff') + '88' : BASE.border}`, background: filter === f ? (cfg?.color || '#00d4ff') + '12' : 'transparent', color: filter === f ? (cfg?.color || '#00d4ff') : BASE.textMuted, transition: 'all 0.18s ease' }}>
+                      {f === 'all' ? 'All' : isMobile ? cfg?.emoji : `${cfg?.emoji} ${cfg?.label}`}
                     </button>
                   )
                 })}
@@ -212,23 +212,23 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                   {sessions.map(s => {
                     const cfg = TYPE_CONFIG[s.product_type] || TYPE_CONFIG.reset
                     return (
-                      <div key={s.id} style={{ padding: '16px 20px', borderRadius: '14px', background: BASE.bgCard, border: `1px solid ${BASE.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '28px', flexShrink: 0 }}>{cfg.emoji}</div>
+                      <div key={s.id} style={{ padding: isMobile ? '12px 14px' : '16px 20px', borderRadius: '14px', background: BASE.bgCard, border: `1px solid ${BASE.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: isMobile ? '22px' : '28px', flexShrink: 0 }}>{cfg.emoji}</div>
                           <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: '14px', color: BASE.text, fontWeight: '600', marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.goal}</div>
+                            <div style={{ fontSize: isMobile ? '13px' : '14px', color: BASE.text, fontWeight: '600', marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.goal}</div>
                             <div style={{ fontSize: '11px', color: BASE.textMuted }}>
                               <span style={{ color: cfg.color, fontWeight: '600' }}>{cfg.label}</span>
-                              {' · '}{new Date(s.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                              {s.mood && ` · Mood ${s.mood}/10`}
+                              {' · '}{new Date(s.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                              {s.mood && ` · ${s.mood}/10`}
                             </div>
                           </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                          {s.audio_url && (
+                        <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                          {s.audio_url && !isMobile && (
                             <a href={s.audio_url} download style={{ padding: '7px 12px', borderRadius: '8px', border: `1px solid rgba(0,212,255,0.3)`, color: '#00d4ff', fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>⬇</a>
                           )}
-                          <button onClick={() => deleteSession(s.id)} style={{ padding: '7px 12px', borderRadius: '8px', border: '1px solid rgba(255,80,80,0.2)', color: 'rgba(255,100,100,0.6)', fontSize: '12px', fontWeight: '600' }}>Delete</button>
+                          <button onClick={() => deleteSession(s.id)} style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(255,80,80,0.2)', color: 'rgba(255,100,100,0.6)', fontSize: '11px', fontWeight: '600' }}>Delete</button>
                         </div>
                       </div>
                     )
