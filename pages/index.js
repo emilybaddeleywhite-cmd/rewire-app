@@ -2,6 +2,18 @@ import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
 
+// ─── MOBILE DETECTION ─────────────────────────────────────────────────
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  return isMobile
+}
+
 // ─── MUSIC TRACKS ─────────────────────────────────────────────────────
 const MUSIC = {
   reset:      { url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-calm.mp3.mp3',       volume: 0.18, label: 'Calm ambient' },
@@ -349,6 +361,7 @@ function CreditsModal({ profile, user, onClose }) {
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────
 export default function Home({ user, profile, refreshProfile }) {
+  const isMobile = useIsMobile()
   const [step, setStep] = useState(0)
   const [product, setProduct] = useState(null)
   const [goal, setGoal] = useState('')
@@ -533,7 +546,7 @@ export default function Home({ user, profile, refreshProfile }) {
 
         {/* Nav */}
         <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.8)' }}>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '8px 24px 0', gap: '14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '8px 16px 0', gap: '8px', flexWrap: 'wrap' }}>
             {profile && (
               <>
                 {streak > 0 && <div style={{ fontSize: '12px', color: BASE.textMuted }}>🔥 {streak} day{streak !== 1 ? 's' : ''}</div>}
@@ -545,7 +558,7 @@ export default function Home({ user, profile, refreshProfile }) {
             {!user && <button onClick={() => setShowAuth(true)} style={{ fontSize: '13px', color: '#00d4ff', padding: '8px 18px', borderRadius: '10px', border: '1px solid rgba(0,212,255,0.3)', background: 'rgba(0,212,255,0.06)', fontWeight: '600' }}>Sign In</button>}
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 24px 10px' }}>
-            <img src={LOGO} alt="RewireMode" style={{ height: '120px', maxWidth: '420px', objectFit: 'contain', mixBlendMode: 'lighten' }}
+            <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '80px' : '120px', maxWidth: '100%', objectFit: 'contain', mixBlendMode: 'lighten' }}
               onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block' }} />
             <span style={{ display: 'none', fontSize: '22px', fontWeight: '800', background: 'linear-gradient(135deg,#00d4ff,#00ff88)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>REWIRE MODE</span>
           </div>
@@ -614,7 +627,7 @@ export default function Home({ user, profile, refreshProfile }) {
                     style={{ flex: 1, background: 'none', border: 'none', color: BASE.text, fontSize: '13px', outline: 'none' }}
                   />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
                   {GOALS.map(g => (
                     <button key={g} onClick={() => setGoal(g)}
                       style={{ padding: '11px 8px', borderRadius: '10px', fontSize: '13px', fontWeight: '600', border: `1px solid ${goal === g ? '#00d4ffcc' : BASE.border}`, background: goal === g ? 'rgba(0,212,255,0.15)' : BASE.bgCard, color: goal === g ? '#00d4ff' : BASE.textMuted, transition: 'all 0.18s ease', boxShadow: goal === g ? '0 0 16px rgba(0,212,255,0.2)' : 'none' }}>
@@ -634,7 +647,7 @@ export default function Home({ user, profile, refreshProfile }) {
 
               <div style={{ marginBottom: '28px' }}>
                 <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: BASE.textMuted, marginBottom: '14px', fontWeight: '600' }}>CHOOSE YOUR SESSION TYPE</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                   {PRODUCTS.map(pr => (
                     <button key={pr.id} onClick={() => setProduct(pr)}
                       style={{ padding: '20px 18px', borderRadius: '16px', textAlign: 'left', border: `1px solid ${product?.id === pr.id ? pr.color + 'cc' : BASE.border}`, background: product?.id === pr.id ? pr.color + '12' : BASE.bgCard, transition: 'all 0.2s ease', boxShadow: product?.id === pr.id ? `0 0 28px ${pr.glow}` : 'none' }}>
@@ -722,7 +735,7 @@ export default function Home({ user, profile, refreshProfile }) {
                 <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: BASE.textMuted, marginBottom: '12px', fontWeight: '600' }}>WHAT ARE YOU ABOUT TO DO?</div>
                 <p style={{ fontSize: '13px', color: BASE.textMuted }}>Your session will be written for this exact moment.</p>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
                 {MOMENTS.map(m => (
                   <button key={m.id} onClick={() => setMoment(m.id === moment ? null : m.id)}
                     style={{ padding: '18px 12px', borderRadius: '13px', textAlign: 'center', border: `1px solid ${moment === m.id ? p.color + 'cc' : BASE.border}`, background: moment === m.id ? p.color + '12' : BASE.bgCard, color: moment === m.id ? p.color : BASE.textMuted, transition: 'all 0.18s ease', boxShadow: moment === m.id ? `0 0 20px ${p.glow}` : 'none' }}>
@@ -747,7 +760,7 @@ export default function Home({ user, profile, refreshProfile }) {
                 <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: BASE.textMuted, marginBottom: '12px', fontWeight: '600' }}>CHOOSE YOUR VOICE</div>
                 <p style={{ fontSize: '13px', color: BASE.textMuted }}>Preview each voice before you choose. This voice guides your entire session.</p>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
                 {voices.map(v => (
                   <VoiceCard key={v.id} voice={v} selected={selectedVoice?.id === v.id} onSelect={() => setSelectedVoice(v)} theme={p} />
                 ))}
@@ -881,7 +894,7 @@ export default function Home({ user, profile, refreshProfile }) {
                     )}
                   </div>
 
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
                     <button onClick={togglePlay} disabled={!audioUrl}
                       style={{ flex: 1, padding: '15px', borderRadius: '12px', background: audioUrl ? p.grad : 'rgba(255,255,255,0.04)', color: '#050a14', fontSize: '15px', fontWeight: '800', boxShadow: audioUrl && !playing ? `0 4px 20px ${p.glow}` : 'none', animation: !playing && isHype && audioUrl ? 'hypePulse 1.8s ease-in-out infinite' : 'none' }}>
                       {playing ? '⏸ Pause' : (isHype ? '🔥 Play Audio' : '▶ Play Audio')}
