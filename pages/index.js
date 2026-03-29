@@ -33,10 +33,10 @@ const LOAD_MESSAGES = {
     'Almost ready. Something written just for you, right now.',
   ],
   sleep: [
-    'Identifying the core belief your subconscious will work on tonight...',
-    'Writing your deep sleep induction sequence...',
-    'Building your theta-state deepener...',
-    'Crafting the subliminal transition for when you fall asleep...',
+    'Writing your induction sequence — guiding you into theta state...',
+    'Building your deepener — progressive relaxation, body heaviness...',
+    'Crafting your therapeutic suggestion phase...',
+    'Writing your subliminal affirmation layer...',
     'Your brain will continue rewiring as you sleep. Almost ready.',
     'This one takes a little longer. It is worth the wait.',
   ],
@@ -86,7 +86,7 @@ const PRODUCTS = [
   },
   {
     id: 'sleep', label: 'Sleep Hypnosis', emoji: '🌙', duration: '15 min', credits: 3,
-    desc: 'Deep sleep induction · Theta state · Subliminal layer',
+    desc: 'Induction · Deepener · Suggestion · Subliminal affirmations',
     color: '#a855f7', colorB: '#7c3aed',
     grad: 'linear-gradient(135deg,#a855f7,#6d28d9)',
     glow: 'rgba(168,85,247,0.25)',
