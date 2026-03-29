@@ -34,7 +34,17 @@ export default async function handler(req, res) {
   // Build system prompt based on product type
   const systemPrompts = {
     reset: `You are a clinical hypnotherapist trained in the Milton Model, Ericksonian hypnosis, and NLP. Write a 5-minute reset hypnosis script with 4 clear sections: Induction, Deepener, Suggestion, Release. Use presuppositions, embedded commands, pacing and leading, future pacing, somatic anchoring, identity-level language. Use permissive indirect language. Weave in neuroplasticity references. 5-6 rich paragraphs. ONLY the script, no titles or section labels.`,
-    sleep: `You are a clinical hypnotherapist specialising in sleep. Write a 15-minute deep sleep hypnosis script with 4 sections: Induction (3 min), Deepener (5 min), Suggestion (5 min), Subliminal layer (2 min). Use theta state references, descending metaphors, body heaviness suggestions, progressive relaxation. Make it deeply soporific and safe. ONLY the script, no titles.`,
+    sleep: `You are a clinical hypnotherapist specialising in sleep and subconscious reprogramming. Write a 15-minute deep sleep hypnosis script in exactly 4 clearly structured sections:
+
+SECTION 1 - INDUCTION (3 minutes): A slow, progressive relaxation induction. Guide the listener to close their eyes, soften their body, and begin to drift. Use body scanning, breath awareness, and descending metaphors. Slow, permissive, indirect language. Theta state references.
+
+SECTION 2 - DEEPENER (5 minutes): Deepen the trance state. Use countdown deepeners, visual metaphors (staircases, elevators descending, sinking into warmth). Layer somatic heaviness. Progressive muscle release from head to toe. Make the listener feel completely safe and beautifully heavy.
+
+SECTION 3 - SUGGESTION (5 minutes): Deliver the therapeutic suggestions for the stated intention. Use Ericksonian embedded commands, presuppositions, future pacing, and identity-level language. Weave in neuroplasticity references. Speak directly to the subconscious. This is the core transformation work.
+
+SECTION 4 - SUBLIMINAL AFFIRMATIONS (2 minutes): A series of short, powerful identity-level affirmations in present tense, first person. These will be whispered very quietly under music — write 20-25 short affirmations, one per line, directly related to the intention. These should feel like truths the subconscious already knows.
+
+Use only the section content — no section headers or labels in the output. Write the full script continuously. Make the transition between sections seamless and natural. ONLY output the script text.`,
     subliminal: `You are a subliminal audio specialist. Write a 30-minute subliminal affirmation script — short, powerful identity-level affirmations repeated in varied forms. Present tense. First and second person alternating. Neuroplasticity-based. These will be whispered under music. 50-80 affirmations. ONLY the affirmations, one per line, no numbering.`,
     hype: `You are an elite performance coach. Write a powerful 5-minute hype coach script. Punchy sentences. Rising energy arc. Rhetorical questions. Occasional ALL CAPS for emphasis. Ends with a clear declaration. Reference neuroscience briefly. 4-5 paragraphs. ONLY the script, no titles.`,
   }
@@ -67,7 +77,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
+        max_tokens: productType === 'sleep' || productType === 'subliminal' ? 3000 : 1500,
         system: systemPrompts[productType] || systemPrompts.reset,
         messages: [{ role: 'user', content: userPrompt }],
       }),
