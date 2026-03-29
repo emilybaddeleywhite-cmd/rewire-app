@@ -1,25 +1,30 @@
+export const config = {
+  maxDuration: 60,
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const { text, voiceId, productType } = req.body
 
-  // ElevenLabs character limits per plan
-  // Turbo v2.5 supports up to 5000 chars per request
-  // For longer scripts we truncate to the nearest sentence
-  const CHAR_LIMIT = 4800
+  // ElevenLabs turbo v2.5 limit is 5000 chars
+  // We use 4500 to be safe
+  const CHAR_LIMIT = 4500
   let processedText = text
 
+  console.log(`Audio generation - productType: ${productType}, text length: ${text.length}`)
+
   if (text.length > CHAR_LIMIT) {
-    // Truncate at the nearest sentence end before the limit
     const truncated = text.substring(0, CHAR_LIMIT)
     const lastSentence = Math.max(
       truncated.lastIndexOf('. '),
       truncated.lastIndexOf('.\n'),
       truncated.lastIndexOf('... ')
     )
-    processedText = lastSentence > 3000
+    processedText = lastSentence > 2000
       ? truncated.substring(0, lastSentence + 1)
       : truncated
+    console.log(`Text truncated from ${text.length} to ${processedText.length} chars`)
   }
 
   const voiceSettings = productType === 'hype'
@@ -46,7 +51,9 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}))
-      return res.status(500).json({ error: err.detail?.message || 'Audio generation failed' })
+      const errMsg = err.detail?.message || err.detail || JSON.stringify(err) || 'Audio generation failed'
+      console.error('ElevenLabs error:', response.status, errMsg)
+      return res.status(500).json({ error: `ElevenLabs ${response.status}: ${errMsg}` })
     }
 
     const audioBuffer = await response.arrayBuffer()
