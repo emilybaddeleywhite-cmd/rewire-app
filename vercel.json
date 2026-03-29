@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/reset-credits",
+      "schedule": "0 9 * * 1"
+    }
+  ]
+}
