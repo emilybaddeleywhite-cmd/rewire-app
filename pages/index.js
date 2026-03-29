@@ -456,7 +456,7 @@ export default function Home({ user, profile, refreshProfile }) {
       const saveRes = await fetch('/api/save-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, goal: activeGoal, productType: product.id, script: scriptData.script, audioUrl: url, voiceId: selectedVoice.id, mood, moment }),
+        body: JSON.stringify({ userId: user.id, goal: activeGoal, productType: product.id, script: scriptData.script, audioUrl: url, voiceId: selectedVoice.id, mood, moment, creditCost: scriptData.cost }),
       })
       const saveData = await saveRes.json()
       if (saveData.bonusCredits > 0) setBonusCredits(saveData.bonusCredits)
