@@ -1,89 +1,62 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-)
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { userId, goal, productType, script, audioUrl, voiceId, mood, moment, creditCost } = req.body
+  const { text, voiceId, productType } = req.body
 
-  // Check save limits based on plan
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('plan, credits')
-    .eq('id', userId)
-    .single()
+  // ElevenLabs turbo v2.5 limit is 5000 chars
+  // We use 4500 to be safe
+  const CHAR_LIMIT = 4500
+  let processedText = text
 
-  const { count } = await supabase
-    .from('sessions')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
+  console.log(`Audio generation - productType: ${productType}, text length: ${text.length}`)
 
-  const limit = profile?.plan === 'pro' ? 50 : 1
-  if (count >= limit) {
-    return res.status(403).json({ error: `Session limit reached. Upgrade to save more.`, limit })
+  if (text.length > CHAR_LIMIT) {
+    const truncated = text.substring(0, CHAR_LIMIT)
+    const lastSentence = Math.max(
+      truncated.lastIndexOf('. '),
+      truncated.lastIndexOf('.\n'),
+      truncated.lastIndexOf('... ')
+    )
+    processedText = lastSentence > 2000
+      ? truncated.substring(0, lastSentence + 1)
+      : truncated
+    console.log(`Text truncated from ${text.length} to ${processedText.length} chars`)
   }
 
-  // Update streak
-  const today = new Date().toISOString().split('T')[0]
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+  const voiceSettings = productType === 'hype'
+    ? { stability: 0.38, similarity_boost: 0.80, style: 0.62, use_speaker_boost: true, speed: 1.1 }
+    : productType === 'subliminal'
+    ? { stability: 0.98, similarity_boost: 0.60, style: 0.00, use_speaker_boost: false, speed: 0.75 }
+    : productType === 'sleep'
+    ? { stability: 0.98, similarity_boost: 0.80, style: 0.00, use_speaker_boost: false, speed: 0.68 }
+    : { stability: 0.95, similarity_boost: 0.85, style: 0.00, use_speaker_boost: false, speed: 0.82 }
 
-  const { data: currentProfile } = await supabase
-    .from('profiles')
-    .select('streak_count, last_session_date, credits')
-    .eq('id', userId)
-    .single()
-
-  let newStreak = 1
-  let bonusCredits = 0
-
-  if (currentProfile?.last_session_date === today) {
-    newStreak = currentProfile.streak_count
-  } else if (currentProfile?.last_session_date === yesterday) {
-    newStreak = (currentProfile.streak_count || 0) + 1
-  }
-
-  // Streak rewards
-  if (newStreak === 3) bonusCredits = 1
-  if (newStreak === 7) bonusCredits = 3
-  if (newStreak === 30) bonusCredits = 10
-
-  await supabase
-    .from('profiles')
-    .update({
-      streak_count: newStreak,
-      last_session_date: today,
-      credits: currentProfile.credits + bonusCredits - (creditCost || 0),
+  try {
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'xi-api-key': process.env.ELEVENLABS_API_KEY,
+      },
+      body: JSON.stringify({
+        text: processedText,
+        model_id: 'eleven_turbo_v2_5',
+        voice_settings: voiceSettings,
+      }),
     })
-    .eq('id', userId)
 
-  if (creditCost > 0) {
-    await supabase
-      .from('credit_transactions')
-      .insert({ user_id: userId, amount: -(creditCost), reason: `generation:${productType}` })
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      const errMsg = err.detail?.message || err.detail || JSON.stringify(err) || 'Audio generation failed'
+      console.error('ElevenLabs error:', response.status, errMsg)
+      return res.status(500).json({ error: `ElevenLabs ${response.status}: ${errMsg}` })
+    }
+
+    const audioBuffer = await response.arrayBuffer()
+    res.setHeader('Content-Type', 'audio/mpeg')
+    res.setHeader('Content-Disposition', 'attachment; filename="session.mp3"')
+    return res.send(Buffer.from(audioBuffer))
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
   }
-
-  if (bonusCredits > 0) {
-    await supabase
-      .from('credit_transactions')
-      .insert({ user_id: userId, amount: bonusCredits, reason: `streak_reward:${newStreak}days` })
-  }
-
-  // Save session
-  const { data: session, error } = await supabase
-    .from('sessions')
-    .insert({
-      user_id: userId,
-      goal, product_type: productType, script, audio_url: audioUrl,
-      voice_id: voiceId, mood, moment,
-    })
-    .select()
-    .single()
-
-  if (error) return res.status(500).json({ error: error.message })
-
-  return res.status(200).json({ session, streak: newStreak, bonusCredits })
 }
