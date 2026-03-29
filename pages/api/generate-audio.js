@@ -6,9 +6,9 @@ export default async function handler(req, res) {
   const voiceSettings = productType === 'hype'
     ? { stability: 0.38, similarity_boost: 0.80, style: 0.62, use_speaker_boost: true, speed: 1.1 }
     : productType === 'subliminal'
-    ? { stability: 0.95, similarity_boost: 0.75, style: 0.00, use_speaker_boost: false, speed: 0.80 }
+    ? { stability: 0.98, similarity_boost: 0.60, style: 0.00, use_speaker_boost: false, speed: 0.75 }
     : productType === 'sleep'
-    ? { stability: 0.95, similarity_boost: 0.85, style: 0.00, use_speaker_boost: false, speed: 0.72 }
+    ? { stability: 0.98, similarity_boost: 0.80, style: 0.00, use_speaker_boost: false, speed: 0.68 }
     : { stability: 0.95, similarity_boost: 0.85, style: 0.00, use_speaker_boost: false, speed: 0.82 }
 
   try {
