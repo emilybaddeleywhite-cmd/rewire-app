@@ -8,12 +8,12 @@ const supabase = createClient(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { userId, goal, productType, script, audioUrl, voiceId, mood, moment } = req.body
+  const { userId, goal, productType, script, audioUrl, voiceId, mood, moment, creditCost } = req.body
 
   // Check save limits based on plan
   const { data: profile } = await supabase
     .from('profiles')
-    .select('plan')
+    .select('plan, credits')
     .eq('id', userId)
     .single()
 
@@ -56,9 +56,15 @@ export default async function handler(req, res) {
     .update({
       streak_count: newStreak,
       last_session_date: today,
-      credits: currentProfile.credits + bonusCredits,
+      credits: currentProfile.credits + bonusCredits - (creditCost || 0),
     })
     .eq('id', userId)
+
+  if (creditCost > 0) {
+    await supabase
+      .from('credit_transactions')
+      .insert({ user_id: userId, amount: -(creditCost), reason: `generation:${productType}` })
+  }
 
   if (bonusCredits > 0) {
     await supabase
