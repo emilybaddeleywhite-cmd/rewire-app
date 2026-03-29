@@ -13,6 +13,17 @@ const BASE = {
 
 const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png'
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  return isMobile
+}
+
 const TYPE_CONFIG = {
   reset:      { color: '#00d4ff', emoji: '🧠', label: 'Reset Hypnosis' },
   sleep:      { color: '#a855f7', emoji: '🌙', label: 'Sleep Hypnosis' },
@@ -28,6 +39,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
   const [activeTab, setActiveTab] = useState('sessions')
   const [showCredits, setShowCredits] = useState(false)
   const [creditsLoading, setCreditsLoading] = useState(null)
+  const isMobile = useIsMobile()
 
   async function checkout(productKey) {
     setCreditsLoading(productKey)
@@ -134,7 +146,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
           </div>
 
           {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '32px', animation: 'fadeUp 0.6s ease 0.1s both' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4,1fr)', gap: '12px', marginBottom: '32px', animation: 'fadeUp 0.6s ease 0.1s both' }}>
             {[
               { label: 'Credits', value: profile?.credits || 0, color: '#00d4ff', icon: '✦' },
               { label: 'Day Streak', value: `${profile?.streak_count || 0} 🔥`, color: '#ff9f43' },
@@ -287,7 +299,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
               <div style={{ padding: '24px', borderRadius: '18px', background: BASE.bgCard, border: `1px solid rgba(0,212,255,0.15)` }}>
                 <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: BASE.textMuted, marginBottom: '12px', fontWeight: '600' }}>TOP UP CREDITS</div>
                 <p style={{ fontSize: '13px', color: BASE.textMuted, marginBottom: '20px', lineHeight: 1.6 }}>Buy credits without a subscription. They never expire.</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '10px' }}>
                   {[
                     { key: 'credits_10', label: '10 Credits', price: '£5', per: '50p each' },
                     { key: 'credits_50', label: '50 Credits', price: '£15', per: '30p each' },
