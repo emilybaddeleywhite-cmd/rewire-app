@@ -41,12 +41,12 @@ const LOAD_MESSAGES = {
     'This one takes a little longer. It is worth the wait.',
   ],
   subliminal: [
-    'Identifying the core beliefs to overwrite...',
-    'Writing 60 identity-level affirmations calibrated to your intention...',
-    'Structuring your 30-minute subconscious reprogramming session...',
-    'Layering affirmations for maximum repetition and variation...',
-    'This takes a little longer. Your session is being built properly.',
-    'Almost ready. 30 minutes of subconscious rewiring incoming.',
+    'Your subconscious processes over 11 million bits of information per second — far beyond conscious awareness...',
+    'Subliminal suggestions bypass the critical faculty and speak directly to the subconscious mind...',
+    'Research shows repeated exposure to identity-level statements strengthens neural pathways over time...',
+    'The brain cannot distinguish between a vividly imagined experience and a real one — this is the power of subliminal work...',
+    'Writing your affirmations — calibrated to your exact intention, in the language of the subconscious...',
+    'Almost ready. 30 minutes of deep subconscious reprogramming incoming.',
   ],
   hype: [
     'Analysing what is holding you back right now...',
@@ -395,11 +395,19 @@ export default function Home({ user, profile, refreshProfile }) {
 
   const p = product || PRODUCTS[0]
   const isHype = product?.id === 'hype'
+  const isSubliminal = product?.id === 'subliminal'
   const activeGoal = goal === 'custom' ? customGoal : goal
   const voices = VOICES[isHype ? 'hype' : 'hypnosis']
   const currentMusic = product ? MUSIC[product.id] : null
   const loadMessages = LOAD_MESSAGES[product?.id] || LOAD_MESSAGES.reset
   const currentLoadMsg = loadMessages[loadMsgIndex] || loadMessages[0]
+
+  // Auto-select Emily for subliminal sessions
+  useEffect(() => {
+    if (isSubliminal && !selectedVoice) {
+      setSelectedVoice(VOICES.hypnosis[0]) // Emily
+    }
+  }, [isSubliminal])
 
   const moodEmoji = mood <= 2 ? '😔' : mood <= 4 ? '😕' : mood <= 6 ? '😐' : mood <= 8 ? '🙂' : '😄'
   const moodLabel = mood <= 2 ? 'Really struggling' : mood <= 4 ? 'Not great' : mood <= 6 ? 'Getting there' : mood <= 8 ? 'Pretty good' : 'Feeling amazing'
@@ -698,7 +706,7 @@ export default function Home({ user, profile, refreshProfile }) {
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setStep(0)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
-                <button onClick={() => setStep(product?.id === 'hype' ? 2 : 2.5)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#050a14', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>Next →</button>
+                <button onClick={() => setStep(product?.id === 'hype' ? 2 : isSubliminal ? 4 : 2.5)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#050a14', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>Next →</button>
               </div>
             </div>
           )}
@@ -789,7 +797,7 @@ export default function Home({ user, profile, refreshProfile }) {
                 </div>
                 {[
                   ['Intention', activeGoal],
-                  ['Voice', selectedVoice?.name],
+                  ['Voice', isSubliminal ? 'Emily (default for subliminal)' : selectedVoice?.name],
                   ['Mood', `${mood}/10 — ${moodLabel}`],
                   moment && ['Moment', MOMENTS.find(m => m.id === moment)?.label],
                 ].filter(Boolean).map(([k, v]) => (
@@ -811,7 +819,7 @@ export default function Home({ user, profile, refreshProfile }) {
               </div>
               {error && <p style={{ color: '#ff6b6b', fontSize: '13px', marginBottom: '12px', textAlign: 'center' }}>{error}</p>}
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => setStep(3)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
+                <button onClick={() => setStep(isSubliminal ? 1 : 3)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
                 <button onClick={startGenerate}
                   style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#050a14', fontSize: '15px', fontWeight: '800', boxShadow: `0 4px 24px ${p.glow}`, animation: isHype ? 'hypePulse 1.8s ease-in-out infinite' : 'none', letterSpacing: '0.02em' }}>
                   {user ? (isHype ? '🔥 Generate My Audio' : '✦ Generate My Audio') : '✦ Sign Up Free and Generate'}
