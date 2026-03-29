@@ -554,36 +554,36 @@ export default function Home({ user, profile, refreshProfile }) {
 
         {/* Nav */}
         <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.8)' }}>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '8px 16px 0', gap: '8px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: isMobile ? '8px 12px 0' : '8px 16px 0', gap: '6px', flexWrap: 'wrap' }}>
             {profile && (
               <>
-                {streak > 0 && <div style={{ fontSize: '12px', color: BASE.textMuted }}>🔥 {streak} day{streak !== 1 ? 's' : ''}</div>}
-                <div onClick={() => setShowCredits(true)} style={{ fontSize: '13px', color: '#00d4ff', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)', cursor: 'pointer' }}>✦ {profile.credits} credits</div>
-                <button onClick={() => window.location.href = '/dashboard'} style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>Dashboard</button>
+                {streak > 0 && !isMobile && <div style={{ fontSize: '12px', color: BASE.textMuted }}>🔥 {streak} day{streak !== 1 ? 's' : ''}</div>}
+                <div onClick={() => setShowCredits(true)} style={{ fontSize: '12px', color: '#00d4ff', fontWeight: '600', padding: '5px 10px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)', cursor: 'pointer' }}>✦ {profile.credits}</div>
+                <button onClick={() => window.location.href = '/dashboard'} style={{ fontSize: '11px', color: BASE.textMuted, padding: '5px 10px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>{isMobile ? '⚙' : 'Dashboard'}</button>
               </>
             )}
-            <a href="/faq" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>FAQ</a>
-            {!user && <button onClick={() => setShowAuth(true)} style={{ fontSize: '13px', color: '#00d4ff', padding: '8px 18px', borderRadius: '10px', border: '1px solid rgba(0,212,255,0.3)', background: 'rgba(0,212,255,0.06)', fontWeight: '600' }}>Sign In</button>}
+            <a href="/faq" style={{ fontSize: '11px', color: BASE.textMuted, padding: '5px 10px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>FAQ</a>
+            {!user && <button onClick={() => setShowAuth(true)} style={{ fontSize: '12px', color: '#00d4ff', padding: '7px 14px', borderRadius: '10px', border: '1px solid rgba(0,212,255,0.3)', background: 'rgba(0,212,255,0.06)', fontWeight: '600' }}>Sign In</button>}
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 24px 10px' }}>
-            <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '100px' : '160px', maxWidth: '100%', objectFit: 'contain', mixBlendMode: 'lighten' }}
+            <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '120px' : '160px', maxWidth: '100%', objectFit: 'contain', mixBlendMode: 'lighten' }}
               onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block' }} />
             <span style={{ display: 'none', fontSize: '22px', fontWeight: '800', background: 'linear-gradient(135deg,#00d4ff,#00ff88)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>REWIRE MODE</span>
           </div>
         </nav>
 
-        <div style={{ maxWidth: '700px', margin: '0 auto', padding: '44px 20px 80px', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: '700px', margin: '0 auto', padding: isMobile ? '24px 14px 60px' : '44px 20px 80px', position: 'relative', zIndex: 1 }}>
 
           {/* Hero */}
-          <div style={{ textAlign: 'center', marginBottom: '44px', animation: 'fadeUp 0.8s ease both' }}>
-            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: '8px 20px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.06)', fontSize: '11px', letterSpacing: '0.15em', color: '#00d4ff', marginBottom: '20px', fontWeight: '600', textAlign: 'center' }}>
+          <div style={{ textAlign: 'center', marginBottom: isMobile ? '28px' : '44px', animation: 'fadeUp 0.8s ease both' }}>
+            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: isMobile ? '6px 14px' : '8px 20px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.06)', fontSize: isMobile ? '9px' : '11px', letterSpacing: '0.12em', color: '#00d4ff', marginBottom: '16px', fontWeight: '600', textAlign: 'center' }}>
               <span>◈ THE WORLD'S FIRST AI HYPNOSIS AND SUBLIMINAL PLATFORM ◈</span>
               <span>BUILT BY A QUALIFIED HYPNOTHERAPIST</span>
             </div>
             <h1 style={{ fontSize: 'clamp(26px,5.5vw,44px)', fontWeight: '800', lineHeight: '1.1', letterSpacing: '-0.02em', marginBottom: '16px', background: 'linear-gradient(135deg,#ffffff 0%,#00d4ff 35%,#00ff88 65%,#a855f7 100%)', backgroundSize: '300% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 5s linear infinite' }}>
               Rewire your mind.<br />Rewrite your reality.
             </h1>
-            <p style={{ color: BASE.textMuted, fontSize: '15px', lineHeight: '1.75', maxWidth: '500px', margin: '0 auto 16px' }}>
+            <p style={{ color: BASE.textMuted, fontSize: isMobile ? '14px' : '15px', lineHeight: '1.75', maxWidth: '500px', margin: '0 auto 16px' }}>
               Not a meditation app. Not a wellness app.<br />
               Clinical-grade subconscious reprogramming, generated in real time for you.
             </p>
@@ -597,7 +597,7 @@ export default function Home({ user, profile, refreshProfile }) {
 
           {/* Science strip */}
           {step === 0 && (
-            <div style={{ padding: '20px 22px', borderRadius: '14px', background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.12)', marginBottom: '36px', animation: 'fadeUp 0.8s ease 0.1s both' }}>
+            <div style={{ padding: isMobile ? '16px' : '20px 22px', borderRadius: '14px', background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.12)', marginBottom: '28px', animation: 'fadeUp 0.8s ease 0.1s both' }}>
               <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#00d4ff', fontWeight: '700', marginBottom: '10px' }}>THE SCIENCE</div>
               <p style={{ fontSize: '13px', color: BASE.textMuted, lineHeight: '1.75' }}>
                 During hypnosis, your brain enters theta state — the same brainwave frequency present during deep sleep. In this state, the critical faculty quiets and the subconscious becomes receptive. New neural pathways form. Old beliefs dissolve. This is neuroplasticity, and it is how RewireMode creates lasting change, not just temporary relief.
@@ -655,16 +655,16 @@ export default function Home({ user, profile, refreshProfile }) {
 
               <div style={{ marginBottom: '28px' }}>
                 <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: BASE.textMuted, marginBottom: '14px', fontWeight: '600' }}>CHOOSE YOUR SESSION TYPE</div>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr', gap: isMobile ? '8px' : '12px' }}>
                   {PRODUCTS.map(pr => (
                     <button key={pr.id} onClick={() => setProduct(pr)}
-                      style={{ padding: '20px 18px', borderRadius: '16px', textAlign: 'left', border: `1px solid ${product?.id === pr.id ? pr.color + 'cc' : BASE.border}`, background: product?.id === pr.id ? pr.color + '12' : BASE.bgCard, transition: 'all 0.2s ease', boxShadow: product?.id === pr.id ? `0 0 28px ${pr.glow}` : 'none' }}>
-                      <div style={{ fontSize: '26px', marginBottom: '10px' }}>{pr.emoji}</div>
-                      <div style={{ fontSize: '14px', color: product?.id === pr.id ? pr.color : BASE.text, fontWeight: '700', marginBottom: '5px' }}>{pr.label}</div>
-                      <div style={{ fontSize: '11px', color: BASE.textMuted, marginBottom: '10px', lineHeight: 1.5 }}>{pr.desc}</div>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      style={{ padding: isMobile ? '14px 12px' : '20px 18px', borderRadius: '16px', textAlign: 'left', border: `1px solid ${product?.id === pr.id ? pr.color + 'cc' : BASE.border}`, background: product?.id === pr.id ? pr.color + '12' : BASE.bgCard, transition: 'all 0.2s ease', boxShadow: product?.id === pr.id ? `0 0 28px ${pr.glow}` : 'none' }}>
+                      <div style={{ fontSize: isMobile ? '22px' : '26px', marginBottom: '8px' }}>{pr.emoji}</div>
+                      <div style={{ fontSize: isMobile ? '12px' : '14px', color: product?.id === pr.id ? pr.color : BASE.text, fontWeight: '700', marginBottom: '4px' }}>{pr.label}</div>
+                      {!isMobile && <div style={{ fontSize: '11px', color: BASE.textMuted, marginBottom: '10px', lineHeight: 1.5 }}>{pr.desc}</div>}
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                         <span style={{ fontSize: '11px', color: BASE.textFaint }}>{pr.duration}</span>
-                        <span style={{ fontSize: '11px', color: pr.color, background: pr.color + '18', padding: '2px 10px', borderRadius: '100px', fontWeight: '600' }}>✦ {pr.credits} credit{pr.credits > 1 ? 's' : ''}</span>
+                        <span style={{ fontSize: '11px', color: pr.color, background: pr.color + '18', padding: '2px 8px', borderRadius: '100px', fontWeight: '600' }}>✦ {pr.credits}</span>
                       </div>
                     </button>
                   ))}
@@ -902,18 +902,18 @@ export default function Home({ user, profile, refreshProfile }) {
                     )}
                   </div>
 
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
                     <button onClick={togglePlay} disabled={!audioUrl}
-                      style={{ flex: 1, padding: '15px', borderRadius: '12px', background: audioUrl ? p.grad : 'rgba(255,255,255,0.04)', color: '#050a14', fontSize: '15px', fontWeight: '800', boxShadow: audioUrl && !playing ? `0 4px 20px ${p.glow}` : 'none', animation: !playing && isHype && audioUrl ? 'hypePulse 1.8s ease-in-out infinite' : 'none' }}>
-                      {playing ? '⏸ Pause' : (isHype ? '🔥 Play Audio' : '▶ Play Audio')}
+                      style={{ flex: 1, padding: isMobile ? '14px' : '15px', borderRadius: '12px', background: audioUrl ? p.grad : 'rgba(255,255,255,0.04)', color: '#050a14', fontSize: isMobile ? '14px' : '15px', fontWeight: '800', boxShadow: audioUrl && !playing ? `0 4px 20px ${p.glow}` : 'none', animation: !playing && isHype && audioUrl ? 'hypePulse 1.8s ease-in-out infinite' : 'none' }}>
+                      {playing ? '⏸ Pause' : (isHype ? '🔥 Play' : '▶ Play')}
                     </button>
                     {audioUrl && (
                       <a href={audioUrl} download="rewiremode-session.mp3"
-                        style={{ padding: '15px 16px', borderRadius: '12px', border: `1px solid ${p.color}44`, color: p.color, fontSize: '14px', display: 'flex', alignItems: 'center', textDecoration: 'none', fontWeight: '600', gap: '6px' }} title="Download audio">
-                        ⬇ <span style={{ fontSize: '11px' }}>Save</span>
+                        style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${p.color}44`, color: p.color, fontSize: '18px', display: 'flex', alignItems: 'center', textDecoration: 'none' }} title="Download audio">
+                        ⬇
                       </a>
                     )}
-                    <button onClick={reset} title="Start a new session" style={{ padding: '15px 16px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '12px', fontWeight: '600' }}>New session</button>
+                    <button onClick={reset} title="Start a new session" style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: isMobile ? '11px' : '12px', fontWeight: '600', whiteSpace: 'nowrap' }}>{isMobile ? '↩' : 'New session'}</button>
                   </div>
 
                   {saveLimitHit && (
