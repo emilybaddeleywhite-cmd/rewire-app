@@ -79,10 +79,10 @@ const PRODUCTS = [
   {
     id: 'reset', label: 'Reset Hypnosis', emoji: '🧠', duration: '5 min', credits: 1,
     desc: 'Induction · Deepener · Suggestion · Release',
-    color: '#00d4ff', colorB: '#0088cc',
-    grad: 'linear-gradient(135deg,#00d4ff,#0066aa)',
-    glow: 'rgba(0,212,255,0.25)',
-    waveA: '#0066aa', waveB: '#00d4ff',
+    color: '#6366f1', colorB: '#4f46e5',
+    grad: 'linear-gradient(135deg,#6366f1,#4338ca)',
+    glow: 'rgba(99,102,241,0.25)',
+    waveA: '#4338ca', waveB: '#6366f1',
   },
   {
     id: 'sleep', label: 'Sleep Hypnosis', emoji: '🌙', duration: '15 min', credits: 3,
@@ -95,18 +95,18 @@ const PRODUCTS = [
   {
     id: 'subliminal', label: 'Subliminal', emoji: '🌊', duration: '30 min', credits: 3,
     desc: 'Identity-level suggestions layered under music',
-    color: '#00ff88', colorB: '#00cc66',
-    grad: 'linear-gradient(135deg,#00ff88,#00aa55)',
-    glow: 'rgba(0,255,136,0.25)',
-    waveA: '#00aa55', waveB: '#00ff88',
+    color: '#22d3ee', colorB: '#0891b2',
+    grad: 'linear-gradient(135deg,#22d3ee,#0891b2)',
+    glow: 'rgba(34,211,238,0.25)',
+    waveA: '#0891b2', waveB: '#22d3ee',
   },
   {
     id: 'hype', label: 'Hype Coach', emoji: '🔥', duration: '5 min', credits: 1,
     desc: 'NLP state change · Identity activation · Performance priming',
-    color: '#60a5fa', colorB: '#a855f7',
-    grad: 'linear-gradient(135deg,#3b82f6,#a855f7)',
-    glow: 'rgba(96,165,250,0.25)',
-    waveA: '#3b82f6', waveB: '#a855f7',
+    color: '#f59e0b', colorB: '#d97706',
+    grad: 'linear-gradient(135deg,#f59e0b,#d97706)',
+    glow: 'rgba(245,158,11,0.25)',
+    waveA: '#d97706', waveB: '#f59e0b',
   },
 ]
 
@@ -124,7 +124,7 @@ const MOMENTS = [
 ]
 
 const BASE = {
-  bg: '#050a14',
+  bg: '#03050f',
   bgCard: 'rgba(255,255,255,0.03)',
   border: 'rgba(255,255,255,0.08)',
   text: '#e8f4ff',
@@ -132,7 +132,7 @@ const BASE = {
   textFaint: 'rgba(232,244,255,0.2)',
 }
 
-const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png'
+const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png'
 
 // ─── WAVEFORM ─────────────────────────────────────────────────────────
 function Waveform({ active, product }) {
@@ -200,8 +200,10 @@ function AuthModal({ onClose, onSuccess }) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
 
   async function handleGoogleSignIn() {
+    if (mode === 'signup' && !agreedToTerms) { setError('Please agree to the Terms of Service to continue.'); return }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin }
@@ -216,22 +218,19 @@ function AuthModal({ onClose, onSuccess }) {
       redirectTo: `${window.location.origin}/reset-password`
     })
     if (error) setError(error.message)
-    else setError(''); setSuccess(true); setSuccessMsg('Password reset email sent. Check your inbox.')
+    else { setError(''); setSuccess(true); setSuccessMsg('Password reset email sent. Check your inbox.') }
     setLoading(false)
   }
 
   async function handleSubmit() {
+    if (mode === 'signup' && !agreedToTerms) { setError('Please agree to the Terms of Service to continue.'); return }
     if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
     setLoading(true); setError('')
     if (mode === 'signup') {
       const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name } } })
       if (error) setError(error.message)
-      else if (data.session) {
-        // Auto-signed in (email confirmation off)
-        onSuccess()
-      } else {
-        setSuccess(true)
-      }
+      else if (data.session) { onSuccess() }
+      else { setSuccess(true) }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(error.message)
@@ -240,14 +239,14 @@ function AuthModal({ onClose, onSuccess }) {
     setLoading(false)
   }
 
-  const inp = { width: '100%', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.04)', color: BASE.text, fontSize: '14px', marginBottom: '12px', fontFamily: 'inherit', outline: 'none' }
+  const inp = { width: '100%', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', color: BASE.text, fontSize: '14px', marginBottom: '12px', fontFamily: 'inherit', outline: 'none' }
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,20,0.92)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
-      <div style={{ background: 'linear-gradient(145deg,#0a1628,#060e1c)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '420px', position: 'relative', boxShadow: '0 0 60px rgba(0,150,255,0.1)' }}>
+      <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '420px', position: 'relative', boxShadow: '0 0 60px rgba(99,102,241,0.1)', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <img src={LOGO} alt="RewireMode" style={{ height: '50px', marginBottom: '16px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
-          <h2 style={{ fontSize: '21px', color: '#00d4ff', fontWeight: '700', marginBottom: '6px' }}>
+          <img src={LOGO} alt="RewireMode" style={{ height: '60px', marginBottom: '16px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
+          <h2 style={{ fontSize: '21px', color: '#6366f1', fontWeight: '700', marginBottom: '6px' }}>
             {mode === 'signup' ? 'Start rewiring your mind' : 'Welcome back'}
           </h2>
           {mode === 'signup' && <p style={{ fontSize: '13px', color: BASE.textMuted }}>5 free credits. No card needed. Generated for you in real time.</p>}
@@ -255,18 +254,17 @@ function AuthModal({ onClose, onSuccess }) {
 
         {success ? (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ padding: '20px', borderRadius: '14px', background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.25)', marginBottom: '16px' }}>
+            <div style={{ padding: '20px', borderRadius: '14px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.25)', marginBottom: '16px' }}>
               <div style={{ fontSize: '28px', marginBottom: '10px' }}>✦</div>
-              <p style={{ color: '#00d4ff', fontSize: '15px', fontWeight: '600', marginBottom: '6px' }}>{successMsg || 'Account created.'}</p>
-              <p style={{ color: BASE.textMuted, fontSize: '13px', lineHeight: 1.6 }}>Check your email, then sign in below.</p>
+              <p style={{ color: '#6366f1', fontSize: '15px', fontWeight: '600', marginBottom: '6px' }}>{successMsg || 'Account created.'}</p>
+              <p style={{ color: BASE.textMuted, fontSize: '13px', lineHeight: 1.6 }}>Check your email to confirm your account, then sign in below.</p>
             </div>
-            <button onClick={() => { setSuccess(false); setMode('signin') }} style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#050a14', fontSize: '14px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
+            <button onClick={() => { setSuccess(false); setMode('signin') }} style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#03050f', fontSize: '14px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
               Sign In Now →
             </button>
           </div>
         ) : (
           <>
-            {/* Google Sign In */}
             <button onClick={handleGoogleSignIn} style={{ width: '100%', padding: '13px', borderRadius: '12px', border: `1px solid ${BASE.border}`, background: 'rgba(255,255,255,0.04)', color: BASE.text, fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '16px' }}>
               <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
               Continue with Google
@@ -283,10 +281,20 @@ function AuthModal({ onClose, onSuccess }) {
             <input value={password} onChange={e => setPassword(e.target.value)} placeholder="Password (min 6 characters)" type="password" style={{ ...inp, marginBottom: '4px' }}
               onKeyDown={e => e.key === 'Enter' && handleSubmit()} />
             {mode === 'signin' && (
-              <p onClick={handleForgotPassword} style={{ fontSize: '12px', color: '#00d4ff', cursor: 'pointer', textAlign: 'right', marginBottom: '12px' }}>Forgot password?</p>
+              <p onClick={handleForgotPassword} style={{ fontSize: '12px', color: '#6366f1', cursor: 'pointer', textAlign: 'right', marginBottom: '12px' }}>Forgot password?</p>
+            )}
+            {mode === 'signup' && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '14px', marginTop: '8px' }}>
+                <div onClick={() => setAgreedToTerms(!agreedToTerms)} style={{ width: '18px', height: '18px', borderRadius: '4px', border: `2px solid ${agreedToTerms ? '#6366f1' : 'rgba(255,255,255,0.2)'}`, background: agreedToTerms ? '#6366f1' : 'transparent', cursor: 'pointer', flexShrink: 0, marginTop: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s ease' }}>
+                  {agreedToTerms && <span style={{ color: '#03050f', fontSize: '12px', fontWeight: '800' }}>✓</span>}
+                </div>
+                <p style={{ fontSize: '12px', color: BASE.textMuted, lineHeight: 1.6, cursor: 'pointer' }} onClick={() => setAgreedToTerms(!agreedToTerms)}>
+                  I agree to the <a href="/terms" target="_blank" style={{ color: '#6366f1' }} onClick={e => e.stopPropagation()}>Terms of Service</a> and <a href="/privacy" target="_blank" style={{ color: '#6366f1' }} onClick={e => e.stopPropagation()}>Privacy Policy</a>
+                </p>
+              </div>
             )}
             {error && <p style={{ color: '#ff6b6b', fontSize: '13px', marginBottom: '12px' }}>{error}</p>}
-            <button onClick={handleSubmit} disabled={loading} style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#050a14', fontSize: '15px', fontWeight: '700', cursor: 'pointer', border: 'none', marginBottom: '14px', letterSpacing: '0.02em' }}>
+            <button onClick={handleSubmit} disabled={loading} style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#03050f', fontSize: '15px', fontWeight: '700', cursor: 'pointer', border: 'none', marginBottom: '14px', letterSpacing: '0.02em' }}>
               {loading ? 'Please wait...' : mode === 'signup' ? 'Create My Account →' : 'Sign In →'}
             </button>
             <p style={{ textAlign: 'center', fontSize: '13px', color: BASE.textMuted, cursor: 'pointer' }} onClick={() => { setMode(mode === 'signup' ? 'signin' : 'signup'); setError('') }}>
@@ -318,12 +326,12 @@ function CreditsModal({ profile, user, onClose }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,20,0.92)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
-      <div style={{ background: 'linear-gradient(145deg,#0a1628,#060e1c)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '24px', padding: '36px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 0 60px rgba(0,150,255,0.1)' }}>
+      <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '24px', padding: '36px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 0 60px rgba(99,102,241,0.1)' }}>
         <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', color: BASE.textMuted, fontSize: '22px', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ fontSize: '30px', marginBottom: '10px' }}>✦</div>
-          <h2 style={{ fontSize: '20px', color: '#00d4ff', fontWeight: '700', marginBottom: '6px' }}>Top up your credits</h2>
-          <p style={{ fontSize: '13px', color: BASE.textMuted }}>You have <strong style={{ color: '#00d4ff' }}>{profile?.credits || 0} credits</strong> remaining</p>
+          <h2 style={{ fontSize: '20px', color: '#6366f1', fontWeight: '700', marginBottom: '6px' }}>Top up your credits</h2>
+          <p style={{ fontSize: '13px', color: BASE.textMuted }}>You have <strong style={{ color: '#6366f1' }}>{profile?.credits || 0} credits</strong> remaining</p>
         </div>
 
         {(!profile || profile.plan === 'free') && (
@@ -345,12 +353,12 @@ function CreditsModal({ profile, user, onClose }) {
             { key: 'credits_100', label: '100 Credits', price: '£25', per: '25p each — best value' },
           ].map(c => (
             <button key={c.key} onClick={() => checkout(c.key)} disabled={loading === c.key}
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderRadius: '12px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.04)', cursor: 'pointer', width: '100%', fontFamily: 'inherit' }}>
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderRadius: '12px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', cursor: 'pointer', width: '100%', fontFamily: 'inherit' }}>
               <div style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: '14px', color: BASE.text, fontWeight: '700' }}>{c.label}</div>
                 <div style={{ fontSize: '12px', color: BASE.textFaint }}>{c.per}</div>
               </div>
-              <div style={{ fontSize: '18px', color: '#00d4ff', fontWeight: '800' }}>{loading === c.key ? '...' : c.price}</div>
+              <div style={{ fontSize: '18px', color: '#6366f1', fontWeight: '800' }}>{loading === c.key ? '...' : c.price}</div>
             </button>
           ))}
         </div>
@@ -388,6 +396,7 @@ export default function Home({ user, profile, refreshProfile }) {
   const timerRef = useRef(null)
   const loadMsgRef = useRef(null)
   const progressRef = useRef(null)
+  const wakeLockRef = useRef(null)
 
   useEffect(() => { if (profile) setStreak(profile.streak_count || 0) }, [profile])
   useEffect(() => { if (product?.id) setMusicVolume(MUSIC[product.id]?.volume || 0.18) }, [product])
@@ -477,18 +486,26 @@ export default function Home({ user, profile, refreshProfile }) {
     }
   }
 
-  function togglePlay() {
+  async function togglePlay() {
     if (!audioRef.current) return
     if (!playing) {
       audioRef.current.play()
       if (musicRef.current) { musicRef.current.volume = musicVolume; musicRef.current.loop = true; musicRef.current.play().catch(() => {}) }
       setPlaying(true)
       timerRef.current = setInterval(() => setTimer(t => t + 1), 1000)
+      // Request wake lock to keep screen on during session
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLockRef.current = await navigator.wakeLock.request('screen')
+        }
+      } catch (e) { /* wake lock not supported, ignore */ }
     } else {
       audioRef.current.pause()
       if (musicRef.current) musicRef.current.pause()
       setPlaying(false)
       clearInterval(timerRef.current)
+      // Release wake lock
+      if (wakeLockRef.current) { wakeLockRef.current.release(); wakeLockRef.current = null }
     }
   }
 
@@ -502,6 +519,7 @@ export default function Home({ user, profile, refreshProfile }) {
       }, 150)
     }
     setPlaying(false); clearInterval(timerRef.current)
+    if (wakeLockRef.current) { wakeLockRef.current.release(); wakeLockRef.current = null }
   }
 
   function reset() {
@@ -538,7 +556,7 @@ export default function Home({ user, profile, refreshProfile }) {
           input,textarea{font-family:inherit;outline:none}
           input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:5px;cursor:pointer}
           input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;cursor:pointer}
-          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);border-radius:4px}
+          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.2);border-radius:4px}
         `}</style>
 
         {audioUrl && <audio ref={audioRef} src={audioUrl} onEnded={handleAudioEnd} />}
@@ -546,29 +564,29 @@ export default function Home({ user, profile, refreshProfile }) {
 
         {/* Background */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,150,255,0.08) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
+          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
           <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(120,50,220,0.08) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 10s ease-in-out infinite 2s' }} />
           <div style={{ position: 'absolute', top: '40%', left: '60%', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,220,100,0.05) 0%,transparent 65%)', filter: 'blur(50px)', animation: 'pulse 6s ease-in-out infinite 1s' }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(0,150,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,150,255,0.03) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(99,102,241,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.03) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
         </div>
 
         {/* Nav */}
-        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.8)' }}>
+        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(99,102,241,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.8)' }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: isMobile ? '8px 12px 0' : '8px 16px 0', gap: '6px', flexWrap: 'wrap' }}>
             {profile && (
               <>
                 {streak > 0 && !isMobile && <div style={{ fontSize: '12px', color: BASE.textMuted }}>🔥 {streak} day{streak !== 1 ? 's' : ''}</div>}
-                <div onClick={() => setShowCredits(true)} style={{ fontSize: '12px', color: '#00d4ff', fontWeight: '600', padding: '5px 10px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)', cursor: 'pointer' }}>✦ {profile.credits}</div>
+                <div onClick={() => setShowCredits(true)} style={{ fontSize: '12px', color: '#6366f1', fontWeight: '600', padding: '5px 10px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.06)', cursor: 'pointer' }}>✦ {profile.credits}</div>
                 <button onClick={() => window.location.href = '/dashboard'} style={{ fontSize: '11px', color: BASE.textMuted, padding: '5px 10px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>{isMobile ? '⚙' : 'Dashboard'}</button>
               </>
             )}
             <a href="/faq" style={{ fontSize: '11px', color: BASE.textMuted, padding: '5px 10px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>FAQ</a>
-            {!user && <button onClick={() => setShowAuth(true)} style={{ fontSize: '12px', color: '#00d4ff', padding: '7px 14px', borderRadius: '10px', border: '1px solid rgba(0,212,255,0.3)', background: 'rgba(0,212,255,0.06)', fontWeight: '600' }}>Sign In</button>}
+            {!user && <button onClick={() => setShowAuth(true)} style={{ fontSize: '12px', color: '#6366f1', padding: '7px 14px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.06)', fontWeight: '600' }}>Sign In</button>}
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 24px 10px' }}>
             <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '120px' : '160px', maxWidth: '100%', objectFit: 'contain', mixBlendMode: 'lighten' }}
               onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block' }} />
-            <span style={{ display: 'none', fontSize: '22px', fontWeight: '800', background: 'linear-gradient(135deg,#00d4ff,#00ff88)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>REWIRE MODE</span>
+            <span style={{ display: 'none', fontSize: '22px', fontWeight: '800', background: 'linear-gradient(135deg,#6366f1,#22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>REWIRE MODE</span>
           </div>
         </nav>
 
@@ -576,11 +594,11 @@ export default function Home({ user, profile, refreshProfile }) {
 
           {/* Hero */}
           <div style={{ textAlign: 'center', marginBottom: isMobile ? '28px' : '44px', animation: 'fadeUp 0.8s ease both' }}>
-            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: isMobile ? '6px 14px' : '8px 20px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.06)', fontSize: isMobile ? '9px' : '11px', letterSpacing: '0.12em', color: '#00d4ff', marginBottom: '16px', fontWeight: '600', textAlign: 'center' }}>
+            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: isMobile ? '6px 14px' : '8px 20px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.06)', fontSize: isMobile ? '9px' : '11px', letterSpacing: '0.12em', color: '#6366f1', marginBottom: '16px', fontWeight: '600', textAlign: 'center' }}>
               <span>◈ THE WORLD'S FIRST AI HYPNOSIS AND SUBLIMINAL PLATFORM ◈</span>
               <span>BUILT BY A QUALIFIED HYPNOTHERAPIST</span>
             </div>
-            <h1 style={{ fontSize: 'clamp(26px,5.5vw,44px)', fontWeight: '800', lineHeight: '1.1', letterSpacing: '-0.02em', marginBottom: '16px', background: 'linear-gradient(135deg,#ffffff 0%,#00d4ff 35%,#00ff88 65%,#a855f7 100%)', backgroundSize: '300% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 5s linear infinite' }}>
+            <h1 style={{ fontSize: 'clamp(26px,5.5vw,44px)', fontWeight: '800', lineHeight: '1.1', letterSpacing: '-0.02em', marginBottom: '16px', background: 'linear-gradient(135deg,#ffffff 0%,#6366f1 35%,#22d3ee 65%,#a855f7 100%)', backgroundSize: '300% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 5s linear infinite' }}>
               Rewire your mind.<br />Rewrite your reality.
             </h1>
             <p style={{ color: BASE.textMuted, fontSize: isMobile ? '14px' : '15px', lineHeight: '1.75', maxWidth: '500px', margin: '0 auto 16px' }}>
@@ -589,7 +607,7 @@ export default function Home({ user, profile, refreshProfile }) {
             </p>
             {!user && (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 18px', borderRadius: '100px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${BASE.border}`, fontSize: '12px', color: BASE.textMuted }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00ff88', display: 'inline-block', boxShadow: '0 0 8px #00ff88' }} />
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22d3ee', display: 'inline-block', boxShadow: '0 0 8px #22d3ee' }} />
                 Start free — 5 credits, no card required
               </div>
             )}
@@ -597,14 +615,14 @@ export default function Home({ user, profile, refreshProfile }) {
 
           {/* Science strip */}
           {step === 0 && (
-            <div style={{ padding: isMobile ? '16px' : '20px 22px', borderRadius: '14px', background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.12)', marginBottom: '28px', animation: 'fadeUp 0.8s ease 0.1s both' }}>
-              <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#00d4ff', fontWeight: '700', marginBottom: '10px' }}>THE SCIENCE</div>
+            <div style={{ padding: isMobile ? '16px' : '20px 22px', borderRadius: '14px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.12)', marginBottom: '28px', animation: 'fadeUp 0.8s ease 0.1s both' }}>
+              <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#6366f1', fontWeight: '700', marginBottom: '10px' }}>THE SCIENCE</div>
               <p style={{ fontSize: '13px', color: BASE.textMuted, lineHeight: '1.75' }}>
                 During hypnosis, your brain enters theta state — the same brainwave frequency present during deep sleep. In this state, the critical faculty quiets and the subconscious becomes receptive. New neural pathways form. Old beliefs dissolve. This is neuroplasticity, and it is how RewireMode creates lasting change, not just temporary relief.
               </p>
               <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
                 {['Milton Model', 'Ericksonian Hypnotherapy', 'NLP', 'Neuroplasticity', 'Somatic Anchoring'].map(tag => (
-                  <span key={tag} style={{ fontSize: '11px', color: '#00d4ff', background: 'rgba(0,212,255,0.08)', padding: '3px 10px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.15)', fontWeight: '600' }}>{tag}</span>
+                  <span key={tag} style={{ fontSize: '11px', color: '#6366f1', background: 'rgba(99,102,241,0.08)', padding: '3px 10px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.15)', fontWeight: '600' }}>{tag}</span>
                 ))}
               </div>
             </div>
@@ -638,18 +656,18 @@ export default function Home({ user, profile, refreshProfile }) {
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
                   {GOALS.map(g => (
                     <button key={g} onClick={() => setGoal(g)}
-                      style={{ padding: '11px 8px', borderRadius: '10px', fontSize: '13px', fontWeight: '600', border: `1px solid ${goal === g ? '#00d4ffcc' : BASE.border}`, background: goal === g ? 'rgba(0,212,255,0.15)' : BASE.bgCard, color: goal === g ? '#00d4ff' : BASE.textMuted, transition: 'all 0.18s ease', boxShadow: goal === g ? '0 0 16px rgba(0,212,255,0.2)' : 'none' }}>
+                      style={{ padding: '11px 8px', borderRadius: '10px', fontSize: '13px', fontWeight: '600', border: `1px solid ${goal === g ? '#6366f1cc' : BASE.border}`, background: goal === g ? 'rgba(99,102,241,0.15)' : BASE.bgCard, color: goal === g ? '#6366f1' : BASE.textMuted, transition: 'all 0.18s ease', boxShadow: goal === g ? '0 0 16px rgba(99,102,241,0.2)' : 'none' }}>
                       {g}
                     </button>
                   ))}
                 </div>
                 <button onClick={() => setGoal('custom')}
-                  style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', textAlign: 'left', border: `1px solid ${goal === 'custom' ? '#00d4ffcc' : BASE.border}`, background: goal === 'custom' ? 'rgba(0,212,255,0.08)' : BASE.bgCard, color: goal === 'custom' ? '#00d4ff' : BASE.textMuted, fontSize: '13px', marginBottom: '8px' }}>
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', textAlign: 'left', border: `1px solid ${goal === 'custom' ? '#6366f1cc' : BASE.border}`, background: goal === 'custom' ? 'rgba(99,102,241,0.08)' : BASE.bgCard, color: goal === 'custom' ? '#6366f1' : BASE.textMuted, fontSize: '13px', marginBottom: '8px' }}>
                   ✍️ Something else — enter your intention...
                 </button>
                 {goal === 'custom' && (
                   <textarea autoFocus value={customGoal} onChange={e => setCustomGoal(e.target.value)} placeholder="Describe what you want to rewrite..."
-                    style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.04)', color: BASE.text, fontSize: '14px', lineHeight: '1.65', resize: 'vertical', minHeight: '80px', marginBottom: '8px' }} />
+                    style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.04)', color: BASE.text, fontSize: '14px', lineHeight: '1.65', resize: 'vertical', minHeight: '80px', marginBottom: '8px' }} />
                 )}
               </div>
 
@@ -672,7 +690,7 @@ export default function Home({ user, profile, refreshProfile }) {
               </div>
 
               <button onClick={() => activeGoal.trim() && product && setStep(1)} disabled={!activeGoal.trim() || !product}
-                style={{ width: '100%', padding: '17px', borderRadius: '14px', background: activeGoal.trim() && product ? p.grad : 'rgba(255,255,255,0.05)', color: activeGoal.trim() && product ? '#050a14' : BASE.textFaint, fontSize: '15px', fontWeight: '700', transition: 'all 0.25s ease', marginBottom: '14px', letterSpacing: '0.02em', boxShadow: activeGoal.trim() && product ? `0 4px 24px ${p.glow}` : 'none' }}>
+                style={{ width: '100%', padding: '17px', borderRadius: '14px', background: activeGoal.trim() && product ? p.grad : 'rgba(255,255,255,0.05)', color: activeGoal.trim() && product ? '#03050f' : BASE.textFaint, fontSize: '15px', fontWeight: '700', transition: 'all 0.25s ease', marginBottom: '14px', letterSpacing: '0.02em', boxShadow: activeGoal.trim() && product ? `0 4px 24px ${p.glow}` : 'none' }}>
                 {activeGoal.trim() && product ? 'Next →' : 'Select your intention and session type'}
               </button>
 
@@ -706,7 +724,7 @@ export default function Home({ user, profile, refreshProfile }) {
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setStep(0)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
-                <button onClick={() => setStep(product?.id === 'hype' ? 2 : isSubliminal ? 4 : 2.5)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#050a14', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>Next →</button>
+                <button onClick={() => setStep(product?.id === 'hype' ? 2 : isSubliminal ? 4 : 2.5)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>Next →</button>
               </div>
             </div>
           )}
@@ -729,7 +747,7 @@ export default function Home({ user, profile, refreshProfile }) {
               />
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setStep(1)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
-                <button onClick={() => setStep(product?.id === 'hype' ? 2 : 3)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#050a14', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>
+                <button onClick={() => setStep(product?.id === 'hype' ? 2 : 3)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>
                   {firstName.trim() ? `Continue as ${firstName.trim()} →` : 'Skip →'}
                 </button>
               </div>
@@ -756,7 +774,7 @@ export default function Home({ user, profile, refreshProfile }) {
                   <div style={{ fontSize: '26px', marginBottom: '8px' }}>✨</div>Just hype me up
                 </button>
               </div>
-              {moment && <button onClick={() => setStep(3)} style={{ width: '100%', padding: '15px', borderRadius: '12px', background: p.grad, color: '#050a14', fontSize: '15px', fontWeight: '800', marginBottom: '10px', boxShadow: `0 4px 20px ${p.glow}` }}>Next →</button>}
+              {moment && <button onClick={() => setStep(3)} style={{ width: '100%', padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '800', marginBottom: '10px', boxShadow: `0 4px 20px ${p.glow}` }}>Next →</button>}
               <button onClick={() => setStep(2.5)} style={{ width: '100%', padding: '13px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
             </div>
           )}
@@ -776,7 +794,7 @@ export default function Home({ user, profile, refreshProfile }) {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setStep(product?.id === 'hype' ? 2 : 2.5)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
                 <button onClick={() => selectedVoice && setStep(4)} disabled={!selectedVoice}
-                  style={{ flex: 1, padding: '15px', borderRadius: '12px', background: selectedVoice ? p.grad : 'rgba(255,255,255,0.05)', color: selectedVoice ? '#050a14' : BASE.textFaint, fontSize: '15px', fontWeight: '700', boxShadow: selectedVoice ? `0 4px 20px ${p.glow}` : 'none' }}>Next →</button>
+                  style={{ flex: 1, padding: '15px', borderRadius: '12px', background: selectedVoice ? p.grad : 'rgba(255,255,255,0.05)', color: selectedVoice ? '#03050f' : BASE.textFaint, fontSize: '15px', fontWeight: '700', boxShadow: selectedVoice ? `0 4px 20px ${p.glow}` : 'none' }}>Next →</button>
               </div>
             </div>
           )}
@@ -821,7 +839,7 @@ export default function Home({ user, profile, refreshProfile }) {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setStep(isSubliminal ? 1 : 3)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
                 <button onClick={startGenerate}
-                  style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#050a14', fontSize: '15px', fontWeight: '800', boxShadow: `0 4px 24px ${p.glow}`, animation: isHype ? 'hypePulse 1.8s ease-in-out infinite' : 'none', letterSpacing: '0.02em' }}>
+                  style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '800', boxShadow: `0 4px 24px ${p.glow}`, animation: isHype ? 'hypePulse 1.8s ease-in-out infinite' : 'none', letterSpacing: '0.02em' }}>
                   {user ? (isHype ? '🔥 Generate My Audio' : '✦ Generate My Audio') : '✦ Sign Up Free and Generate'}
                 </button>
               </div>
@@ -857,17 +875,18 @@ export default function Home({ user, profile, refreshProfile }) {
           {/* ── STEP 6: RESULT ── */}
           {step === 6 && (
             <div style={{ animation: 'fadeUp 0.6s ease both' }}>
-              {bonusCredits > 0 && (
-                <div style={{ padding: '14px', borderRadius: '12px', marginBottom: '16px', background: `${p.color}12`, border: `1px solid ${p.color}44`, textAlign: 'center', fontSize: '14px', color: p.color, fontWeight: '600' }}>
-                  🎉 Streak bonus! +{bonusCredits} credits — {streak} day streak!
-                </div>
-              )}
 
               {error ? (
                 <div style={{ padding: '24px', borderRadius: '16px', background: 'rgba(255,60,60,0.06)', border: '1px solid rgba(255,80,80,0.2)', marginBottom: '16px', textAlign: 'center' }}>
                   <div style={{ fontSize: '28px', marginBottom: '10px' }}>⚠️</div>
-                  <div style={{ fontSize: '14px', color: '#ff8a80', marginBottom: '14px' }}>{error}</div>
-                  <button onClick={reset} style={{ padding: '10px 24px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', color: BASE.text, fontSize: '13px', fontWeight: '600' }}>Try Again</button>
+                  <div style={{ fontSize: '14px', color: '#ff8a80', marginBottom: '16px' }}>{error}</div>
+                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <button onClick={reset} style={{ padding: '10px 24px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', color: BASE.text, fontSize: '13px', fontWeight: '600' }}>Try Again</button>
+                    <button onClick={async () => {
+                      await fetch('/api/report-bug', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error, userId: user?.id, productType: product?.id, goal: activeGoal }) })
+                      alert('Bug reported. Thank you!')
+                    }} style={{ padding: '10px 24px', borderRadius: '10px', background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.3)', color: '#ff8a80', fontSize: '13px', fontWeight: '600' }}>🐛 Report Bug</button>
+                  </div>
                 </div>
               ) : (
                 <>
@@ -904,17 +923,30 @@ export default function Home({ user, profile, refreshProfile }) {
 
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
                     <button onClick={togglePlay} disabled={!audioUrl}
-                      style={{ flex: 1, padding: isMobile ? '14px' : '15px', borderRadius: '12px', background: audioUrl ? p.grad : 'rgba(255,255,255,0.04)', color: '#050a14', fontSize: isMobile ? '14px' : '15px', fontWeight: '800', boxShadow: audioUrl && !playing ? `0 4px 20px ${p.glow}` : 'none', animation: !playing && isHype && audioUrl ? 'hypePulse 1.8s ease-in-out infinite' : 'none' }}>
+                      style={{ flex: 1, padding: isMobile ? '14px' : '15px', borderRadius: '12px', background: audioUrl ? p.grad : 'rgba(255,255,255,0.04)', color: '#03050f', fontSize: isMobile ? '14px' : '15px', fontWeight: '800', boxShadow: audioUrl && !playing ? `0 4px 20px ${p.glow}` : 'none', animation: !playing && isHype && audioUrl ? 'hypePulse 1.8s ease-in-out infinite' : 'none' }}>
                       {playing ? '⏸ Pause' : (isHype ? '🔥 Play' : '▶ Play')}
                     </button>
-                    {audioUrl && (
+                    {audioUrl && profile?.plan === 'pro' ? (
                       <a href={audioUrl} download="rewiremode-session.mp3"
-                        style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${p.color}44`, color: p.color, fontSize: '18px', display: 'flex', alignItems: 'center', textDecoration: 'none' }} title="Download audio">
+                        onClick={() => alert('Note: the downloaded file does not include background music. To listen with music, play online in RewireMode.')}
+                        style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${p.color}44`, color: p.color, fontSize: '18px', display: 'flex', alignItems: 'center', textDecoration: 'none' }} title="Download audio (no music)">
                         ⬇
                       </a>
+                    ) : audioUrl && (
+                      <button onClick={() => setShowCredits(true)}
+                        style={{ padding: '14px', borderRadius: '12px', border: '1px solid rgba(168,85,247,0.4)', color: '#a855f7', fontSize: '12px', fontWeight: '700', background: 'rgba(168,85,247,0.06)' }} title="Pro feature">
+                        💎
+                      </button>
                     )}
                     <button onClick={reset} title="Start a new session" style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: isMobile ? '11px' : '12px', fontWeight: '600', whiteSpace: 'nowrap' }}>{isMobile ? '↩' : 'New session'}</button>
                   </div>
+
+                  {profile?.plan !== 'pro' && audioUrl && (
+                    <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.2)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ fontSize: '12px', color: BASE.textMuted }}>💎 Download your sessions — Pro feature</div>
+                      <button onClick={() => window.location.href = '/pricing'} style={{ fontSize: '11px', color: '#a855f7', fontWeight: '700', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(168,85,247,0.3)', background: 'none', whiteSpace: 'nowrap' }}>Upgrade →</button>
+                    </div>
+                  )}
 
                   {saveLimitHit && (
                     <div style={{ padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,159,67,0.08)', border: '1px solid rgba(255,159,67,0.25)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
@@ -948,7 +980,7 @@ export default function Home({ user, profile, refreshProfile }) {
           )}
 
           <div style={{ textAlign: 'center', marginTop: '52px', fontSize: '11px', color: BASE.textFaint, letterSpacing: '0.12em', fontWeight: '500' }}>
-            ✦ STAY IN REWRITE MODE ✦
+            YOUR MIND IS READY TO BE REWIRED
           </div>
           <div style={{ textAlign: 'center', marginTop: '16px', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
             <a href="/terms" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Terms</a>
