@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { useState } from 'react'
 
 const BASE = {
-  bg: '#050a14',
+  bg: '#03050f',
   bgCard: 'rgba(255,255,255,0.03)',
   border: 'rgba(255,255,255,0.08)',
   text: '#e8f4ff',
@@ -10,7 +10,7 @@ const BASE = {
   textFaint: 'rgba(232,244,255,0.2)',
 }
 
-const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png'
+const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png'
 
 const FAQS = [
   {
@@ -108,8 +108,8 @@ function FAQItem({ question, answer }) {
   return (
     <div style={{ borderBottom: `1px solid ${BASE.border}` }}>
       <button onClick={() => setOpen(!open)} style={{ width: '100%', padding: '18px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
-        <span style={{ fontSize: '15px', color: open ? '#00d4ff' : BASE.text, fontWeight: '600', lineHeight: 1.4, transition: 'color 0.2s ease' }}>{question}</span>
-        <span style={{ fontSize: '20px', color: '#00d4ff', flexShrink: 0, transform: open ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s ease', lineHeight: 1 }}>+</span>
+        <span style={{ fontSize: '15px', color: open ? '#6366f1' : BASE.text, fontWeight: '600', lineHeight: 1.4, transition: 'color 0.2s ease' }}>{question}</span>
+        <span style={{ fontSize: '20px', color: '#6366f1', flexShrink: 0, transform: open ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s ease', lineHeight: 1 }}>+</span>
       </button>
       {open && (
         <div style={{ paddingBottom: '20px', fontSize: '14px', color: BASE.textMuted, lineHeight: '1.8' }}>{answer}</div>
@@ -132,22 +132,22 @@ export default function FAQ({ user, profile }) {
           @keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
           @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
           button{cursor:pointer;font-family:inherit}
-          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);border-radius:4px}
+          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.2);border-radius:4px}
         `}</style>
 
         {/* Background */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,150,255,0.07) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
+          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.07) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
           <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(120,50,220,0.07) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 10s ease-in-out infinite 2s' }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(0,150,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,150,255,0.02) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(99,102,241,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.02) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
         </div>
 
         {/* Nav */}
-        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
+        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(99,102,241,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px 0' }}>
             <div />
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              {profile && <div style={{ fontSize: '13px', color: '#00d4ff', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)' }}>✦ {profile.credits} credits</div>}
+              {profile && <div style={{ fontSize: '13px', color: '#6366f1', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.06)' }}>✦ {profile.credits} credits</div>}
               <a href="/dashboard" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>Dashboard</a>
               <a href="/" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>← Back</a>
             </div>
@@ -163,10 +163,10 @@ export default function FAQ({ user, profile }) {
 
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '60px', animation: 'fadeUp 0.6s ease both' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.06)', fontSize: '11px', letterSpacing: '0.15em', color: '#00d4ff', marginBottom: '20px', fontWeight: '600' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.06)', fontSize: '11px', letterSpacing: '0.15em', color: '#6366f1', marginBottom: '20px', fontWeight: '600' }}>
               ◈ QUESTIONS ANSWERED
             </div>
-            <h1 style={{ fontSize: 'clamp(28px,5vw,42px)', fontWeight: '800', marginBottom: '16px', background: 'linear-gradient(135deg,#ffffff 0%,#00d4ff 50%,#a855f7 100%)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 4s linear infinite' }}>
+            <h1 style={{ fontSize: 'clamp(28px,5vw,42px)', fontWeight: '800', marginBottom: '16px', background: 'linear-gradient(135deg,#ffffff 0%,#6366f1 50%,#a855f7 100%)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 4s linear infinite' }}>
               Everything you need to know
             </h1>
             <p style={{ color: BASE.textMuted, fontSize: '15px', lineHeight: 1.7, maxWidth: '520px', margin: '0 auto' }}>
@@ -177,10 +177,10 @@ export default function FAQ({ user, profile }) {
           {/* FAQ sections */}
           {FAQS.map((section, si) => (
             <div key={si} style={{ marginBottom: '48px', animation: `fadeUp 0.6s ease ${0.1 * si}s both` }}>
-              <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: '#00d4ff', fontWeight: '700', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ flex: 1, height: '1px', background: 'rgba(0,212,255,0.15)' }} />
+              <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: '#6366f1', fontWeight: '700', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ flex: 1, height: '1px', background: 'rgba(99,102,241,0.15)' }} />
                 {section.category.toUpperCase()}
-                <div style={{ flex: 1, height: '1px', background: 'rgba(0,212,255,0.15)' }} />
+                <div style={{ flex: 1, height: '1px', background: 'rgba(99,102,241,0.15)' }} />
               </div>
               <div style={{ padding: '0 4px' }}>
                 {section.questions.map((item, qi) => (
@@ -191,13 +191,13 @@ export default function FAQ({ user, profile }) {
           ))}
 
           {/* CTA */}
-          <div style={{ marginTop: '56px', padding: '36px', borderRadius: '20px', background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.2)', textAlign: 'center', animation: 'fadeUp 0.6s ease 0.4s both' }}>
+          <div style={{ marginTop: '56px', padding: '36px', borderRadius: '20px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.2)', textAlign: 'center', animation: 'fadeUp 0.6s ease 0.4s both' }}>
             <div style={{ fontSize: '24px', marginBottom: '12px' }}>✦</div>
             <h2 style={{ fontSize: '22px', fontWeight: '800', color: BASE.text, marginBottom: '10px' }}>Ready to start rewiring?</h2>
             <p style={{ fontSize: '14px', color: BASE.textMuted, marginBottom: '24px', lineHeight: 1.7 }}>
               Your first session is free. No card required. Generated in real time for you.
             </p>
-            <a href="/" style={{ display: 'inline-block', padding: '14px 32px', borderRadius: '12px', background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#050a14', fontSize: '15px', fontWeight: '800', textDecoration: 'none', letterSpacing: '0.02em' }}>
+            <a href="/" style={{ display: 'inline-block', padding: '14px 32px', borderRadius: '12px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#03050f', fontSize: '15px', fontWeight: '800', textDecoration: 'none', letterSpacing: '0.02em' }}>
               Start Free →
             </a>
           </div>
