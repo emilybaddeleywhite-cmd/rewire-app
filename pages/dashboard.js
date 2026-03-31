@@ -39,7 +39,6 @@ export default function Dashboard({ user, profile, refreshProfile }) {
   const [activeTab, setActiveTab] = useState('sessions')
   const [showCredits, setShowCredits] = useState(false)
   const [creditsLoading, setCreditsLoading] = useState(null)
-  const [isMobile, setIsMobile] = useState(false)
   const [renamingId, setRenamingId] = useState(null)
   const [renameValue, setRenameValue] = useState('')
   const [playingId, setPlayingId] = useState(null)
