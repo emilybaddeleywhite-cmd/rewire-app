@@ -305,9 +305,6 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                       </div>
                     )
                   })}
-                      </div>
-                    )
-                  })}
                 </div>
               )}
 
