@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
 
@@ -27,7 +27,7 @@ function useIsMobile() {
 const TYPE_CONFIG = {
   reset:      { color: '#6366f1', emoji: '🧠', label: 'Reset Hypnosis' },
   sleep:      { color: '#a855f7', emoji: '🌙', label: 'Sleep Hypnosis' },
-  subliminal: { color: '#00ff88', emoji: '🌊', label: 'Subliminal' },
+  subliminal: { color: '#22d3ee', emoji: '🌊', label: 'Subliminal' },
   hype:       { color: '#f59e0b', emoji: '🔥', label: 'Hype Coach' },
 }
 
@@ -44,6 +44,35 @@ export default function Dashboard({ user, profile, refreshProfile }) {
   const [renameValue, setRenameValue] = useState('')
   const [playingId, setPlayingId] = useState(null)
   const audioRef = useRef(null)
+  const isMobile = useIsMobile()
+
+  async function renameSession(sessionId, newName) {
+    await fetch('/api/rename-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, userId: user.id, newName }),
+    })
+    setRenamingId(null)
+    fetchSessions()
+  }
+
+  function togglePlay(session) {
+    if (playingId === session.id) {
+      audioRef.current?.pause()
+      setPlayingId(null)
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause()
+      }
+      setPlayingId(session.id)
+      setTimeout(() => {
+        if (audioRef.current) {
+          audioRef.current.src = session.audio_url
+          audioRef.current.play().catch(() => setPlayingId(null))
+        }
+      }, 50)
+    }
+  }
 
   async function checkout(productKey) {
     setCreditsLoading(productKey)
@@ -111,7 +140,9 @@ export default function Dashboard({ user, profile, refreshProfile }) {
           *{box-sizing:border-box;margin:0;padding:0}
           @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
           @keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
+          @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
           button{cursor:pointer;border:none;background:none;font-family:inherit}
+          input{font-family:inherit}
           ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.2);border-radius:4px}
         `}</style>
 
@@ -203,6 +234,8 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                 })}
               </div>
 
+              <audio ref={audioRef} onEnded={() => setPlayingId(null)} />
+
               {loading ? (
                 <div style={{ textAlign: 'center', padding: '48px', color: BASE.textMuted }}>Loading your sessions...</div>
               ) : sessions.length === 0 ? (
@@ -215,25 +248,63 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                 <div style={{ display: 'grid', gap: '10px' }}>
                   {sessions.map(s => {
                     const cfg = TYPE_CONFIG[s.product_type] || TYPE_CONFIG.reset
+                    const isPlaying = playingId === s.id
+                    const isRenaming = renamingId === s.id
                     return (
-                      <div key={s.id} style={{ padding: isMobile ? '12px 14px' : '16px 20px', borderRadius: '14px', background: BASE.bgCard, border: `1px solid ${BASE.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: isMobile ? '22px' : '28px', flexShrink: 0 }}>{cfg.emoji}</div>
-                          <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: isMobile ? '13px' : '14px', color: BASE.text, fontWeight: '600', marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.goal}</div>
-                            <div style={{ fontSize: '11px', color: BASE.textMuted }}>
-                              <span style={{ color: cfg.color, fontWeight: '600' }}>{cfg.label}</span>
-                              {' · '}{new Date(s.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                              {s.mood && ` · ${s.mood}/10`}
+                      <div key={s.id} style={{ padding: isMobile ? '12px 14px' : '16px 20px', borderRadius: '14px', background: BASE.bgCard, border: `1px solid ${isPlaying ? cfg.color + '44' : BASE.border}`, transition: 'border 0.2s ease' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: isMobile ? '22px' : '26px', flexShrink: 0 }}>{cfg.emoji}</div>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              {isRenaming ? (
+                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                  <input
+                                    autoFocus
+                                    value={renameValue}
+                                    onChange={e => setRenameValue(e.target.value)}
+                                    onKeyDown={e => {
+                                      if (e.key === 'Enter') renameSession(s.id, renameValue)
+                                      if (e.key === 'Escape') setRenamingId(null)
+                                    }}
+                                    style={{ flex: 1, padding: '6px 10px', borderRadius: '8px', border: `1px solid ${cfg.color}66`, background: 'rgba(255,255,255,0.05)', color: BASE.text, fontSize: '13px', outline: 'none', fontFamily: 'inherit' }}
+                                  />
+                                  <button onClick={() => renameSession(s.id, renameValue)} style={{ padding: '6px 10px', borderRadius: '8px', background: cfg.color, color: '#fff', fontSize: '11px', fontWeight: '700' }}>Save</button>
+                                  <button onClick={() => setRenamingId(null)} style={{ padding: '6px 10px', borderRadius: '8px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '11px' }}>✕</button>
+                                </div>
+                              ) : (
+                                <div style={{ fontSize: isMobile ? '13px' : '14px', color: BASE.text, fontWeight: '600', marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer' }}
+                                  onDoubleClick={() => { setRenamingId(s.id); setRenameValue(s.goal) }}>
+                                  {s.goal}
+                                </div>
+                              )}
+                              <div style={{ fontSize: '11px', color: BASE.textMuted }}>
+                                <span style={{ color: cfg.color, fontWeight: '600' }}>{cfg.label}</span>
+                                {' · '}{new Date(s.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                                {s.mood && ` · ${s.mood}/10`}
+                                {!isRenaming && <span onClick={() => { setRenamingId(s.id); setRenameValue(s.goal) }} style={{ marginLeft: '6px', cursor: 'pointer', opacity: 0.5 }}>✏️</span>}
+                              </div>
                             </div>
                           </div>
+                          <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                            {s.audio_url && (
+                              <button onClick={() => togglePlay(s)} style={{ padding: '7px 12px', borderRadius: '8px', border: `1px solid ${cfg.color}44`, background: isPlaying ? cfg.color + '20' : 'transparent', color: cfg.color, fontSize: '13px', fontWeight: '700' }}>
+                                {isPlaying ? '⏸' : '▶'}
+                              </button>
+                            )}
+                            {s.audio_url && isPro && !isMobile && (
+                              <a href={s.audio_url} download style={{ padding: '7px 12px', borderRadius: '8px', border: `1px solid rgba(99,102,241,0.3)`, color: '#6366f1', fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>⬇</a>
+                            )}
+                            <button onClick={() => deleteSession(s.id)} style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(255,80,80,0.2)', color: 'rgba(255,100,100,0.6)', fontSize: '11px', fontWeight: '600' }}>Delete</button>
+                          </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                          {s.audio_url && !isMobile && (
-                            <a href={s.audio_url} download style={{ padding: '7px 12px', borderRadius: '8px', border: `1px solid rgba(99,102,241,0.3)`, color: '#6366f1', fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>⬇</a>
-                          )}
-                          <button onClick={() => deleteSession(s.id)} style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(255,80,80,0.2)', color: 'rgba(255,100,100,0.6)', fontSize: '11px', fontWeight: '600' }}>Delete</button>
-                        </div>
+                        {isPlaying && (
+                          <div style={{ marginTop: '10px', height: '2px', borderRadius: '2px', background: `${cfg.color}22`, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', background: `linear-gradient(90deg,transparent,${cfg.color},transparent)`, animation: 'shimmer 1.5s linear infinite', backgroundSize: '200% auto' }} />
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                       </div>
                     )
                   })}
