@@ -3,7 +3,7 @@ import Head from 'next/head'
 import { supabase } from '../lib/supabase'
 
 const BASE = {
-  bg: '#050a14',
+  bg: '#03050f',
   bgCard: 'rgba(255,255,255,0.03)',
   border: 'rgba(255,255,255,0.08)',
   text: '#e8f4ff',
@@ -11,7 +11,7 @@ const BASE = {
   textFaint: 'rgba(232,244,255,0.2)',
 }
 
-const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png'
+const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
@@ -25,10 +25,10 @@ function useIsMobile() {
 }
 
 const TYPE_CONFIG = {
-  reset:      { color: '#00d4ff', emoji: '🧠', label: 'Reset Hypnosis' },
+  reset:      { color: '#6366f1', emoji: '🧠', label: 'Reset Hypnosis' },
   sleep:      { color: '#a855f7', emoji: '🌙', label: 'Sleep Hypnosis' },
   subliminal: { color: '#00ff88', emoji: '🌊', label: 'Subliminal' },
-  hype:       { color: '#60a5fa', emoji: '🔥', label: 'Hype Coach' },
+  hype:       { color: '#f59e0b', emoji: '🔥', label: 'Hype Coach' },
 }
 
 export default function Dashboard({ user, profile, refreshProfile }) {
@@ -39,7 +39,11 @@ export default function Dashboard({ user, profile, refreshProfile }) {
   const [activeTab, setActiveTab] = useState('sessions')
   const [showCredits, setShowCredits] = useState(false)
   const [creditsLoading, setCreditsLoading] = useState(null)
-  const isMobile = useIsMobile()
+  const [isMobile, setIsMobile] = useState(false)
+  const [renamingId, setRenamingId] = useState(null)
+  const [renameValue, setRenameValue] = useState('')
+  const [playingId, setPlayingId] = useState(null)
+  const audioRef = useRef(null)
 
   async function checkout(productKey) {
     setCreditsLoading(productKey)
@@ -92,7 +96,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
     <div style={{ minHeight: '100vh', background: BASE.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: BASE.text, fontFamily: 'Inter,sans-serif' }}>
       <div style={{ textAlign: 'center' }}>
         <p style={{ marginBottom: '16px', color: BASE.textMuted }}>Please sign in to view your dashboard</p>
-        <a href="/" style={{ color: '#00d4ff', textDecoration: 'none' }}>Back to RewireMode</a>
+        <a href="/" style={{ color: '#6366f1', textDecoration: 'none' }}>Back to RewireMode</a>
       </div>
     </div>
   )
@@ -108,29 +112,29 @@ export default function Dashboard({ user, profile, refreshProfile }) {
           @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
           @keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
           button{cursor:pointer;border:none;background:none;font-family:inherit}
-          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);border-radius:4px}
+          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.2);border-radius:4px}
         `}</style>
 
         {/* Background */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,150,255,0.06) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
+          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.06) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
           <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(120,50,220,0.06) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 10s ease-in-out infinite 2s' }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(0,150,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,150,255,0.02) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(99,102,241,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.02) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
         </div>
 
         {/* Nav */}
-        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '8px 14px 0' : '8px 24px 0' }}>
-            <div />
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <div style={{ fontSize: '13px', color: '#00d4ff', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)', cursor: 'pointer' }} onClick={() => setShowCredits(true)}>✦ {profile?.credits || 0} credits</div>
-              <a href="/faq" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>FAQ</a>
-              <button onClick={signOut} style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>Sign out</button>
+        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(99,102,241,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '8px 12px 0' : '8px 24px 0' }}>
+            <a href="/" style={{ fontSize: isMobile ? '11px' : '12px', color: BASE.textMuted, padding: isMobile ? '5px 10px' : '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>🏠 {!isMobile && 'Home'}</a>
+            <div style={{ display: 'flex', gap: isMobile ? '6px' : '10px', alignItems: 'center' }}>
+              <div onClick={() => setShowCredits(true)} style={{ fontSize: isMobile ? '12px' : '13px', color: '#6366f1', fontWeight: '600', padding: isMobile ? '5px 10px' : '5px 12px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.06)', cursor: 'pointer' }}>✦ {profile?.credits || 0}{!isMobile && ' credits'}</div>
+              <a href="/faq" style={{ fontSize: isMobile ? '11px' : '12px', color: BASE.textMuted, padding: isMobile ? '5px 10px' : '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>FAQ</a>
+              <button onClick={signOut} style={{ fontSize: isMobile ? '11px' : '12px', color: BASE.textMuted, padding: isMobile ? '5px 10px' : '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>Sign out</button>
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', padding: '0 24px 10px' }}>
             <a href="/">
-              <img src={LOGO} alt="RewireMode" style={{ height: '160px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
+              <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '100px' : '160px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
             </a>
           </div>
         </nav>
@@ -148,7 +152,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
           {/* Stats */}
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4,1fr)', gap: '12px', marginBottom: '32px', animation: 'fadeUp 0.6s ease 0.1s both' }}>
             {[
-              { label: 'Credits', value: profile?.credits || 0, color: '#00d4ff', icon: '✦' },
+              { label: 'Credits', value: profile?.credits || 0, color: '#6366f1', icon: '✦' },
               { label: 'Day Streak', value: `${profile?.streak_count || 0} 🔥`, color: '#ff9f43' },
               { label: 'Sessions', value: sessions.length, color: '#00ff88' },
               { label: 'Plan', value: isPro ? 'Pro 💎' : 'Free', color: isPro ? '#a855f7' : BASE.textMuted },
@@ -169,7 +173,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
           {/* Tabs */}
           <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', background: BASE.bgCard, padding: '4px', borderRadius: '12px', border: `1px solid ${BASE.border}`, width: 'fit-content' }}>
             {['sessions', 'account'].map(tab => (
-              <button key={tab} onClick={() => setActiveTab(tab)} style={{ padding: '8px 20px', borderRadius: '9px', fontSize: '13px', fontWeight: '600', background: activeTab === tab ? 'rgba(0,212,255,0.12)' : 'transparent', color: activeTab === tab ? '#00d4ff' : BASE.textMuted, border: activeTab === tab ? '1px solid rgba(0,212,255,0.25)' : '1px solid transparent', transition: 'all 0.18s ease' }}>
+              <button key={tab} onClick={() => setActiveTab(tab)} style={{ padding: '8px 20px', borderRadius: '9px', fontSize: '13px', fontWeight: '600', background: activeTab === tab ? 'rgba(99,102,241,0.12)' : 'transparent', color: activeTab === tab ? '#6366f1' : BASE.textMuted, border: activeTab === tab ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent', transition: 'all 0.18s ease' }}>
                 {tab === 'sessions' ? '🎧 Sessions' : '👤 Account'}
               </button>
             ))}
@@ -192,7 +196,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                 {['all', 'reset', 'sleep', 'subliminal', 'hype'].map(f => {
                   const cfg = TYPE_CONFIG[f]
                   return (
-                    <button key={f} onClick={() => setFilter(f)} style={{ padding: '5px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: '600', border: `1px solid ${filter === f ? (cfg?.color || '#00d4ff') + '88' : BASE.border}`, background: filter === f ? (cfg?.color || '#00d4ff') + '12' : 'transparent', color: filter === f ? (cfg?.color || '#00d4ff') : BASE.textMuted, transition: 'all 0.18s ease' }}>
+                    <button key={f} onClick={() => setFilter(f)} style={{ padding: '5px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: '600', border: `1px solid ${filter === f ? (cfg?.color || '#6366f1') + '88' : BASE.border}`, background: filter === f ? (cfg?.color || '#6366f1') + '12' : 'transparent', color: filter === f ? (cfg?.color || '#6366f1') : BASE.textMuted, transition: 'all 0.18s ease' }}>
                       {f === 'all' ? 'All' : isMobile ? cfg?.emoji : `${cfg?.emoji} ${cfg?.label}`}
                     </button>
                   )
@@ -205,7 +209,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                 <div style={{ textAlign: 'center', padding: '56px 20px' }}>
                   <div style={{ fontSize: '40px', marginBottom: '14px' }}>✦</div>
                   <p style={{ color: BASE.textMuted, marginBottom: '16px', fontSize: '15px' }}>No sessions yet.</p>
-                  <a href="/" style={{ color: '#00d4ff', textDecoration: 'none', fontWeight: '600' }}>Create your first session →</a>
+                  <a href="/" style={{ color: '#6366f1', textDecoration: 'none', fontWeight: '600' }}>Create your first session →</a>
                 </div>
               ) : (
                 <div style={{ display: 'grid', gap: '10px' }}>
@@ -226,7 +230,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                         </div>
                         <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                           {s.audio_url && !isMobile && (
-                            <a href={s.audio_url} download style={{ padding: '7px 12px', borderRadius: '8px', border: `1px solid rgba(0,212,255,0.3)`, color: '#00d4ff', fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>⬇</a>
+                            <a href={s.audio_url} download style={{ padding: '7px 12px', borderRadius: '8px', border: `1px solid rgba(99,102,241,0.3)`, color: '#6366f1', fontSize: '14px', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>⬇</a>
                           )}
                           <button onClick={() => deleteSession(s.id)} style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(255,80,80,0.2)', color: 'rgba(255,100,100,0.6)', fontSize: '11px', fontWeight: '600' }}>Delete</button>
                         </div>
@@ -237,7 +241,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
               )}
 
               <div style={{ textAlign: 'center', marginTop: '32px' }}>
-                <a href="/" style={{ fontSize: '14px', color: '#00d4ff', textDecoration: 'none', fontWeight: '600' }}>+ Create new session</a>
+                <a href="/" style={{ fontSize: '14px', color: '#6366f1', textDecoration: 'none', fontWeight: '600' }}>+ Create new session</a>
               </div>
             </div>
           )}
@@ -274,7 +278,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                     </p>
                     <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                       <button onClick={manageBilling} disabled={cancelLoading}
-                        style={{ padding: '10px 18px', borderRadius: '10px', border: '1px solid rgba(0,212,255,0.25)', color: '#00d4ff', fontSize: '13px', fontWeight: '600', background: 'rgba(0,212,255,0.06)' }}>
+                        style={{ padding: '10px 18px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.25)', color: '#6366f1', fontSize: '13px', fontWeight: '600', background: 'rgba(99,102,241,0.06)' }}>
                         {cancelLoading ? 'Opening...' : 'Update Payment Method'}
                       </button>
                       <button onClick={manageBilling} disabled={cancelLoading}
@@ -296,7 +300,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                 )}
               </div>
 
-              <div style={{ padding: '24px', borderRadius: '18px', background: BASE.bgCard, border: `1px solid rgba(0,212,255,0.15)` }}>
+              <div style={{ padding: '24px', borderRadius: '18px', background: BASE.bgCard, border: `1px solid rgba(99,102,241,0.15)` }}>
                 <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: BASE.textMuted, marginBottom: '12px', fontWeight: '600' }}>TOP UP CREDITS</div>
                 <p style={{ fontSize: '13px', color: BASE.textMuted, marginBottom: '20px', lineHeight: 1.6 }}>Buy credits without a subscription. They never expire.</p>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '10px' }}>
@@ -305,10 +309,10 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                     { key: 'credits_50', label: '50 Credits', price: '£15', per: '30p each' },
                     { key: 'credits_100', label: '100 Credits', price: '£25', per: '25p each', best: true },
                   ].map(c => (
-                    <a key={c.key} href={`/pricing?buy=${c.key}`} style={{ padding: '16px 12px', borderRadius: '12px', border: `1px solid ${c.best ? 'rgba(0,212,255,0.4)' : BASE.border}`, background: c.best ? 'rgba(0,212,255,0.06)' : BASE.bgCard, textAlign: 'center', textDecoration: 'none', display: 'block' }}>
-                      {c.best && <div style={{ fontSize: '10px', color: '#00d4ff', fontWeight: '700', marginBottom: '4px', letterSpacing: '0.1em' }}>BEST VALUE</div>}
+                    <a key={c.key} href={`/pricing?buy=${c.key}`} style={{ padding: '16px 12px', borderRadius: '12px', border: `1px solid ${c.best ? 'rgba(99,102,241,0.4)' : BASE.border}`, background: c.best ? 'rgba(99,102,241,0.06)' : BASE.bgCard, textAlign: 'center', textDecoration: 'none', display: 'block' }}>
+                      {c.best && <div style={{ fontSize: '10px', color: '#6366f1', fontWeight: '700', marginBottom: '4px', letterSpacing: '0.1em' }}>BEST VALUE</div>}
                       <div style={{ fontSize: '14px', color: BASE.text, fontWeight: '700', marginBottom: '2px' }}>{c.label}</div>
-                      <div style={{ fontSize: '18px', color: '#00d4ff', fontWeight: '800', marginBottom: '2px' }}>{c.price}</div>
+                      <div style={{ fontSize: '18px', color: '#6366f1', fontWeight: '800', marginBottom: '2px' }}>{c.price}</div>
                       <div style={{ fontSize: '11px', color: BASE.textFaint }}>{c.per}</div>
                     </a>
                   ))}
@@ -329,12 +333,12 @@ export default function Dashboard({ user, profile, refreshProfile }) {
 
       {showCredits && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,20,0.92)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
-          <div style={{ background: 'linear-gradient(145deg,#0a1628,#060e1c)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '24px', padding: '36px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 0 60px rgba(0,150,255,0.1)' }}>
+          <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '24px', padding: '36px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 0 60px rgba(99,102,241,0.1)' }}>
             <button onClick={() => setShowCredits(false)} style={{ position: 'absolute', top: '16px', right: '16px', color: BASE.textMuted, fontSize: '22px', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <div style={{ fontSize: '30px', marginBottom: '10px' }}>✦</div>
-              <h2 style={{ fontSize: '20px', color: '#00d4ff', fontWeight: '700', marginBottom: '6px' }}>Top up your credits</h2>
-              <p style={{ fontSize: '13px', color: BASE.textMuted }}>You have <strong style={{ color: '#00d4ff' }}>{profile?.credits || 0} credits</strong> remaining</p>
+              <h2 style={{ fontSize: '20px', color: '#6366f1', fontWeight: '700', marginBottom: '6px' }}>Top up your credits</h2>
+              <p style={{ fontSize: '13px', color: BASE.textMuted }}>You have <strong style={{ color: '#6366f1' }}>{profile?.credits || 0} credits</strong> remaining</p>
             </div>
             {!isPro && (
               <div style={{ padding: '20px', borderRadius: '14px', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.3)', marginBottom: '20px' }}>
@@ -354,12 +358,12 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                 { key: 'credits_100', label: '100 Credits', price: '£25', per: '25p each — best value' },
               ].map(c => (
                 <button key={c.key} onClick={() => checkout(c.key)} disabled={creditsLoading === c.key}
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderRadius: '12px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.04)', cursor: 'pointer', width: '100%', fontFamily: 'inherit' }}>
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderRadius: '12px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', cursor: 'pointer', width: '100%', fontFamily: 'inherit' }}>
                   <div style={{ textAlign: 'left' }}>
                     <div style={{ fontSize: '14px', color: BASE.text, fontWeight: '700' }}>{c.label}</div>
                     <div style={{ fontSize: '12px', color: BASE.textFaint }}>{c.per}</div>
                   </div>
-                  <div style={{ fontSize: '18px', color: '#00d4ff', fontWeight: '800' }}>{creditsLoading === c.key ? '...' : c.price}</div>
+                  <div style={{ fontSize: '18px', color: '#6366f1', fontWeight: '800' }}>{creditsLoading === c.key ? '...' : c.price}</div>
                 </button>
               ))}
             </div>
