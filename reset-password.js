@@ -3,7 +3,7 @@ import Head from 'next/head'
 import { supabase } from '../lib/supabase'
 
 const BASE = {
-  bg: '#050a14',
+  bg: '#03050f',
   bgCard: 'rgba(255,255,255,0.03)',
   border: 'rgba(255,255,255,0.08)',
   text: '#e8f4ff',
@@ -11,7 +11,7 @@ const BASE = {
   textFaint: 'rgba(232,244,255,0.2)',
 }
 
-const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png'
+const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png'
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('')
@@ -37,7 +37,7 @@ export default function ResetPassword() {
         <style>{`*{box-sizing:border-box;margin:0;padding:0} button{cursor:pointer;font-family:inherit} input{font-family:inherit;outline:none}`}</style>
 
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,150,255,0.08) 0%,transparent 65%)', filter: 'blur(60px)' }} />
+          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 65%)', filter: 'blur(60px)' }} />
         </div>
 
         <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px' }}>
@@ -47,30 +47,30 @@ export default function ResetPassword() {
             </a>
           </div>
 
-          <div style={{ background: 'linear-gradient(145deg,#0a1628,#060e1c)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: '24px', padding: '40px', boxShadow: '0 0 60px rgba(0,150,255,0.1)' }}>
+          <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '24px', padding: '40px', boxShadow: '0 0 60px rgba(99,102,241,0.1)' }}>
             {done ? (
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '40px', marginBottom: '16px' }}>✦</div>
-                <h2 style={{ fontSize: '20px', color: '#00d4ff', fontWeight: '700', marginBottom: '10px' }}>Password updated</h2>
+                <h2 style={{ fontSize: '20px', color: '#6366f1', fontWeight: '700', marginBottom: '10px' }}>Password updated</h2>
                 <p style={{ fontSize: '14px', color: BASE.textMuted, marginBottom: '24px', lineHeight: 1.6 }}>Your password has been changed. You can now sign in.</p>
-                <a href="/" style={{ display: 'block', padding: '14px', borderRadius: '12px', background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#050a14', fontSize: '14px', fontWeight: '700', textDecoration: 'none', textAlign: 'center' }}>
+                <a href="/" style={{ display: 'block', padding: '14px', borderRadius: '12px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#03050f', fontSize: '14px', fontWeight: '700', textDecoration: 'none', textAlign: 'center' }}>
                   Back to RewireMode →
                 </a>
               </div>
             ) : (
               <>
                 <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                  <h2 style={{ fontSize: '21px', color: '#00d4ff', fontWeight: '700', marginBottom: '6px' }}>Set a new password</h2>
+                  <h2 style={{ fontSize: '21px', color: '#6366f1', fontWeight: '700', marginBottom: '6px' }}>Set a new password</h2>
                   <p style={{ fontSize: '13px', color: BASE.textMuted }}>Choose something memorable and secure.</p>
                 </div>
                 <input value={password} onChange={e => setPassword(e.target.value)} placeholder="New password (min 6 characters)" type="password"
-                  style={{ width: '100%', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.04)', color: BASE.text, fontSize: '14px', marginBottom: '12px' }} />
+                  style={{ width: '100%', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', color: BASE.text, fontSize: '14px', marginBottom: '12px' }} />
                 <input value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Confirm new password" type="password"
-                  style={{ width: '100%', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.04)', color: BASE.text, fontSize: '14px', marginBottom: '8px' }}
+                  style={{ width: '100%', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', color: BASE.text, fontSize: '14px', marginBottom: '8px' }}
                   onKeyDown={e => e.key === 'Enter' && handleReset()} />
                 {error && <p style={{ color: '#ff6b6b', fontSize: '13px', marginBottom: '12px' }}>{error}</p>}
                 <button onClick={handleReset} disabled={loading}
-                  style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#050a14', fontSize: '15px', fontWeight: '700', border: 'none', marginTop: '8px' }}>
+                  style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#03050f', fontSize: '15px', fontWeight: '700', border: 'none', marginTop: '8px' }}>
                   {loading ? 'Updating...' : 'Update Password →'}
                 </button>
               </>
