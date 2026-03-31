@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { useState, useEffect } from 'react'
 
 const BASE = {
-  bg: '#050a14',
+  bg: '#03050f',
   bgCard: 'rgba(255,255,255,0.03)',
   border: 'rgba(255,255,255,0.08)',
   text: '#e8f4ff',
@@ -10,7 +10,7 @@ const BASE = {
   textFaint: 'rgba(232,244,255,0.2)',
 }
 
-const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png'
+const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
@@ -60,20 +60,20 @@ export default function Pricing({ user, profile }) {
           @keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
           @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
           button{cursor:pointer;border:none;background:none;font-family:inherit}
-          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);border-radius:4px}
+          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.2);border-radius:4px}
         `}</style>
 
         {/* Background */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,150,255,0.07) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
+          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.07) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
           <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(120,50,220,0.07) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 10s ease-in-out infinite 2s' }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(0,150,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,150,255,0.02) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(99,102,241,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.02) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
         </div>
 
         {/* Nav */}
-        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
+        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(99,102,241,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '8px 24px 0', gap: '10px' }}>
-            {profile && <div style={{ fontSize: '13px', color: '#00d4ff', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.25)', background: 'rgba(0,212,255,0.06)' }}>✦ {profile.credits} credits</div>}
+            {profile && <div style={{ fontSize: '13px', color: '#6366f1', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.06)' }}>✦ {profile.credits} credits</div>}
             <a href="/faq" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>FAQ</a>
             <a href="/" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>← Back</a>
           </div>
@@ -86,10 +86,10 @@ export default function Pricing({ user, profile }) {
 
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '48px', animation: 'fadeUp 0.6s ease both' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(0,212,255,0.2)', background: 'rgba(0,212,255,0.06)', fontSize: '11px', letterSpacing: '0.15em', color: '#00d4ff', marginBottom: '20px', fontWeight: '600' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.06)', fontSize: '11px', letterSpacing: '0.15em', color: '#6366f1', marginBottom: '20px', fontWeight: '600' }}>
               ◈ SIMPLE PRICING
             </div>
-            <h1 style={{ fontSize: isMobile ? '28px' : '40px', fontWeight: '800', marginBottom: '12px', background: 'linear-gradient(135deg,#ffffff 0%,#00d4ff 50%,#a855f7 100%)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 4s linear infinite' }}>
+            <h1 style={{ fontSize: isMobile ? '28px' : '40px', fontWeight: '800', marginBottom: '12px', background: 'linear-gradient(135deg,#ffffff 0%,#6366f1 50%,#a855f7 100%)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 4s linear infinite' }}>
               Choose your plan
             </h1>
             <p style={{ color: BASE.textMuted, fontSize: '15px' }}>Start free. Upgrade when you're ready. Cancel anytime.</p>
@@ -104,7 +104,7 @@ export default function Pricing({ user, profile }) {
               <div style={{ fontSize: '38px', fontWeight: '800', color: BASE.text, marginBottom: '4px' }}>£0
                 <span style={{ fontSize: '14px', color: BASE.textMuted, fontWeight: '400' }}>/month</span>
               </div>
-              <div style={{ fontSize: '13px', color: '#00ff88', marginBottom: '28px', fontWeight: '600' }}>5 credits per week</div>
+              <div style={{ fontSize: '13px', color: '#22d3ee', marginBottom: '28px', fontWeight: '600' }}>5 credits per week</div>
               <div style={{ marginBottom: '28px' }}>
                 {[
                   '5 credits per week',
@@ -114,7 +114,7 @@ export default function Pricing({ user, profile }) {
                   'Full session library access',
                 ].map(f => (
                   <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: BASE.textMuted, marginBottom: '12px' }}>
-                    <span style={{ color: '#00ff88', fontWeight: '700', fontSize: '16px' }}>✓</span> {f}
+                    <span style={{ color: '#22d3ee', fontWeight: '700', fontSize: '16px' }}>✓</span> {f}
                   </div>
                 ))}
               </div>
@@ -154,7 +154,7 @@ export default function Pricing({ user, profile }) {
 
           {/* What uses credits */}
           <div style={{ padding: '28px', borderRadius: '20px', background: BASE.bgCard, border: `1px solid ${BASE.border}`, marginBottom: '32px', animation: 'fadeUp 0.6s ease 0.15s both' }}>
-            <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: '#00d4ff', fontWeight: '700', marginBottom: '20px' }}>HOW CREDITS WORK</div>
+            <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: '#6366f1', fontWeight: '700', marginBottom: '20px' }}>HOW CREDITS WORK</div>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: '16px' }}>
               {[
                 { emoji: '🧠', label: 'Reset Hypnosis', credits: '1 credit', duration: '5 min' },
@@ -165,7 +165,7 @@ export default function Pricing({ user, profile }) {
                 <div key={s.label} style={{ padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: `1px solid ${BASE.border}`, textAlign: 'center' }}>
                   <div style={{ fontSize: '24px', marginBottom: '8px' }}>{s.emoji}</div>
                   <div style={{ fontSize: '13px', color: BASE.text, fontWeight: '600', marginBottom: '4px' }}>{s.label}</div>
-                  <div style={{ fontSize: '12px', color: '#00d4ff', fontWeight: '700', marginBottom: '2px' }}>{s.credits}</div>
+                  <div style={{ fontSize: '12px', color: '#6366f1', fontWeight: '700', marginBottom: '2px' }}>{s.credits}</div>
                   <div style={{ fontSize: '11px', color: BASE.textFaint }}>{s.duration}</div>
                 </div>
               ))}
@@ -184,12 +184,12 @@ export default function Pricing({ user, profile }) {
                 { key: 'credits_50',  label: '50 Credits', price: '£15', per: '30p per credit', best: false },
                 { key: 'credits_100', label: '100 Credits', price: '£25', per: '25p per credit', best: true },
               ].map(c => (
-                <div key={c.key} style={{ padding: '24px 20px', borderRadius: '18px', border: `1px solid ${c.best ? 'rgba(0,212,255,0.4)' : BASE.border}`, background: c.best ? 'rgba(0,212,255,0.05)' : BASE.bgCard, textAlign: 'center', position: 'relative', boxShadow: c.best ? '0 0 30px rgba(0,212,255,0.08)' : 'none' }}>
-                  {c.best && <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#050a14', fontSize: '10px', fontWeight: '800', padding: '4px 14px', borderRadius: '100px', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>BEST VALUE</div>}
+                <div key={c.key} style={{ padding: '24px 20px', borderRadius: '18px', border: `1px solid ${c.best ? 'rgba(99,102,241,0.4)' : BASE.border}`, background: c.best ? 'rgba(99,102,241,0.05)' : BASE.bgCard, textAlign: 'center', position: 'relative', boxShadow: c.best ? '0 0 30px rgba(99,102,241,0.08)' : 'none' }}>
+                  {c.best && <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#03050f', fontSize: '10px', fontWeight: '800', padding: '4px 14px', borderRadius: '100px', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>BEST VALUE</div>}
                   <div style={{ fontSize: '17px', color: BASE.text, fontWeight: '700', marginBottom: '6px' }}>{c.label}</div>
-                  <div style={{ fontSize: '32px', color: '#00d4ff', fontWeight: '800', marginBottom: '4px' }}>{c.price}</div>
+                  <div style={{ fontSize: '32px', color: '#6366f1', fontWeight: '800', marginBottom: '4px' }}>{c.price}</div>
                   <div style={{ fontSize: '12px', color: BASE.textFaint, marginBottom: '20px' }}>{c.per}</div>
-                  <button onClick={() => checkout(c.key)} style={{ width: '100%', padding: '12px', borderRadius: '10px', background: c.best ? 'linear-gradient(135deg,#00d4ff,#0088cc)' : 'rgba(0,212,255,0.08)', border: c.best ? 'none' : '1px solid rgba(0,212,255,0.25)', color: c.best ? '#050a14' : '#00d4ff', fontSize: '14px', fontWeight: '700' }}>
+                  <button onClick={() => checkout(c.key)} style={{ width: '100%', padding: '12px', borderRadius: '10px', background: c.best ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'rgba(99,102,241,0.08)', border: c.best ? 'none' : '1px solid rgba(99,102,241,0.25)', color: c.best ? '#03050f' : '#6366f1', fontSize: '14px', fontWeight: '700' }}>
                     {loading === c.key ? 'Loading...' : 'Buy Now'}
                   </button>
                 </div>
