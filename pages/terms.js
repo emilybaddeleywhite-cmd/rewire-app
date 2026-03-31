@@ -1,7 +1,7 @@
 import Head from 'next/head'
 
 const BASE = {
-  bg: '#050a14',
+  bg: '#03050f',
   bgCard: 'rgba(255,255,255,0.03)',
   border: 'rgba(255,255,255,0.08)',
   text: '#e8f4ff',
@@ -9,7 +9,7 @@ const BASE = {
   textFaint: 'rgba(232,244,255,0.2)',
 }
 
-const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png.png'
+const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png'
 
 export default function Terms() {
   return (
@@ -23,23 +23,23 @@ export default function Terms() {
         <style>{`
           *{box-sizing:border-box;margin:0;padding:0}
           @keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
-          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);border-radius:4px}
-          h2{font-size:18px;color:#00d4ff;font-weight:700;margin:32px 0 12px}
+          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.2);border-radius:4px}
+          h2{font-size:18px;color:#6366f1;font-weight:700;margin:32px 0 12px}
           h3{font-size:15px;color:#e8f4ff;font-weight:700;margin:20px 0 8px}
           p{font-size:14px;color:rgba(232,244,255,0.6);line-height:1.8;margin-bottom:12px}
           ul{font-size:14px;color:rgba(232,244,255,0.6);line-height:1.8;margin-bottom:12px;padding-left:20px}
           li{margin-bottom:6px}
-          a{color:#00d4ff;text-decoration:none}
+          a{color:#6366f1;text-decoration:none}
         `}</style>
 
         {/* Background */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,150,255,0.06) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(0,150,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,150,255,0.02) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
+          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.06) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(99,102,241,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.02) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
         </div>
 
         {/* Nav */}
-        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(0,212,255,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
+        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(99,102,241,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 24px 0' }}>
             <a href="/" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>← Back</a>
           </div>
@@ -51,17 +51,17 @@ export default function Terms() {
         <div style={{ maxWidth: '760px', margin: '0 auto', padding: '48px 20px 80px', position: 'relative', zIndex: 1 }}>
 
           <div style={{ marginBottom: '40px' }}>
-            <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: '#00d4ff', fontWeight: '700', marginBottom: '12px' }}>LEGAL</div>
+            <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: '#6366f1', fontWeight: '700', marginBottom: '12px' }}>LEGAL</div>
             <h1 style={{ fontSize: '32px', fontWeight: '800', color: BASE.text, marginBottom: '10px' }}>Terms of Service</h1>
             <p style={{ fontSize: '13px', color: BASE.textFaint }}>Last updated: March 2026</p>
           </div>
 
-          <div style={{ padding: '20px', borderRadius: '12px', background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.15)', marginBottom: '32px' }}>
+          <div style={{ padding: '20px', borderRadius: '12px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.15)', marginBottom: '32px' }}>
             <p style={{ margin: 0 }}>Please read these Terms of Service carefully before using RewireMode. By creating an account or using our service, you agree to be bound by these terms.</p>
           </div>
 
           <h2>1. About RewireMode</h2>
-          <p>RewireMode is operated by Emily Baddeley White ("we", "us", "our"), trading as RewireMode, based in the United Kingdom. Our service provides AI-generated hypnosis and subliminal audio content for personal wellbeing and self-improvement purposes.</p>
+          <p>RewireMode ("we", "us", "our") is a UK-based platform. Our service provides AI-generated hypnosis and subliminal audio content for personal wellbeing and self-improvement purposes.</p>
           <p>You can contact us at: <a href="mailto:office@rewiremode.com">office@rewiremode.com</a></p>
 
           <h2>2. Eligibility</h2>
@@ -136,7 +136,7 @@ export default function Terms() {
           <p>If you have any questions about these terms, please contact us at <a href="mailto:office@rewiremode.com">office@rewiremode.com</a>.</p>
 
           <div style={{ marginTop: '48px', paddingTop: '24px', borderTop: `1px solid ${BASE.border}`, display: 'flex', gap: '20px', fontSize: '13px' }}>
-            <a href="/privacy" style={{ color: '#00d4ff' }}>Privacy Policy</a>
+            <a href="/privacy" style={{ color: '#6366f1' }}>Privacy Policy</a>
             <a href="/" style={{ color: BASE.textFaint }}>Back to RewireMode</a>
           </div>
         </div>
