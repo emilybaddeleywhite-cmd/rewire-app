@@ -203,7 +203,6 @@ function AuthModal({ onClose, onSuccess }) {
   const [agreedToTerms, setAgreedToTerms] = useState(false)
 
   async function handleGoogleSignIn() {
-    if (mode === 'signup' && !agreedToTerms) { setError('Please agree to the Terms of Service to continue.'); return }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin }
@@ -239,11 +238,11 @@ function AuthModal({ onClose, onSuccess }) {
     setLoading(false)
   }
 
-  const inp = { width: '100%', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', color: BASE.text, fontSize: '14px', marginBottom: '12px', fontFamily: 'inherit', outline: 'none' }
+  const inp = { width: '100%', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.06)', color: '#e8f4ff', fontSize: '14px', marginBottom: '12px', fontFamily: "'Inter','Segoe UI',system-ui,sans-serif", outline: 'none' }
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,20,0.92)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
-      <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '420px', position: 'relative', boxShadow: '0 0 60px rgba(99,102,241,0.1)', maxHeight: '90vh', overflowY: 'auto' }}>
+      <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '420px', position: 'relative', boxShadow: '0 0 60px rgba(99,102,241,0.15)', maxHeight: '90vh', overflowY: 'auto', fontFamily: "'Inter','Segoe UI',system-ui,sans-serif" }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <img src={LOGO} alt="RewireMode" style={{ height: '60px', marginBottom: '16px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
           <h2 style={{ fontSize: '21px', color: '#6366f1', fontWeight: '700', marginBottom: '6px' }}>
