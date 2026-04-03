@@ -614,16 +614,18 @@ export default function Home({ user, profile, refreshProfile }) {
 
           {/* Video */}
           {step === 0 && (
-            <div style={{ marginBottom: '36px', borderRadius: '20px', overflow: 'hidden', border: '1px solid rgba(99,102,241,0.2)', boxShadow: '0 0 40px rgba(99,102,241,0.15)', animation: 'fadeUp 0.8s ease 0.1s both', position: 'relative' }}>
-              <video
-                id="hero-video"
-                src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/RewireMode%20home%20page%20video%20%20(1).mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{ width: '100%', display: 'block', borderRadius: '20px' }}
-              />
+            <div style={{ marginBottom: '36px', animation: 'fadeUp 0.8s ease 0.1s both', position: 'relative' }}>
+              <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid rgba(99,102,241,0.2)', boxShadow: '0 0 40px rgba(99,102,241,0.15)' }}>
+                <video
+                  id="hero-video"
+                  src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/RewireMode%20home%20page%20video%20%20(1).mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  style={{ width: '100%', display: 'block' }}
+                />
+              </div>
               <button
                 onClick={() => {
                   const v = document.getElementById('hero-video')
@@ -632,7 +634,7 @@ export default function Home({ user, profile, refreshProfile }) {
                   btn.innerText = v.muted ? '🔇' : '🔊'
                 }}
                 id="mute-btn"
-                style={{ position: 'absolute', bottom: '14px', right: '14px', background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', borderRadius: '100px', width: '36px', height: '36px', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+                style={{ position: 'absolute', bottom: '14px', right: '14px', background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.25)', color: '#fff', borderRadius: '100px', width: '40px', height: '40px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)', zIndex: 10 }}>
                 🔇
               </button>
             </div>
