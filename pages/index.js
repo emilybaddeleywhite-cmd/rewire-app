@@ -582,48 +582,47 @@ export default function Home({ user, profile, refreshProfile }) {
             <a href="/faq" style={{ fontSize: '11px', color: BASE.textMuted, padding: '5px 10px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>FAQ</a>
             {!user && <button onClick={() => setShowAuth(true)} style={{ fontSize: '12px', color: '#6366f1', padding: '7px 14px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.06)', fontWeight: '600' }}>Sign In</button>}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0 24px 10px' }}>
-            <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '120px' : '160px', maxWidth: '100%', objectFit: 'contain', mixBlendMode: 'lighten' }}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '4px 24px 12px' }}>
+            <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '140px' : '200px', maxWidth: '100%', objectFit: 'contain', mixBlendMode: 'lighten' }}
               onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block' }} />
-            <span style={{ display: 'none', fontSize: '22px', fontWeight: '800', background: 'linear-gradient(135deg,#6366f1,#22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>REWIRE MODE</span>
+            <span style={{ display: 'none', fontSize: '28px', fontWeight: '900', background: 'linear-gradient(135deg,#6366f1,#22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>REWIRE MODE</span>
           </div>
         </nav>
 
         <div style={{ maxWidth: '700px', margin: '0 auto', padding: isMobile ? '24px 14px 60px' : '44px 20px 80px', position: 'relative', zIndex: 1 }}>
 
           {/* Hero */}
-          <div style={{ textAlign: 'center', marginBottom: isMobile ? '28px' : '44px', animation: 'fadeUp 0.8s ease both' }}>
-            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: isMobile ? '6px 14px' : '8px 20px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.06)', fontSize: isMobile ? '9px' : '11px', letterSpacing: '0.12em', color: '#6366f1', marginBottom: '16px', fontWeight: '600', textAlign: 'center' }}>
+          <div style={{ textAlign: 'center', marginBottom: isMobile ? '28px' : '40px', animation: 'fadeUp 0.8s ease both' }}>
+            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: isMobile ? '6px 14px' : '8px 20px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.4)', background: 'rgba(99,102,241,0.12)', fontSize: isMobile ? '9px' : '11px', letterSpacing: '0.12em', color: '#a5b4fc', marginBottom: '16px', fontWeight: '700', textAlign: 'center' }}>
               <span>◈ THE WORLD'S FIRST AI HYPNOSIS AND SUBLIMINAL PLATFORM ◈</span>
               <span>BUILT BY A QUALIFIED HYPNOTHERAPIST</span>
             </div>
-            <h1 style={{ fontSize: 'clamp(26px,5.5vw,44px)', fontWeight: '800', lineHeight: '1.1', letterSpacing: '-0.02em', marginBottom: '16px', background: 'linear-gradient(135deg,#ffffff 0%,#6366f1 35%,#22d3ee 65%,#a855f7 100%)', backgroundSize: '300% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 5s linear infinite' }}>
+            <h1 style={{ fontSize: 'clamp(30px,6vw,52px)', fontWeight: '900', lineHeight: '1.05', letterSpacing: '-0.03em', marginBottom: '16px', background: 'linear-gradient(135deg,#ffffff 0%,#a5b4fc 30%,#22d3ee 60%,#c4b5fd 100%)', backgroundSize: '300% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 5s linear infinite' }}>
               Rewire your mind.<br />Rewrite your reality.
             </h1>
-            <p style={{ color: BASE.textMuted, fontSize: isMobile ? '14px' : '15px', lineHeight: '1.75', maxWidth: '500px', margin: '0 auto 16px' }}>
+            <p style={{ color: 'rgba(232,244,255,0.75)', fontSize: isMobile ? '14px' : '16px', lineHeight: '1.75', maxWidth: '500px', margin: '0 auto 20px', fontWeight: '400' }}>
               Not a meditation app. Not a wellness app.<br />
               Clinical-grade subconscious reprogramming, generated in real time for you.
             </p>
             {!user && (
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 18px', borderRadius: '100px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${BASE.border}`, fontSize: '12px', color: BASE.textMuted }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 18px', borderRadius: '100px', background: 'rgba(34,211,238,0.08)', border: '1px solid rgba(34,211,238,0.3)', fontSize: '12px', color: '#22d3ee', fontWeight: '600' }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22d3ee', display: 'inline-block', boxShadow: '0 0 8px #22d3ee' }} />
                 Start free — 5 credits, no card required
               </div>
             )}
           </div>
 
-          {/* Science strip */}
+          {/* Video */}
           {step === 0 && (
-            <div style={{ padding: isMobile ? '16px' : '20px 22px', borderRadius: '14px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.12)', marginBottom: '28px', animation: 'fadeUp 0.8s ease 0.1s both' }}>
-              <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#6366f1', fontWeight: '700', marginBottom: '10px' }}>THE SCIENCE</div>
-              <p style={{ fontSize: '13px', color: BASE.textMuted, lineHeight: '1.75' }}>
-                During hypnosis, your brain enters theta state — the same brainwave frequency present during deep sleep. In this state, the critical faculty quiets and the subconscious becomes receptive. New neural pathways form. Old beliefs dissolve. This is neuroplasticity, and it is how RewireMode creates lasting change, not just temporary relief.
-              </p>
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-                {['Milton Model', 'Ericksonian Hypnotherapy', 'NLP', 'Neuroplasticity', 'Somatic Anchoring'].map(tag => (
-                  <span key={tag} style={{ fontSize: '11px', color: '#6366f1', background: 'rgba(99,102,241,0.08)', padding: '3px 10px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.15)', fontWeight: '600' }}>{tag}</span>
-                ))}
-              </div>
+            <div style={{ marginBottom: '36px', borderRadius: '20px', overflow: 'hidden', border: '1px solid rgba(99,102,241,0.2)', boxShadow: '0 0 40px rgba(99,102,241,0.15)', animation: 'fadeUp 0.8s ease 0.1s both' }}>
+              <video
+                src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/RewireMode%20home%20page%20video%20%20(1).mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{ width: '100%', display: 'block', borderRadius: '20px' }}
+              />
             </div>
           )}
 
@@ -640,7 +639,7 @@ export default function Home({ user, profile, refreshProfile }) {
           {step === 0 && (
             <div style={{ animation: 'fadeUp 0.5s ease both' }}>
               <div style={{ marginBottom: '28px' }}>
-                <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: BASE.textMuted, marginBottom: '14px', fontWeight: '600' }}>WHAT ARE YOU READY TO REWRITE?</div>
+                <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: 'rgba(232,244,255,0.6)', marginBottom: '14px', fontWeight: '700' }}>WHAT ARE YOU READY TO REWRITE?</div>
 
                 {/* Optional name field */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', padding: '12px 16px', borderRadius: '10px', background: BASE.bgCard, border: `1px solid ${BASE.border}` }}>
@@ -655,7 +654,7 @@ export default function Home({ user, profile, refreshProfile }) {
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
                   {GOALS.map(g => (
                     <button key={g} onClick={() => setGoal(g)}
-                      style={{ padding: '11px 8px', borderRadius: '10px', fontSize: '13px', fontWeight: '600', border: `1px solid ${goal === g ? '#6366f1cc' : BASE.border}`, background: goal === g ? 'rgba(99,102,241,0.15)' : BASE.bgCard, color: goal === g ? '#6366f1' : BASE.textMuted, transition: 'all 0.18s ease', boxShadow: goal === g ? '0 0 16px rgba(99,102,241,0.2)' : 'none' }}>
+                      style={{ padding: '11px 8px', borderRadius: '10px', fontSize: '13px', fontWeight: '600', border: `1px solid ${goal === g ? '#6366f1' : 'rgba(255,255,255,0.12)'}`, background: goal === g ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.04)', color: goal === g ? '#a5b4fc' : 'rgba(232,244,255,0.7)', transition: 'all 0.18s ease', boxShadow: goal === g ? '0 0 20px rgba(99,102,241,0.3)' : 'none' }}>
                       {g}
                     </button>
                   ))}
@@ -689,9 +688,22 @@ export default function Home({ user, profile, refreshProfile }) {
               </div>
 
               <button onClick={() => activeGoal.trim() && product && setStep(1)} disabled={!activeGoal.trim() || !product}
-                style={{ width: '100%', padding: '17px', borderRadius: '14px', background: activeGoal.trim() && product ? p.grad : 'rgba(255,255,255,0.05)', color: activeGoal.trim() && product ? '#03050f' : BASE.textFaint, fontSize: '15px', fontWeight: '700', transition: 'all 0.25s ease', marginBottom: '14px', letterSpacing: '0.02em', boxShadow: activeGoal.trim() && product ? `0 4px 24px ${p.glow}` : 'none' }}>
+                style={{ width: '100%', padding: '18px', borderRadius: '14px', background: activeGoal.trim() && product ? p.grad : 'rgba(255,255,255,0.06)', color: activeGoal.trim() && product ? '#ffffff' : 'rgba(232,244,255,0.3)', fontSize: '16px', fontWeight: '800', transition: 'all 0.25s ease', marginBottom: '20px', letterSpacing: '0.02em', boxShadow: activeGoal.trim() && product ? `0 6px 32px ${p.glow}` : 'none', border: activeGoal.trim() && product ? 'none' : `1px solid rgba(255,255,255,0.06)` }}>
                 {activeGoal.trim() && product ? 'Next →' : 'Select your intention and session type'}
               </button>
+
+              {/* Science strip — below generate button */}
+              <div style={{ padding: isMobile ? '16px' : '20px 22px', borderRadius: '14px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', marginBottom: '20px' }}>
+                <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#a5b4fc', fontWeight: '700', marginBottom: '10px' }}>THE SCIENCE</div>
+                <p style={{ fontSize: '13px', color: 'rgba(232,244,255,0.65)', lineHeight: '1.75' }}>
+                  During hypnosis, your brain enters theta state — the same brainwave frequency present during deep sleep. In this state, the critical faculty quiets and the subconscious becomes receptive. New neural pathways form. Old beliefs dissolve. This is neuroplasticity, and it is how RewireMode creates lasting change, not just temporary relief.
+                </p>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+                  {['Milton Model', 'Ericksonian Hypnotherapy', 'NLP', 'Neuroplasticity', 'Somatic Anchoring'].map(tag => (
+                    <span key={tag} style={{ fontSize: '11px', color: '#a5b4fc', background: 'rgba(99,102,241,0.12)', padding: '3px 10px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.25)', fontWeight: '600' }}>{tag}</span>
+                  ))}
+                </div>
+              </div>
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', fontSize: '12px', color: BASE.textFaint }}>
                 <a href="/faq" style={{ color: BASE.textFaint, textDecoration: 'none' }}>How does it work?</a>
