@@ -584,7 +584,7 @@ export default function Home({ user, profile, refreshProfile }) {
             {!user && <button onClick={() => setShowAuth(true)} style={{ fontSize: '12px', color: '#6366f1', padding: '7px 14px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.06)', fontWeight: '600' }}>Sign In</button>}
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '4px 24px 12px' }}>
-            <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '140px' : '200px', maxWidth: '100%', objectFit: 'contain', mixBlendMode: 'lighten' }}
+            <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '280px' : '400px', maxWidth: '100%', objectFit: 'contain', mixBlendMode: 'lighten' }}
               onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block' }} />
             <span style={{ display: 'none', fontSize: '28px', fontWeight: '900', background: 'linear-gradient(135deg,#6366f1,#22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>REWIRE MODE</span>
           </div>
