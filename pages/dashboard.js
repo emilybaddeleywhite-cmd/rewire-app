@@ -164,7 +164,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', padding: '0 24px 10px' }}>
             <a href="/">
-              <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '100px' : '160px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
+              <img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '140px' : '200px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
             </a>
           </div>
         </nav>
