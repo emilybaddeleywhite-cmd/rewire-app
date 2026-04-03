@@ -1,14 +1,19 @@
+import { createClient } from '@supabase/supabase-js'
+
 export const config = {
   maxDuration: 60,
 }
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+)
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { text, voiceId, productType } = req.body
+  const { text, voiceId, productType, userId } = req.body
 
-  // ElevenLabs turbo v2.5 limit is 5000 chars
-  // We use 4500 to be safe
   const CHAR_LIMIT = 4500
   let processedText = text
 
@@ -57,9 +62,33 @@ export default async function handler(req, res) {
     }
 
     const audioBuffer = await response.arrayBuffer()
-    res.setHeader('Content-Type', 'audio/mpeg')
-    res.setHeader('Content-Disposition', 'attachment; filename="session.mp3"')
-    return res.send(Buffer.from(audioBuffer))
+
+    // Upload to Supabase Storage for permanent URL
+    const fileName = `${userId || 'anon'}-${Date.now()}.mp3`
+    const filePath = `sessions/${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('audio')
+      .upload(filePath, Buffer.from(audioBuffer), {
+        contentType: 'audio/mpeg',
+        cacheControl: '3600',
+      })
+
+    if (uploadError) {
+      console.error('Supabase upload error:', uploadError)
+      // Fall back to returning the buffer directly
+      res.setHeader('Content-Type', 'audio/mpeg')
+      res.setHeader('Content-Disposition', 'attachment; filename="session.mp3"')
+      return res.send(Buffer.from(audioBuffer))
+    }
+
+    // Return permanent public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('audio')
+      .getPublicUrl(filePath)
+
+    return res.status(200).json({ audioUrl: publicUrl })
+
   } catch (err) {
     return res.status(500).json({ error: err.message })
   }
