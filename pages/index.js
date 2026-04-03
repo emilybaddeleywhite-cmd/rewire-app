@@ -454,11 +454,12 @@ export default function Home({ user, profile, refreshProfile }) {
       const audioRes = await fetch('/api/generate-audio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: scriptData.script, voiceId: selectedVoice.id, productType: product.id }),
+        body: JSON.stringify({ text: scriptData.script, voiceId: selectedVoice.id, productType: product.id, userId: user?.id }),
       })
       if (!audioRes.ok) throw new Error('Audio generation failed')
-      const blob = await audioRes.blob()
-      const url = URL.createObjectURL(blob)
+      const audioData = await audioRes.json()
+      if (audioData.error) throw new Error(audioData.error)
+      const url = audioData.audioUrl
       setAudioUrl(url)
 
       const saveRes = await fetch('/api/save-session', {
