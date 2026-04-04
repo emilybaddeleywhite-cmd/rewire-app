@@ -465,7 +465,7 @@ export default function Home({ user, profile, refreshProfile }) {
       const saveRes = await fetch('/api/save-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, goal: activeGoal, productType: product.id, script: scriptData.script, audioUrl: url, voiceId: selectedVoice.id, mood, moment, creditCost: scriptData.cost }),
+        body: JSON.stringify({ userId: user.id, goal: activeGoal, productType: product.id, script: scriptData.script, audioUrl: url, voiceId: selectedVoice.id, mood, moment, creditCost: scriptData.cost, musicUrl: currentMusic?.url || null }),
       })
       const saveData = await saveRes.json()
       if (saveData.bonusCredits > 0) setBonusCredits(saveData.bonusCredits)
@@ -951,31 +951,11 @@ export default function Home({ user, profile, refreshProfile }) {
 
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
                     <button onClick={togglePlay} disabled={!audioUrl}
-                      style={{ flex: 1, padding: isMobile ? '14px' : '15px', borderRadius: '12px', background: audioUrl ? p.grad : 'rgba(255,255,255,0.04)', color: '#03050f', fontSize: isMobile ? '14px' : '15px', fontWeight: '800', boxShadow: audioUrl && !playing ? `0 4px 20px ${p.glow}` : 'none', animation: !playing && isHype && audioUrl ? 'hypePulse 1.8s ease-in-out infinite' : 'none' }}>
+                      style={{ flex: 1, padding: isMobile ? '14px' : '15px', borderRadius: '12px', background: audioUrl ? p.grad : 'rgba(255,255,255,0.04)', color: '#ffffff', fontSize: isMobile ? '14px' : '15px', fontWeight: '800', boxShadow: audioUrl && !playing ? `0 4px 20px ${p.glow}` : 'none', animation: !playing && isHype && audioUrl ? 'hypePulse 1.8s ease-in-out infinite' : 'none' }}>
                       {playing ? '⏸ Pause' : (isHype ? '🔥 Play' : '▶ Play')}
                     </button>
-                    {!isSubliminal && audioUrl && profile?.plan === 'pro' && (
-                      <a href={audioUrl} download="rewiremode-session.mp3"
-                        onClick={() => alert('Note: the downloaded file does not include background music. To listen with music, play online in RewireMode.')}
-                        style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${p.color}44`, color: p.color, fontSize: '18px', display: 'flex', alignItems: 'center', textDecoration: 'none' }} title="Download audio (no music)">
-                        ⬇
-                      </a>
-                    )}
-                    {!isSubliminal && audioUrl && profile?.plan !== 'pro' && (
-                      <button onClick={() => setShowCredits(true)}
-                        style={{ padding: '14px', borderRadius: '12px', border: '1px solid rgba(168,85,247,0.4)', color: '#a855f7', fontSize: '12px', fontWeight: '700', background: 'rgba(168,85,247,0.06)' }} title="Pro feature">
-                        💎
-                      </button>
-                    )}
                     <button onClick={reset} title="Start a new session" style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: isMobile ? '11px' : '12px', fontWeight: '600', whiteSpace: 'nowrap' }}>{isMobile ? '↩' : 'New session'}</button>
                   </div>
-
-                  {!isSubliminal && profile?.plan !== 'pro' && audioUrl && (
-                    <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.2)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ fontSize: '12px', color: BASE.textMuted }}>💎 Download your sessions — Pro feature</div>
-                      <button onClick={() => window.location.href = '/pricing'} style={{ fontSize: '11px', color: '#a855f7', fontWeight: '700', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(168,85,247,0.3)', background: 'none', whiteSpace: 'nowrap' }}>Upgrade →</button>
-                    </div>
-                  )}
 
                   {saveLimitHit && (
                     <div style={{ padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,159,67,0.08)', border: '1px solid rgba(255,159,67,0.25)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
