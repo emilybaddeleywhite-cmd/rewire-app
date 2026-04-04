@@ -18,7 +18,7 @@ const FAQS = [
     questions: [
       {
         q: 'What exactly is RewireMode?',
-        a: `RewireMode is the world's first AI-powered hypnosis and subliminal platform designed by a qualified hypnotherapist. Every session is generated in real time, written specifically for your intention, your mood, and your moment. Not pre-recorded scripts. Not generic meditations. Personalised clinical-grade hypnotherapy, on demand.`,
+        a: `RewireMode is the custom AI hypnosis platform. Every session is generated in real time, written specifically for your intention, your mood, and your moment. Not pre-recorded scripts. Not generic meditations. Personalised clinical-grade hypnotherapy, on demand.`,
       },
       {
         q: 'Who built this?',
