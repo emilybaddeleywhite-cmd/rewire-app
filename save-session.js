@@ -8,7 +8,7 @@ const supabase = createClient(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { userId, goal, productType, script, audioUrl, voiceId, mood, moment, creditCost } = req.body
+  const { userId, goal, productType, script, audioUrl, voiceId, mood, moment, creditCost, musicUrl } = req.body
 
   try {
     // Get full profile in one query
@@ -83,6 +83,7 @@ export default async function handler(req, res) {
         product_type: productType,
         script,
         audio_url: cleanAudioUrl,
+        music_url: musicUrl || null,
         voice_id: voiceId,
         mood,
         moment,
