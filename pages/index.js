@@ -389,7 +389,7 @@ export default function Home({ user, profile, refreshProfile }) {
   const [streak, setStreak] = useState(0)
   const [bonusCredits, setBonusCredits] = useState(0)
   const [firstName, setFirstName] = useState('')
-  const [musicVolume, setMusicVolume] = useState(0.18)
+  const [musicVolume, setMusicVolume] = useState(isSubliminal ? 0.32 : 0.18)
   const audioRef = useRef(null)
   const musicRef = useRef(null)
   const timerRef = useRef(null)
@@ -400,6 +400,7 @@ export default function Home({ user, profile, refreshProfile }) {
   useEffect(() => { if (profile) setStreak(profile.streak_count || 0) }, [profile])
   useEffect(() => { if (product?.id) setMusicVolume(MUSIC[product.id]?.volume || 0.18) }, [product])
   useEffect(() => { if (musicRef.current) musicRef.current.volume = musicVolume }, [musicVolume])
+  useEffect(() => { setMusicVolume(isSubliminal ? 0.32 : 0.18) }, [isSubliminal])
 
   const p = product || PRODUCTS[0]
   const isHype = product?.id === 'hype'
@@ -489,11 +490,12 @@ export default function Home({ user, profile, refreshProfile }) {
   async function togglePlay() {
     if (!audioRef.current) return
     if (!playing) {
+      // For subliminal, voice is nearly inaudible — just below conscious hearing
+      audioRef.current.volume = isSubliminal ? 0.07 : 1.0
       audioRef.current.play()
       if (musicRef.current) { musicRef.current.volume = musicVolume; musicRef.current.loop = true; musicRef.current.play().catch(() => {}) }
       setPlaying(true)
       timerRef.current = setInterval(() => setTimer(t => t + 1), 1000)
-      // Request wake lock to keep screen on during session
       try {
         if ('wakeLock' in navigator) {
           wakeLockRef.current = await navigator.wakeLock.request('screen')
@@ -504,7 +506,6 @@ export default function Home({ user, profile, refreshProfile }) {
       if (musicRef.current) musicRef.current.pause()
       setPlaying(false)
       clearInterval(timerRef.current)
-      // Release wake lock
       if (wakeLockRef.current) { wakeLockRef.current.release(); wakeLockRef.current = null }
     }
   }
@@ -725,7 +726,7 @@ export default function Home({ user, profile, refreshProfile }) {
                 <span>·</span>
                 <a href="/pricing" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Pricing</a>
                 <span>·</span>
-                <span>Built by a qualified hypnotherapist</span>
+                <a href="/contact" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Contact</a>
               </div>
             </div>
           )}
@@ -1008,11 +1009,12 @@ export default function Home({ user, profile, refreshProfile }) {
           <div style={{ textAlign: 'center', marginTop: '52px', fontSize: '11px', color: BASE.textFaint, letterSpacing: '0.12em', fontWeight: '500' }}>
             YOUR MIND IS READY TO BE REWIRED
           </div>
-          <div style={{ textAlign: 'center', marginTop: '16px', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
+          <div style={{ textAlign: 'center', marginTop: '16px', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px', flexWrap: 'wrap' }}>
             <a href="/terms" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Terms</a>
             <a href="/privacy" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Privacy</a>
             <a href="/faq" style={{ color: BASE.textFaint, textDecoration: 'none' }}>FAQ</a>
-            <a href="mailto:office@rewiremode.com" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Contact</a>
+            <a href="/pricing" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Pricing</a>
+            <a href="/contact" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Contact</a>
           </div>
         </div>
       </div>
