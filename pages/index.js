@@ -490,7 +490,7 @@ export default function Home({ user, profile, refreshProfile }) {
     if (!audioRef.current) return
     if (!playing) {
       // For subliminal, voice is nearly inaudible — just below conscious hearing
-      audioRef.current.volume = isSubliminal ? 0.03 : 1.0
+      audioRef.current.volume = isSubliminal ? 0.02 : 1.0
       audioRef.current.play()
       if (musicRef.current) { musicRef.current.volume = musicVolume; musicRef.current.loop = true; musicRef.current.play().catch(() => {}) }
       setPlaying(true)
@@ -536,7 +536,7 @@ export default function Home({ user, profile, refreshProfile }) {
   return (
     <>
       <Head>
-        <title>RewireMode — The world's first AI hypnosis platform built by a qualified hypnotherapist</title>
+        <title>RewireMode — Custom AI Hypnosis Platform</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Personalised hypnosis, subliminal and performance audio generated in real time. Built by a qualified hypnotherapist." />
       </Head>
@@ -595,7 +595,7 @@ export default function Home({ user, profile, refreshProfile }) {
           {/* Hero */}
           <div style={{ textAlign: 'center', marginBottom: isMobile ? '28px' : '40px', animation: 'fadeUp 0.8s ease both' }}>
             <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: isMobile ? '6px 14px' : '8px 20px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.4)', background: 'rgba(99,102,241,0.12)', fontSize: isMobile ? '9px' : '11px', letterSpacing: '0.12em', color: '#a5b4fc', marginBottom: '16px', fontWeight: '700', textAlign: 'center' }}>
-              <span>◈ THE WORLD'S FIRST AI HYPNOSIS AND SUBLIMINAL PLATFORM ◈</span>
+              <span>◈ CUSTOM AI HYPNOSIS PLATFORM ◈</span>
               <span>BUILT BY A QUALIFIED HYPNOTHERAPIST</span>
             </div>
             <h1 style={{ fontSize: 'clamp(30px,6vw,52px)', fontWeight: '900', lineHeight: '1.05', letterSpacing: '-0.03em', marginBottom: '16px', background: 'linear-gradient(135deg,#ffffff 0%,#a5b4fc 30%,#22d3ee 60%,#c4b5fd 100%)', backgroundSize: '300% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'shimmer 5s linear infinite' }}>
@@ -874,15 +874,15 @@ export default function Home({ user, profile, refreshProfile }) {
 
           {/* ── STEP 5: LOADING ── */}
           {step === 5 && (
-            <div style={{ animation: 'fadeUp 0.5s ease both', textAlign: 'center', padding: '40px 0' }}>
+            <div style={{ animation: 'fadeUp 0.5s ease both', textAlign: 'center', padding: isMobile ? '20px 0' : '40px 0' }}>
               <div style={{ position: 'relative', width: '90px', height: '90px', margin: '0 auto 32px' }}>
                 <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `2px solid ${p.color}33`, borderTopColor: p.color, animation: 'spin 1.4s linear infinite' }} />
                 <div style={{ position: 'absolute', inset: '12px', borderRadius: '50%', border: `1px solid ${p.colorB}44`, borderBottomColor: p.colorB, animation: 'spinR 2s linear infinite' }} />
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>{product?.emoji}</div>
               </div>
 
-              <div style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px', overflow: 'hidden' }}>
-                <div key={loadMsgIndex} style={{ fontSize: '15px', color: p.color, fontWeight: '600', animation: 'fadeMsg 3.5s ease both', maxWidth: '420px', lineHeight: 1.5, textAlign: 'center' }}>
+              <div style={{ minHeight: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px', padding: '0 20px' }}>
+                <div key={loadMsgIndex} style={{ fontSize: isMobile ? '14px' : '15px', color: p.color, fontWeight: '600', animation: 'fadeMsg 3.5s ease both', maxWidth: '420px', lineHeight: 1.6, textAlign: 'center' }}>
                   {currentLoadMsg}
                 </div>
               </div>
