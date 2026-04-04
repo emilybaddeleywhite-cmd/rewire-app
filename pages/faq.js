@@ -154,7 +154,7 @@ export default function FAQ({ user, profile }) {
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', padding: '0 24px 10px' }}>
             <a href="/">
-              <img src={LOGO} alt="RewireMode" style={{ height: '400px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
+              <img src={LOGO} alt="RewireMode" style={{ height: '120px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
             </a>
           </div>
         </nav>
