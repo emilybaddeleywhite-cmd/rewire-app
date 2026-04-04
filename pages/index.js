@@ -400,7 +400,6 @@ export default function Home({ user, profile, refreshProfile }) {
   useEffect(() => { if (profile) setStreak(profile.streak_count || 0) }, [profile])
   useEffect(() => { if (product?.id) setMusicVolume(MUSIC[product.id]?.volume || 0.18) }, [product])
   useEffect(() => { if (musicRef.current) musicRef.current.volume = musicVolume }, [musicVolume])
-  useEffect(() => { setMusicVolume(isSubliminal ? 0.32 : 0.18) }, [isSubliminal])
 
   const p = product || PRODUCTS[0]
   const isHype = product?.id === 'hype'
