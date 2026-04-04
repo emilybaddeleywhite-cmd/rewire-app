@@ -43,7 +43,7 @@ export default function ResetPassword() {
         <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px' }}>
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
             <a href="/">
-              <img src={LOGO} alt="RewireMode" style={{ height: '400px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
+              <img src={LOGO} alt="RewireMode" style={{ height: '120px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} />
             </a>
           </div>
 
