@@ -55,19 +55,30 @@ export default function Dashboard({ user, profile, refreshProfile }) {
     fetchSessions()
   }
 
+  const SUBLIMINAL_MUSIC = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/music-subliminal.mp3.mp3'
+
   function togglePlay(session) {
+    const isSubliminal = session.product_type === 'subliminal'
+    const musicUrl = session.music_url || (isSubliminal ? SUBLIMINAL_MUSIC : null)
     if (playingId === session.id) {
       audioRef.current?.pause()
+      if (musicRef.current) { musicRef.current.pause(); musicRef.current.src = '' }
       setPlayingId(null)
     } else {
-      if (audioRef.current) {
-        audioRef.current.pause()
-      }
+      if (audioRef.current) audioRef.current.pause()
+      if (musicRef.current) { musicRef.current.pause(); musicRef.current.src = '' }
       setPlayingId(session.id)
       setTimeout(() => {
         if (audioRef.current) {
           audioRef.current.src = session.audio_url
+          audioRef.current.volume = isSubliminal ? 0.02 : 1.0
           audioRef.current.play().catch(() => setPlayingId(null))
+        }
+        if (musicUrl && musicRef.current) {
+          musicRef.current.src = musicUrl
+          musicRef.current.volume = 0.25
+          musicRef.current.loop = true
+          musicRef.current.play().catch(() => {})
         }
       }, 50)
     }
@@ -233,7 +244,11 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                 })}
               </div>
 
-              <audio ref={audioRef} onEnded={() => setPlayingId(null)} />
+              <audio ref={audioRef} onEnded={() => {
+                setPlayingId(null)
+                if (musicRef.current) { musicRef.current.pause(); musicRef.current.src = '' }
+              }} />
+              <audio ref={musicRef} />
 
               {loading ? (
                 <div style={{ textAlign: 'center', padding: '48px', color: BASE.textMuted }}>Loading your sessions...</div>
@@ -290,9 +305,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                                 {isPlaying ? '⏸' : '▶'}
                               </button>
                             )}
-                            {s.audio_url && isPro && !isMobile && (
-                              <a href={s.audio_url} download style={{ padding: '7px 10px', borderRadius: '8px', border: `1px solid rgba(99,102,241,0.3)`, color: '#6366f1', fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>⬇</a>
-                            )}
+                            {s.audio_url && isPro && !isMobile && null}
                             {isMobile && (
                               <button onClick={() => { setRenamingId(s.id); setRenameValue(s.goal) }} style={{ padding: '5px 8px', borderRadius: '8px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '11px', flexShrink: 0 }}>✏️</button>
                             )}
