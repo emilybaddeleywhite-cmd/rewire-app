@@ -78,7 +78,7 @@ export default function Pricing({ user, profile }) {
             <a href="/" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>← Back</a>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', padding: '0 24px 10px' }}>
-            <a href="/"><img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '280px' : '400px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} /></a>
+            <a href="/"><img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '80px' : '120px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} /></a>
           </div>
         </nav>
 
