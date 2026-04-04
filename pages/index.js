@@ -490,7 +490,7 @@ export default function Home({ user, profile, refreshProfile }) {
     if (!audioRef.current) return
     if (!playing) {
       // For subliminal, voice is nearly inaudible — just below conscious hearing
-      audioRef.current.volume = isSubliminal ? 0.07 : 1.0
+      audioRef.current.volume = isSubliminal ? 0.03 : 1.0
       audioRef.current.play()
       if (musicRef.current) { musicRef.current.volume = musicVolume; musicRef.current.loop = true; musicRef.current.play().catch(() => {}) }
       setPlaying(true)
@@ -934,15 +934,17 @@ export default function Home({ user, profile, refreshProfile }) {
                         <div style={{ textAlign: 'center', marginTop: '10px', marginBottom: '14px' }}>
                           <div style={{ fontSize: '12px', color: p.color, fontFamily: 'monospace', marginBottom: '3px' }}>{fmt(timer)} — {isHype ? 'Performance priming in progress' : 'Session in progress'}</div>
                           <div style={{ fontSize: '11px', color: BASE.textFaint, fontStyle: 'italic' }}>
-                            {isHype ? 'Feel it. Believe it. Own it.' : 'Close your eyes. Breathe slowly. Let the words reach you.'}
+                            {isSubliminal ? 'Relax and let the music wash over you.' : isHype ? 'Feel it. Believe it. Own it.' : 'Close your eyes. Breathe slowly. Let the words reach you.'}
                           </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '11px', color: BASE.textFaint, whiteSpace: 'nowrap' }}>🎵 Music volume</span>
-                          <style>{`input[type=range].mv{background:linear-gradient(to right,${p.color},${p.color}33)} input[type=range].mv::-webkit-slider-thumb{background:${p.color};border:none;width:14px;height:14px}`}</style>
-                          <input type="range" min="0" max="0.4" step="0.01" value={musicVolume} onChange={e => setMusicVolume(Number(e.target.value))} className="mv" style={{ flex: 1, height: '3px' }} />
-                          <span style={{ fontSize: '11px', color: BASE.textFaint, whiteSpace: 'nowrap' }}>{Math.round(musicVolume * 250)}%</span>
-                        </div>
+                        {!isSubliminal && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '11px', color: BASE.textFaint, whiteSpace: 'nowrap' }}>🎵 Music volume</span>
+                            <style>{`input[type=range].mv{background:linear-gradient(to right,${p.color},${p.color}33)} input[type=range].mv::-webkit-slider-thumb{background:${p.color};border:none;width:14px;height:14px}`}</style>
+                            <input type="range" min="0" max="0.4" step="0.01" value={musicVolume} onChange={e => setMusicVolume(Number(e.target.value))} className="mv" style={{ flex: 1, height: '3px' }} />
+                            <span style={{ fontSize: '11px', color: BASE.textFaint, whiteSpace: 'nowrap' }}>{Math.round(musicVolume * 250)}%</span>
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
@@ -952,13 +954,14 @@ export default function Home({ user, profile, refreshProfile }) {
                       style={{ flex: 1, padding: isMobile ? '14px' : '15px', borderRadius: '12px', background: audioUrl ? p.grad : 'rgba(255,255,255,0.04)', color: '#03050f', fontSize: isMobile ? '14px' : '15px', fontWeight: '800', boxShadow: audioUrl && !playing ? `0 4px 20px ${p.glow}` : 'none', animation: !playing && isHype && audioUrl ? 'hypePulse 1.8s ease-in-out infinite' : 'none' }}>
                       {playing ? '⏸ Pause' : (isHype ? '🔥 Play' : '▶ Play')}
                     </button>
-                    {audioUrl && profile?.plan === 'pro' ? (
+                    {!isSubliminal && audioUrl && profile?.plan === 'pro' && (
                       <a href={audioUrl} download="rewiremode-session.mp3"
                         onClick={() => alert('Note: the downloaded file does not include background music. To listen with music, play online in RewireMode.')}
                         style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${p.color}44`, color: p.color, fontSize: '18px', display: 'flex', alignItems: 'center', textDecoration: 'none' }} title="Download audio (no music)">
                         ⬇
                       </a>
-                    ) : audioUrl && (
+                    )}
+                    {!isSubliminal && audioUrl && profile?.plan !== 'pro' && (
                       <button onClick={() => setShowCredits(true)}
                         style={{ padding: '14px', borderRadius: '12px', border: '1px solid rgba(168,85,247,0.4)', color: '#a855f7', fontSize: '12px', fontWeight: '700', background: 'rgba(168,85,247,0.06)' }} title="Pro feature">
                         💎
@@ -967,7 +970,7 @@ export default function Home({ user, profile, refreshProfile }) {
                     <button onClick={reset} title="Start a new session" style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: isMobile ? '11px' : '12px', fontWeight: '600', whiteSpace: 'nowrap' }}>{isMobile ? '↩' : 'New session'}</button>
                   </div>
 
-                  {profile?.plan !== 'pro' && audioUrl && (
+                  {!isSubliminal && profile?.plan !== 'pro' && audioUrl && (
                     <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.2)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
                       <div style={{ fontSize: '12px', color: BASE.textMuted }}>💎 Download your sessions — Pro feature</div>
                       <button onClick={() => window.location.href = '/pricing'} style={{ fontSize: '11px', color: '#a855f7', fontWeight: '700', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(168,85,247,0.3)', background: 'none', whiteSpace: 'nowrap' }}>Upgrade →</button>
