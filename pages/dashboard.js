@@ -31,6 +31,58 @@ const TYPE_CONFIG = {
   hype:       { color: '#f59e0b', emoji: '🔥', label: 'Hype Coach' },
 }
 
+function DashboardFeedback({ userId }) {
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState('')
+  const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  async function submit() {
+    if (!text.trim()) return
+    setLoading(true)
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedback: text, userId }),
+    })
+    setSent(true)
+    setLoading(false)
+    setTimeout(() => { setOpen(false); setSent(false); setText('') }, 2000)
+  }
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)} style={{ fontSize: '11px', color: 'rgba(232,244,255,0.2)', background: 'none', border: '1px solid rgba(255,255,255,0.08)', padding: '6px 14px', borderRadius: '100px', cursor: 'pointer', fontFamily: 'inherit' }}>
+        💬 Share feedback
+      </button>
+      {open && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,15,0.85)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
+          <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '20px', padding: '32px', width: '100%', maxWidth: '400px', position: 'relative' }}>
+            <button onClick={() => setOpen(false)} style={{ position: 'absolute', top: '14px', right: '14px', background: 'none', border: 'none', color: 'rgba(232,244,255,0.45)', fontSize: '20px', cursor: 'pointer', fontFamily: 'inherit' }}>×</button>
+            {sent ? (
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>✦</div>
+                <div style={{ color: '#a5b4fc', fontWeight: '700', fontSize: '16px' }}>Thank you!</div>
+              </div>
+            ) : (
+              <>
+                <div style={{ fontSize: '16px', color: '#e8f4ff', fontWeight: '700', marginBottom: '6px' }}>Share your feedback</div>
+                <div style={{ fontSize: '13px', color: 'rgba(232,244,255,0.45)', marginBottom: '16px' }}>What could be better? What do you love? We read everything.</div>
+                <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Your thoughts..." rows={4}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', color: '#e8f4ff', fontSize: '13px', fontFamily: 'inherit', outline: 'none', resize: 'vertical', marginBottom: '12px' }} />
+                <button onClick={submit} disabled={loading || !text.trim()}
+                  style={{ width: '100%', padding: '13px', borderRadius: '10px', background: text.trim() ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'rgba(255,255,255,0.05)', color: text.trim() ? '#fff' : 'rgba(232,244,255,0.2)', fontSize: '14px', fontWeight: '700', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  {loading ? 'Sending...' : 'Send Feedback →'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 export default function Dashboard({ user, profile, refreshProfile }) {
   const [sessions, setSessions] = useState([])
   const [filter, setFilter] = useState('all')
@@ -204,6 +256,40 @@ export default function Dashboard({ user, profile, refreshProfile }) {
               </div>
             ))}
           </div>
+
+          {/* New user onboarding */}
+          {sessions.length === 0 && !loading && (
+            <div style={{ padding: '24px', borderRadius: '18px', background: 'linear-gradient(135deg,rgba(99,102,241,0.08),rgba(168,85,247,0.06))', border: '1px solid rgba(99,102,241,0.2)', marginBottom: '24px', animation: 'fadeUp 0.6s ease 0.15s both' }}>
+              <div style={{ fontSize: '24px', marginBottom: '10px' }}>✦</div>
+              <div style={{ fontSize: '16px', color: BASE.text, fontWeight: '700', marginBottom: '8px' }}>Welcome to RewireMode</div>
+              <div style={{ fontSize: '13px', color: BASE.textMuted, lineHeight: 1.7, marginBottom: '16px' }}>Your sessions will appear here once you generate them. Each one is created fresh for you — your intention, your voice, your script. Start with a Reset Hypnosis if you are new, or a Subliminal if you want something to run in the background.</div>
+              <a href="/" style={{ display: 'inline-block', padding: '12px 24px', borderRadius: '10px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>Generate your first session →</a>
+            </div>
+          )}
+
+          {/* Recently played */}
+          {sessions.length > 0 && (
+            <div style={{ marginBottom: '24px', animation: 'fadeUp 0.6s ease 0.15s both' }}>
+              <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: BASE.textMuted, fontWeight: '700', marginBottom: '12px' }}>JUMP BACK IN</div>
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
+                {sessions.slice(0, 3).map(s => {
+                  const cfg = TYPE_CONFIG[s.product_type] || TYPE_CONFIG.reset
+                  const isPlaying = playingId === s.id
+                  return (
+                    <div key={s.id} onClick={() => togglePlay(s)} style={{ flexShrink: 0, padding: '12px 16px', borderRadius: '12px', background: isPlaying ? cfg.color + '15' : BASE.bgCard, border: `1px solid ${isPlaying ? cfg.color + '66' : BASE.border}`, cursor: 'pointer', minWidth: '150px', maxWidth: '180px', transition: 'all 0.2s ease' }}>
+                      <div style={{ fontSize: '20px', marginBottom: '6px' }}>{isPlaying ? '⏸' : cfg.emoji}</div>
+                      <div style={{ fontSize: '12px', color: BASE.text, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '3px' }}>{s.goal}</div>
+                      <div style={{ fontSize: '10px', color: cfg.color, fontWeight: '600' }}>{cfg.label}</div>
+                    </div>
+                  )
+                })}
+                <a href="/" style={{ flexShrink: 0, padding: '12px 16px', borderRadius: '12px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', cursor: 'pointer', minWidth: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', gap: '6px' }}>
+                  <div style={{ fontSize: '20px' }}>+</div>
+                  <div style={{ fontSize: '11px', color: '#6366f1', fontWeight: '600', textAlign: 'center' }}>New session</div>
+                </a>
+              </div>
+            </div>
+          )}
 
           {profile?.streak_count > 0 && (
             <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(255,159,67,0.06)', border: '1px solid rgba(255,159,67,0.2)', marginBottom: '24px', textAlign: 'center', fontSize: '14px', color: '#ff9f43', fontStyle: 'italic', animation: 'fadeUp 0.6s ease 0.15s both' }}>
@@ -411,6 +497,9 @@ export default function Dashboard({ user, profile, refreshProfile }) {
               </div>
             </div>
           )}
+        </div>
+        <div style={{ textAlign: 'center', padding: '0 20px 40px', position: 'relative', zIndex: 1 }}>
+          <DashboardFeedback userId={user?.id} />
         </div>
       </div>
 
