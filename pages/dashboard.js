@@ -95,6 +95,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
   const [renameValue, setRenameValue] = useState('')
   const [playingId, setPlayingId] = useState(null)
   const audioRef = useRef(null)
+  const musicRef = useRef(null)
   const isMobile = useIsMobile()
 
   async function renameSession(sessionId, newName) {
