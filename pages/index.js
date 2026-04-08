@@ -190,6 +190,103 @@ function VoiceCard({ voice, selected, onSelect, theme }) {
   )
 }
 
+// ─── FEEDBACK BUTTON ──────────────────────────────────────────────────
+function FeedbackButton({ userId }) {
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState('')
+  const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  async function submit() {
+    if (!text.trim()) return
+    setLoading(true)
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedback: text, userId }),
+    })
+    setSent(true)
+    setLoading(false)
+    setTimeout(() => { setOpen(false); setSent(false); setText('') }, 2000)
+  }
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)} style={{ fontSize: '11px', color: BASE.textFaint, background: 'none', border: `1px solid ${BASE.border}`, padding: '6px 14px', borderRadius: '100px', cursor: 'pointer' }}>
+        💬 Share feedback
+      </button>
+      {open && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,15,0.85)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
+          <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '20px', padding: '32px', width: '100%', maxWidth: '400px', position: 'relative' }}>
+            <button onClick={() => setOpen(false)} style={{ position: 'absolute', top: '14px', right: '14px', background: 'none', border: 'none', color: BASE.textMuted, fontSize: '20px', cursor: 'pointer' }}>×</button>
+            {sent ? (
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>✦</div>
+                <div style={{ color: '#a5b4fc', fontWeight: '700', fontSize: '16px' }}>Thank you for your feedback!</div>
+              </div>
+            ) : (
+              <>
+                <div style={{ fontSize: '16px', color: BASE.text, fontWeight: '700', marginBottom: '6px' }}>Share your feedback</div>
+                <div style={{ fontSize: '13px', color: BASE.textMuted, marginBottom: '16px' }}>What could be better? What do you love? We read everything.</div>
+                <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Your thoughts..." rows={4}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', color: BASE.text, fontSize: '13px', fontFamily: 'inherit', outline: 'none', resize: 'vertical', marginBottom: '12px' }} />
+                <button onClick={submit} disabled={loading || !text.trim()}
+                  style={{ width: '100%', padding: '13px', borderRadius: '10px', background: text.trim() ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'rgba(255,255,255,0.05)', color: text.trim() ? '#fff' : BASE.textFaint, fontSize: '14px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
+                  {loading ? 'Sending...' : 'Send Feedback →'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+// ─── DEMO PLAYER ──────────────────────────────────────────────────────
+function DemoPlayer({ isMobile }) {
+  const [playing, setPlaying] = useState(false)
+  const audioRef = useRef(null)
+  // Replace this URL with your actual demo audio uploaded to Supabase
+  const DEMO_URL = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/demo-session.mp3'
+
+  function toggleDemo() {
+    if (!audioRef.current) return
+    if (playing) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      setPlaying(false)
+    } else {
+      audioRef.current.play().catch(() => {})
+      setPlaying(true)
+    }
+  }
+
+  return (
+    <div style={{ marginBottom: '28px', padding: '18px 20px', borderRadius: '16px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', animation: 'fadeUp 0.8s ease 0.15s both' }}>
+      <audio ref={audioRef} src={DEMO_URL} onEnded={() => setPlaying(false)} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <button onClick={toggleDemo} style={{ width: '44px', height: '44px', borderRadius: '50%', background: playing ? 'rgba(99,102,241,0.3)' : 'linear-gradient(135deg,#6366f1,#4f46e5)', border: 'none', color: '#fff', fontSize: '16px', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: playing ? 'none' : '0 4px 16px rgba(99,102,241,0.4)' }}>
+          {playing ? '⏹' : '▶'}
+        </button>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '13px', color: BASE.text, fontWeight: '700', marginBottom: '2px' }}>
+            🎧 Hear a sample session
+          </div>
+          <div style={{ fontSize: '11px', color: BASE.textMuted }}>
+            {playing ? 'Playing demo — this is what your session sounds like' : 'Press play to hear what a real RewireMode session sounds like before you sign up'}
+          </div>
+        </div>
+      </div>
+      {playing && (
+        <div style={{ marginTop: '12px', height: '2px', borderRadius: '2px', background: 'rgba(99,102,241,0.15)', overflow: 'hidden' }}>
+          <div style={{ height: '100%', background: 'linear-gradient(90deg,transparent,#6366f1,transparent)', animation: 'shimmer 1.5s linear infinite', backgroundSize: '200% auto' }} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── AUTH MODAL ───────────────────────────────────────────────────────
 function AuthModal({ onClose, onSuccess }) {
   const [mode, setMode] = useState('signup')
@@ -249,6 +346,7 @@ function AuthModal({ onClose, onSuccess }) {
             {mode === 'signup' ? 'Start rewiring your mind' : 'Welcome back'}
           </h2>
           {mode === 'signup' && <p style={{ fontSize: '13px', color: BASE.textMuted }}>5 free credits. No card needed. Generated for you in real time.</p>}
+          {mode === 'signup' && <p style={{ fontSize: '11px', color: BASE.textFaint, marginTop: '4px' }}>✦ 1 credit = 1 Reset or Hype session · 3 credits = Sleep or Subliminal session</p>}
         </div>
 
         {success ? (
@@ -641,6 +739,11 @@ export default function Home({ user, profile, refreshProfile }) {
             </div>
           )}
 
+          {/* Demo Audio */}
+          {step === 0 && (
+            <DemoPlayer isMobile={isMobile} />
+          )}
+
           {/* Step dots */}
           {step > 0 && step < 5 && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '32px' }}>
@@ -699,6 +802,18 @@ export default function Home({ user, profile, refreshProfile }) {
                       </div>
                     </button>
                   ))}
+                </div>
+
+                {/* Hypnosis vs Subliminal explainer */}
+                <div style={{ marginTop: '12px', padding: '14px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: `1px solid ${BASE.border}`, display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: '140px' }}>
+                    <div style={{ fontSize: '11px', color: '#a5b4fc', fontWeight: '700', marginBottom: '4px' }}>🧠 Hypnosis sessions</div>
+                    <div style={{ fontSize: '11px', color: BASE.textMuted, lineHeight: 1.6 }}>You listen actively. A guided voice leads your mind into theta state and delivers therapeutic suggestion directly to your subconscious.</div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: '140px' }}>
+                    <div style={{ fontSize: '11px', color: '#22d3ee', fontWeight: '700', marginBottom: '4px' }}>🌊 Subliminal sessions</div>
+                    <div style={{ fontSize: '11px', color: BASE.textMuted, lineHeight: 1.6 }}>Play in the background. Suggestions are layered under music below conscious hearing. Let it run while you work, rest, or sleep.</div>
+                  </div>
                 </div>
               </div>
 
@@ -998,6 +1113,11 @@ export default function Home({ user, profile, refreshProfile }) {
             <a href="/pricing" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Pricing</a>
             <a href="/contact" style={{ color: BASE.textFaint, textDecoration: 'none' }}>Contact</a>
           </div>
+          {user && (
+            <div style={{ textAlign: 'center', marginTop: '16px' }}>
+              <FeedbackButton userId={user?.id} />
+            </div>
+          )}
         </div>
       </div>
 
