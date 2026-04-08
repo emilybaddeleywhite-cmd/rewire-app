@@ -243,50 +243,6 @@ function FeedbackButton({ userId }) {
   )
 }
 
-// ─── DEMO PLAYER ──────────────────────────────────────────────────────
-function DemoPlayer({ isMobile }) {
-  const [playing, setPlaying] = useState(false)
-  const audioRef = useRef(null)
-  // Replace this URL with your actual demo audio uploaded to Supabase
-  const DEMO_URL = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/demo-session.mp3'
-
-  function toggleDemo() {
-    if (!audioRef.current) return
-    if (playing) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
-      setPlaying(false)
-    } else {
-      audioRef.current.play().catch(() => {})
-      setPlaying(true)
-    }
-  }
-
-  return (
-    <div style={{ marginBottom: '28px', padding: '18px 20px', borderRadius: '16px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', animation: 'fadeUp 0.8s ease 0.15s both' }}>
-      <audio ref={audioRef} src={DEMO_URL} onEnded={() => setPlaying(false)} />
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <button onClick={toggleDemo} style={{ width: '44px', height: '44px', borderRadius: '50%', background: playing ? 'rgba(99,102,241,0.3)' : 'linear-gradient(135deg,#6366f1,#4f46e5)', border: 'none', color: '#fff', fontSize: '16px', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: playing ? 'none' : '0 4px 16px rgba(99,102,241,0.4)' }}>
-          {playing ? '⏹' : '▶'}
-        </button>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: '13px', color: BASE.text, fontWeight: '700', marginBottom: '2px' }}>
-            🎧 Hear a sample session
-          </div>
-          <div style={{ fontSize: '11px', color: BASE.textMuted }}>
-            {playing ? 'Playing demo — this is what your session sounds like' : 'Press play to hear what a real RewireMode session sounds like before you sign up'}
-          </div>
-        </div>
-      </div>
-      {playing && (
-        <div style={{ marginTop: '12px', height: '2px', borderRadius: '2px', background: 'rgba(99,102,241,0.15)', overflow: 'hidden' }}>
-          <div style={{ height: '100%', background: 'linear-gradient(90deg,transparent,#6366f1,transparent)', animation: 'shimmer 1.5s linear infinite', backgroundSize: '200% auto' }} />
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── AUTH MODAL ───────────────────────────────────────────────────────
 function AuthModal({ onClose, onSuccess }) {
   const [mode, setMode] = useState('signup')
@@ -737,11 +693,6 @@ export default function Home({ user, profile, refreshProfile }) {
                 🔇
               </button>
             </div>
-          )}
-
-          {/* Demo Audio */}
-          {step === 0 && (
-            <DemoPlayer isMobile={isMobile} />
           )}
 
           {/* Step dots */}
