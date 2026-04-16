@@ -420,6 +420,156 @@ function CreditsModal({ profile, user, onClose }) {
   )
 }
 
+// ─── QUIZ MODAL ───────────────────────────────────────────────────────
+const QUIZ_QUESTIONS = [
+  {
+    id: 'q1',
+    text: 'How does your mind tend to get in your own way?',
+    options: [
+      { label: "I overthink everything and can't switch off", tags: ['Overthinking'] },
+      { label: "I doubt myself and hold back", tags: ['Confidence', 'Self-worth'] },
+      { label: "I can't focus — I'm constantly distracted", tags: ['Focus'] },
+      { label: "I feel stuck, like success isn't for me", tags: ['Success', 'Abundance'] },
+      { label: "Fear stops me from taking action", tags: ['Fear'] },
+    ],
+  },
+  {
+    id: 'q2',
+    text: 'Which of these sounds most like you right now?',
+    options: [
+      { label: "I wake up anxious before the day's even started", tags: ['Overthinking', 'Fear'] },
+      { label: "I know what I need to do but I just can't make myself do it", tags: ['Focus', 'Confidence'] },
+      { label: "I compare myself to others and always come up short", tags: ['Self-worth', 'Confidence'] },
+      { label: "I work hard but never feel like it's enough", tags: ['Abundance', 'Success'] },
+      { label: "I struggle to sleep — my brain won't stop", tags: ['Sleep', 'Overthinking'] },
+    ],
+  },
+  {
+    id: 'q3',
+    text: 'What would feel like the biggest win for you?',
+    options: [
+      { label: "Waking up calm and clear-headed", tags: ['Sleep', 'Overthinking'] },
+      { label: "Walking into a room and owning it", tags: ['Confidence'] },
+      { label: "Finally believing I deserve good things", tags: ['Self-worth', 'Abundance'] },
+      { label: "Finishing what I start without fighting myself", tags: ['Focus', 'Overthinking'] },
+      { label: "Saying yes to things that used to terrify me", tags: ['Fear', 'Confidence'] },
+    ],
+  },
+  {
+    id: 'q4',
+    text: "When things go wrong, what's your first instinct?",
+    options: [
+      { label: "Replay it obsessively and beat myself up", tags: ['Overthinking', 'Self-worth'] },
+      { label: "Assume I'm not good enough", tags: ['Self-worth', 'Confidence'] },
+      { label: "Freeze and avoid the situation next time", tags: ['Fear', 'Confidence'] },
+      { label: "Lose focus and spiral into distraction", tags: ['Focus', 'Overthinking'] },
+      { label: "Feel like success will never really happen for me", tags: ['Success', 'Abundance'] },
+    ],
+  },
+  {
+    id: 'q5',
+    text: 'If you could change one thing about how your mind works, what would it be?',
+    options: [
+      { label: "Stop the constant mental noise", tags: ['Overthinking', 'Sleep'] },
+      { label: "Trust myself more", tags: ['Confidence', 'Self-worth'] },
+      { label: "Stop letting fear make my decisions", tags: ['Fear'] },
+      { label: "Actually follow through on things", tags: ['Focus', 'Success'] },
+      { label: "Feel like abundance is possible for me", tags: ['Abundance', 'Success'] },
+    ],
+  },
+]
+
+function QuizModal({ onClose, onSelect }) {
+  const [qIndex, setQIndex] = useState(0)
+  const [answers, setAnswers] = useState([])
+  const [results, setResults] = useState(null)
+  const [picked, setPicked] = useState(null)
+
+  function handleAnswer(option) {
+    setPicked(option.label)
+    setTimeout(() => {
+      const next = [...answers, ...option.tags]
+      if (qIndex < QUIZ_QUESTIONS.length - 1) {
+        setAnswers(next)
+        setQIndex(qIndex + 1)
+        setPicked(null)
+      } else {
+        const scores = {}
+        next.forEach(tag => { scores[tag] = (scores[tag] || 0) + 1 })
+        const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1])
+        setResults(sorted.slice(0, 3).map(([tag]) => tag))
+      }
+    }, 280)
+  }
+
+  const q = QUIZ_QUESTIONS[qIndex]
+  const progress = (qIndex / QUIZ_QUESTIONS.length) * 100
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,15,0.92)', zIndex: 150, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
+      <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '24px', padding: '32px', width: '100%', maxWidth: '480px', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: 'rgba(232,244,255,0.45)', fontSize: '22px', cursor: 'pointer' }}>×</button>
+
+        {!results ? (
+          <>
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '11px', color: 'rgba(232,244,255,0.4)', letterSpacing: '0.1em' }}>QUESTION {qIndex + 1} OF {QUIZ_QUESTIONS.length}</span>
+                <span style={{ fontSize: '11px', color: '#6366f1' }}>{Math.round(progress)}%</span>
+              </div>
+              <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '100px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg,#6366f1,#a855f7)', borderRadius: '100px', transition: 'width 0.4s ease' }} />
+              </div>
+            </div>
+
+            <div style={{ fontSize: '18px', color: '#e8f4ff', fontWeight: '700', marginBottom: '22px', lineHeight: 1.45 }}>{q.text}</div>
+
+            <div style={{ display: 'grid', gap: '8px' }}>
+              {q.options.map(opt => (
+                <button key={opt.label} onClick={() => handleAnswer(opt)}
+                  style={{ padding: '14px 16px', borderRadius: '12px', textAlign: 'left', border: `1px solid ${picked === opt.label ? 'rgba(99,102,241,0.8)' : 'rgba(255,255,255,0.08)'}`, background: picked === opt.label ? 'rgba(99,102,241,0.18)' : 'rgba(255,255,255,0.03)', color: picked === opt.label ? '#a5b4fc' : 'rgba(232,244,255,0.75)', fontSize: '14px', transition: 'all 0.18s ease', cursor: 'pointer', lineHeight: 1.5 }}>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            <button onClick={() => onSelect('custom')}
+              style={{ width: '100%', marginTop: '10px', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)', background: 'transparent', color: 'rgba(232,244,255,0.3)', fontSize: '12px', cursor: 'pointer' }}>
+              I'd rather type my own goal →
+            </button>
+          </>
+        ) : (
+          <>
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <div style={{ fontSize: '32px', marginBottom: '10px' }}>✦</div>
+              <div style={{ fontSize: '18px', color: '#e8f4ff', fontWeight: '700', marginBottom: '8px' }}>Here's what your mind wants to rewire</div>
+              <div style={{ fontSize: '13px', color: 'rgba(232,244,255,0.45)' }}>Based on your answers — pick one to start with.</div>
+            </div>
+
+            <div style={{ display: 'grid', gap: '10px', marginBottom: '16px' }}>
+              {results.map((tag, i) => (
+                <button key={tag} onClick={() => onSelect(tag)}
+                  style={{ padding: '16px 18px', borderRadius: '14px', textAlign: 'left', border: `1px solid ${i === 0 ? 'rgba(99,102,241,0.6)' : 'rgba(255,255,255,0.08)'}`, background: i === 0 ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+                  <div>
+                    {i === 0 && <div style={{ fontSize: '10px', color: '#6366f1', fontWeight: '700', letterSpacing: '0.1em', marginBottom: '4px' }}>BEST MATCH</div>}
+                    <div style={{ fontSize: '15px', color: i === 0 ? '#a5b4fc' : '#e8f4ff', fontWeight: '700' }}>{tag}</div>
+                  </div>
+                  <span style={{ fontSize: '18px', color: i === 0 ? '#6366f1' : 'rgba(232,244,255,0.2)' }}>→</span>
+                </button>
+              ))}
+            </div>
+
+            <button onClick={() => onSelect('custom')}
+              style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)', background: 'transparent', color: 'rgba(232,244,255,0.35)', fontSize: '12px', cursor: 'pointer' }}>
+              None of these — I'll type my own
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── MAIN APP ─────────────────────────────────────────────────────────
 export default function Home({ user, profile, refreshProfile }) {
   const isMobile = useIsMobile()
@@ -439,6 +589,7 @@ export default function Home({ user, profile, refreshProfile }) {
   const [error, setError] = useState('')
   const [showAuth, setShowAuth] = useState(false)
   const [showCredits, setShowCredits] = useState(false)
+  const [showQuiz, setShowQuiz] = useState(false)
   const [saveLimitHit, setSaveLimitHit] = useState(false)
   const [streak, setStreak] = useState(0)
   const [bonusCredits, setBonusCredits] = useState(0)
@@ -467,7 +618,7 @@ export default function Home({ user, profile, refreshProfile }) {
   // Auto-select Emily for subliminal sessions
   useEffect(() => {
     if (isSubliminal && !selectedVoice) {
-      setSelectedVoice(VOICES.hypnosis[0]) // Emily
+      setSelectedVoice(VOICES.hypnosis[0])
     }
   }, [isSubliminal])
 
@@ -481,14 +632,12 @@ export default function Home({ user, profile, refreshProfile }) {
     }
     setStep(5); setProgress(0); setError(''); setAudioUrl(null); setLoadMsgIndex(0)
 
-    // Smooth progress bar
     let prog = 0
     progressRef.current = setInterval(() => {
       prog += Math.random() * 1.2
       if (prog < 88) setProgress(Math.min(prog, 88))
     }, 400)
 
-    // Rotating messages
     let msgIdx = 0
     loadMsgRef.current = setInterval(() => {
       msgIdx = (msgIdx + 1) % loadMessages.length
@@ -524,7 +673,6 @@ export default function Home({ user, profile, refreshProfile }) {
       const saveData = await saveRes.json()
       if (saveData.bonusCredits > 0) setBonusCredits(saveData.bonusCredits)
       if (saveData.streak) setStreak(saveData.streak)
-      // Session limit reached is non-fatal — audio still plays, just not saved
       if (saveRes.status === 403) setSaveLimitHit(true)
 
       clearInterval(progressRef.current)
@@ -543,7 +691,6 @@ export default function Home({ user, profile, refreshProfile }) {
   async function togglePlay() {
     if (!audioRef.current) return
     if (!playing) {
-      // For subliminal, voice is nearly inaudible — just below conscious hearing
       audioRef.current.volume = isSubliminal ? 0.02 : 1.0
       audioRef.current.play()
       if (musicRef.current) { musicRef.current.volume = musicVolume; musicRef.current.loop = true; musicRef.current.play().catch(() => {}) }
@@ -553,7 +700,7 @@ export default function Home({ user, profile, refreshProfile }) {
         if ('wakeLock' in navigator) {
           wakeLockRef.current = await navigator.wakeLock.request('screen')
         }
-      } catch (e) { /* wake lock not supported, ignore */ }
+      } catch (e) {}
     } else {
       audioRef.current.pause()
       if (musicRef.current) musicRef.current.pause()
@@ -720,6 +867,8 @@ export default function Home({ user, profile, refreshProfile }) {
                     style={{ flex: 1, background: 'none', border: 'none', color: BASE.text, fontSize: '13px', outline: 'none' }}
                   />
                 </div>
+
+                {/* Topic buttons */}
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
                   {GOALS.map(g => (
                     <button key={g} onClick={() => setGoal(g)}
@@ -728,14 +877,24 @@ export default function Home({ user, profile, refreshProfile }) {
                     </button>
                   ))}
                 </div>
+
+                {/* Custom goal input */}
                 <button onClick={() => setGoal('custom')}
                   style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', textAlign: 'left', border: `1px solid ${goal === 'custom' ? '#6366f1cc' : BASE.border}`, background: goal === 'custom' ? 'rgba(99,102,241,0.08)' : BASE.bgCard, color: goal === 'custom' ? '#6366f1' : BASE.textMuted, fontSize: '13px', marginBottom: '8px' }}>
-                  ✍️ Something else — enter your intention...
+                  ✍️ What do you want to rewire?
                 </button>
                 {goal === 'custom' && (
-                  <textarea autoFocus value={customGoal} onChange={e => setCustomGoal(e.target.value)} placeholder="Describe what you want to rewrite..."
+                  <textarea autoFocus value={customGoal} onChange={e => setCustomGoal(e.target.value)}
+                    placeholder="e.g. stop self-sabotaging, feel calm under pressure, believe I'm enough..."
                     style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.04)', color: BASE.text, fontSize: '14px', lineHeight: '1.65', resize: 'vertical', minHeight: '80px', marginBottom: '8px' }} />
                 )}
+
+                {/* Quiz entry */}
+                <button onClick={() => setShowQuiz(true)}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', textAlign: 'left', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', color: 'rgba(165,180,252,0.7)', fontSize: '13px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>🔍 Not sure? Find out what to rewire</span>
+                  <span style={{ fontSize: '11px', color: 'rgba(165,180,252,0.4)' }}>5 quick questions →</span>
+                </button>
               </div>
 
               <div style={{ marginBottom: '28px' }}>
@@ -773,7 +932,7 @@ export default function Home({ user, profile, refreshProfile }) {
                 {activeGoal.trim() && product ? 'Next →' : 'Select your intention and session type'}
               </button>
 
-              {/* Science strip — below generate button */}
+              {/* Science strip */}
               <div style={{ padding: isMobile ? '16px' : '20px 22px', borderRadius: '14px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', marginBottom: '20px' }}>
                 <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#a5b4fc', fontWeight: '700', marginBottom: '10px' }}>THE SCIENCE</div>
                 <p style={{ fontSize: '13px', color: 'rgba(232,244,255,0.65)', lineHeight: '1.75' }}>
@@ -821,7 +980,7 @@ export default function Home({ user, profile, refreshProfile }) {
             </div>
           )}
 
-          {/* ── STEP 2.5: FIRST NAME (OPTIONAL) ── */}
+          {/* ── STEP 2.5: FIRST NAME ── */}
           {step === 2.5 && (
             <div style={{ animation: 'fadeUp 0.5s ease both' }}>
               <div style={{ textAlign: 'center', marginBottom: '28px' }}>
@@ -967,7 +1126,6 @@ export default function Home({ user, profile, refreshProfile }) {
           {/* ── STEP 6: RESULT ── */}
           {step === 6 && (
             <div style={{ animation: 'fadeUp 0.6s ease both' }}>
-
               {error ? (
                 <div style={{ padding: '24px', borderRadius: '16px', background: 'rgba(255,60,60,0.06)', border: '1px solid rgba(255,80,80,0.2)', marginBottom: '16px', textAlign: 'center' }}>
                   <div style={{ fontSize: '28px', marginBottom: '10px' }}>⚠️</div>
@@ -1074,6 +1232,19 @@ export default function Home({ user, profile, refreshProfile }) {
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={() => { setShowAuth(false); if (step === 4) startGenerate() }} />}
       {showCredits && user && <CreditsModal profile={profile} user={user} onClose={() => setShowCredits(false)} />}
+      {showQuiz && (
+        <QuizModal
+          onClose={() => setShowQuiz(false)}
+          onSelect={(selectedGoal) => {
+            if (selectedGoal === 'custom') {
+              setGoal('custom')
+            } else {
+              setGoal(selectedGoal)
+            }
+            setShowQuiz(false)
+          }}
+        />
+      )}
     </>
   )
 }
