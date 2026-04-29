@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
+import { CrisisBlock, SafetyBlock, useSafetyGate } from './components/SafetyBlock'
 
 // ─── MOBILE DETECTION ─────────────────────────────────────────────────
 function useIsMobile() {
@@ -593,6 +594,7 @@ export default function Home({ user, profile, refreshProfile }) {
   const [saveLimitHit, setSaveLimitHit] = useState(false)
   const [streak, setStreak] = useState(0)
   const [bonusCredits, setBonusCredits] = useState(0)
+  const { safetyState, checkSafety, clearSafety } = useSafetyGate()
   const [firstName, setFirstName] = useState('')
   const [musicVolume, setMusicVolume] = useState(0.18)
   const audioRef = useRef(null)
@@ -630,6 +632,11 @@ export default function Home({ user, profile, refreshProfile }) {
     if (!profile || profile.credits < (product?.credits || 1)) {
       setShowCredits(true); return
     }
+
+    // ── Safety check (runs before anything else) ──
+    const isSafe = await checkSafety(activeGoal, user.id)
+    if (!isSafe) return
+
     setStep(5); setProgress(0); setError(''); setAudioUrl(null); setLoadMsgIndex(0)
 
     let prog = 0
@@ -1094,6 +1101,22 @@ export default function Home({ user, profile, refreshProfile }) {
                   {user ? (isHype ? '🔥 Generate My Audio' : '✦ Generate My Audio') : '✦ Sign Up Free and Generate'}
                 </button>
               </div>
+
+              {safetyState?.type === 'crisis' && (
+                <CrisisBlock onDismiss={clearSafety} />
+              )}
+              {safetyState?.type === 'block' && (
+                <SafetyBlock
+                  category={safetyState.category}
+                  suggestedRewrite={safetyState.suggestedRewrite}
+                  onUseRewrite={(rewrite) => {
+                    setGoal('custom')
+                    setCustomGoal(rewrite)
+                    clearSafety()
+                  }}
+                  onDismiss={clearSafety}
+                />
+              )}
             </div>
           )}
 
