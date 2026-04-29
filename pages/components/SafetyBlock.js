@@ -162,7 +162,7 @@ export function useSafetyGate() {
     if (!prompt?.trim()) return true
 
     // ── Layer 1: instant client-side keyword check ──
-    const { clientSafetyCheck } = await import('../clientFilter')
+    const { clientSafetyCheck } = await import('../../clientFilter')
     const l1 = clientSafetyCheck(prompt)
 
     if (!l1.safe) {
