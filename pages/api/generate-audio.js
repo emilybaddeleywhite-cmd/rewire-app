@@ -12,12 +12,24 @@ const supabase = createClient(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
+  // ── Auth: verify JWT ──
+  const token = req.headers.authorization?.split('Bearer ')[1]
+  if (!token) return res.status(401).json({ error: 'Unauthorized' })
+
+  const authClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    { global: { headers: { Authorization: `Bearer ${token}` } } }
+  )
+  const { data: { user: authUser } } = await authClient.auth.getUser()
+  if (!authUser) return res.status(401).json({ error: 'Unauthorized' })
+
   const { text, voiceId, productType, userId } = req.body
+
+  if (userId !== authUser.id) return res.status(403).json({ error: 'Forbidden' })
 
   const CHAR_LIMIT = 4500
   let processedText = text
-
-  console.log(`Audio generation - productType: ${productType}, text length: ${text.length}`)
 
   if (text.length > CHAR_LIMIT) {
     const truncated = text.substring(0, CHAR_LIMIT)
@@ -29,15 +41,14 @@ export default async function handler(req, res) {
     processedText = lastSentence > 2000
       ? truncated.substring(0, lastSentence + 1)
       : truncated
-    console.log(`Text truncated from ${text.length} to ${processedText.length} chars`)
   }
 
-  const voiceSettings = productType === 'hype'
-    ? { stability: 0.38, similarity_boost: 0.80, style: 0.62, use_speaker_boost: true, speed: 1.1 }
-    : productType === 'subliminal'
+  const voiceSettings = productType === 'subliminal'
     ? { stability: 0.98, similarity_boost: 0.60, style: 0.00, use_speaker_boost: false, speed: 0.75 }
     : productType === 'sleep'
     ? { stability: 0.98, similarity_boost: 0.80, style: 0.00, use_speaker_boost: false, speed: 0.75 }
+    : productType === 'walking'
+    ? { stability: 0.92, similarity_boost: 0.80, style: 0.05, use_speaker_boost: false, speed: 0.90 }
     : { stability: 0.95, similarity_boost: 0.85, style: 0.00, use_speaker_boost: false, speed: 0.82 }
 
   try {
@@ -58,13 +69,12 @@ export default async function handler(req, res) {
       const err = await response.json().catch(() => ({}))
       const errMsg = err.detail?.message || err.detail || JSON.stringify(err) || 'Audio generation failed'
       console.error('ElevenLabs error:', response.status, errMsg)
-      return res.status(500).json({ error: `ElevenLabs ${response.status}: ${errMsg}` })
+      return res.status(500).json({ error: `Audio generation failed. Please try again.` })
     }
 
     const audioBuffer = await response.arrayBuffer()
 
-    // Upload to Supabase Storage for permanent URL
-    const fileName = `${userId || 'anon'}-${Date.now()}.mp3`
+    const fileName = `${authUser.id}-${Date.now()}.mp3`
     const filePath = `sessions/${fileName}`
 
     const { error: uploadError } = await supabase.storage
@@ -76,13 +86,11 @@ export default async function handler(req, res) {
 
     if (uploadError) {
       console.error('Supabase upload error:', uploadError)
-      // Fall back to returning the buffer directly
       res.setHeader('Content-Type', 'audio/mpeg')
       res.setHeader('Content-Disposition', 'attachment; filename="session.mp3"')
       return res.send(Buffer.from(audioBuffer))
     }
 
-    // Return permanent public URL
     const { data: { publicUrl } } = supabase.storage
       .from('audio')
       .getPublicUrl(filePath)
@@ -90,6 +98,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ audioUrl: publicUrl })
 
   } catch (err) {
-    return res.status(500).json({ error: err.message })
+    return res.status(500).json({ error: 'Audio generation failed. Please try again.' })
   }
 }
