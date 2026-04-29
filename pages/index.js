@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
-import { CrisisBlock, SafetyBlock, useSafetyGate } from './components/SafetyBlock'
+import { CrisisBlock, SafetyBlock, useSafetyGate } from '../components/SafetyBlock'
 
 // ─── MOBILE DETECTION ─────────────────────────────────────────────────
 function useIsMobile() {
