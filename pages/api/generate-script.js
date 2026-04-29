@@ -36,8 +36,9 @@ export default async function handler(req, res) {
   }
 
   // Build system prompt based on product type
+  const safetyAddendum = `\n\nSAFETY REQUIREMENT: If the goal contains any request to harm self or others, control another person, use dark/occult themes, encourage illegal acts, or promote dangerous behaviour — respond ONLY with the JSON: {"blocked":true} and nothing else.`
   const systemPrompts = {
-    reset: `You are a clinical hypnotherapist trained in the Milton Model, Ericksonian hypnosis, and NLP. Write a 5-minute reset hypnosis script with 4 clear sections: Induction, Deepener, Suggestion, Release. Use presuppositions, embedded commands, pacing and leading, future pacing, somatic anchoring, identity-level language. Use permissive indirect language. Weave in neuroplasticity references. 5-6 rich paragraphs. ONLY the script, no titles or section labels.`,
+    reset: `You are a clinical hypnotherapist trained in the Milton Model, Ericksonian hypnosis, and NLP. Write a 5-minute reset hypnosis script with 4 clear sections: Induction, Deepener, Suggestion, Release. Use presuppositions, embedded commands, pacing and leading, future pacing, somatic anchoring, identity-level language. Use permissive indirect language. Weave in neuroplasticity references. 5-6 rich paragraphs. ONLY the script,  no titles or section labels.` + safetyAddendum,
     sleep: `You are a clinical hypnotherapist specialising in sleep and subconscious reprogramming. Write a deep sleep hypnosis script in exactly 4 sections. Keep the total script under 4000 characters.
 
 SECTION 1 - INDUCTION (short): Progressive relaxation, breath awareness, eyes closed, body softening. Slow permissive language. Theta state references.
@@ -48,9 +49,9 @@ SECTION 3 - SUGGESTION (medium): Therapeutic suggestions for the stated intentio
 
 SECTION 4 - SUBLIMINAL AFFIRMATIONS (short): 10-12 short powerful identity-level affirmations in present tense first person, one per line, directly related to the intention.
 
-No section headers in the output. Write continuously. Seamless transitions. ONLY the script text.`,
-    subliminal: `You are a subliminal audio specialist. Write a 30-minute subliminal affirmation script — short, powerful identity-level affirmations repeated in varied forms. Present tense. First and second person alternating. Neuroplasticity-based. These will be whispered under music. 50-80 affirmations. ONLY the affirmations, one per line, no numbering.`,
-    hype: `You are an elite performance coach. Write a powerful 5-minute hype coach script. Punchy sentences. Rising energy arc. Rhetorical questions. Occasional ALL CAPS for emphasis. Ends with a clear declaration. Reference neuroscience briefly. 4-5 paragraphs. ONLY the script, no titles.`,
+No section headers in the output. Write continuously. Seamless transitions.  ONLY the script text.` + safetyAddendum,
+    subliminal: `You are a subliminal audio specialist. Write a 30-minute subliminal affirmation script — short, powerful identity-level affirmations repeated in varied forms. Present tense. First and second person alternating. Neuroplasticity-based. These will be whispered under music. 50-80 affirmations. ONLY the affirmations,  one per line, no numbering.` + safetyAddendum,
+    hype: `You are an elite performance coach. Write a powerful 5-minute hype coach script. Punchy sentences. Rising energy arc. Rhetorical questions. Occasional ALL CAPS for emphasis. Ends with a clear declaration. Reference neuroscience briefly. 4-5 paragraphs.  ONLY the script, no titles.` + safetyAddendum,
   }
 
   const momentContext = moment ? {
