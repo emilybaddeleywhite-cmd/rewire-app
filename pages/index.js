@@ -20,7 +20,7 @@ const MUSIC = {
   reset:      { url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-calm.mp3.mp3',       volume: 0.18, label: 'Calm ambient' },
   sleep:      { url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-sleep.mp3.mp3',      volume: 0.15, label: 'Sleep ambient' },
   subliminal: { url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-subliminal.mp3.mp3', volume: 0.20, label: 'Subliminal ambient' },
-  hype:       { url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-hype.mp3.mp3',       volume: 0.22, label: 'Motivational' },
+  walking:    { url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-calm.mp3.mp3',       volume: 0.15, label: 'Ambient walking' },
 }
 
 // ─── LOADING MESSAGES ─────────────────────────────────────────────────
@@ -37,7 +37,7 @@ const LOAD_MESSAGES = {
     'Writing your induction sequence — guiding you into theta state...',
     'Building your deepener — progressive relaxation, body heaviness...',
     'Crafting your therapeutic suggestion phase...',
-    'Writing your subliminal affirmation layer...',
+    'Weaving your sleep affirmation layer...',
     'Your brain will continue rewiring as you sleep. Almost ready.',
     'This one takes a little longer. It is worth the wait.',
   ],
@@ -45,17 +45,16 @@ const LOAD_MESSAGES = {
     'Your subconscious processes over 11 million bits of information per second — far beyond conscious awareness...',
     'Subliminal suggestions bypass the critical faculty and speak directly to the subconscious mind...',
     'Research shows repeated exposure to identity-level statements strengthens neural pathways over time...',
-    'The brain cannot distinguish between a vividly imagined experience and a real one — this is the power of subliminal work...',
+    'The brain cannot distinguish between a vividly imagined experience and a real one...',
     'Writing your affirmations — calibrated to your exact intention, in the language of the subconscious...',
     'Almost ready. 30 minutes of deep subconscious reprogramming incoming.',
   ],
-  hype: [
-    'Analysing what is holding you back right now...',
-    'Building your identity activation sequence...',
-    'Crafting language designed to cut through resistance...',
-    'Layering NLP techniques for rapid state change...',
-    'This takes 60 to 90 seconds. Get ready.',
-    'Almost there. Your coach is warming up.',
+  walking: [
+    'Writing your walking session — designed to keep you grounded and aware...',
+    'Crafting suggestions that work with your moving body and breath...',
+    'Building language patterns that feel like natural thoughts arriving...',
+    'Your session will anchor you gently in the present moment...',
+    'Almost ready. Keep your eyes open and walk at your own pace.',
   ],
 }
 
@@ -67,61 +66,69 @@ const VOICES = {
     { id: 'KH1SQLVulwP6uG4O3nmT', name: 'River',  gender: 'male',   desc: 'Deep and soothing',   preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice3_Sample.mp3' },
     { id: 'OOk3INdXVLRmSaQoAX9D', name: 'Serena', gender: 'female', desc: 'Soft and serene',      preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice4_Sample.mp3' },
   ],
-  hype: [
-    { id: 'VlUmeC1Uzj3NnwiVR9K9', name: 'Ace',   gender: 'male',   desc: 'Sharp and direct',     preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Coach1_Sample.mp3' },
-    { id: '85o4S4rAEvTIDGtpFNUq', name: 'Blaze', gender: 'male',   desc: 'Bold and high energy', preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Coach2_Sample.mp3' },
-    { id: '5IDurXorjffl4cXSosCI', name: 'Nova',  gender: 'female', desc: 'Fierce and powerful',  preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Coach3_Sample.mp3' },
-    { id: 'ZF6FPAbjXT4488VcRRnw', name: 'Storm', gender: 'female', desc: 'Commanding and fierce', preview: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Coach4_Sample.mp3' },
-  ],
 }
 
 // ─── PRODUCTS ─────────────────────────────────────────────────────────
-const PRODUCTS = [
+// Top-level categories shown first, then sub-types of Hypnosis
+const HYPNOSIS_TYPES = [
   {
-    id: 'reset', label: 'Reset Hypnosis', emoji: '🧠', duration: '5 min', credits: 1,
-    desc: 'Induction · Deepener · Suggestion · Release',
+    id: 'reset',
+    label: 'Reset Hypnosis',
+    emoji: '🧠',
+    duration: '5 min',
+    credits: 1,
+    desc: 'A quick mental reset. Clears stress and recentres you in minutes.',
+    hoverDesc: 'You listen actively. A guided voice leads you through induction, deepening, and suggestion.',
     color: '#6366f1', colorB: '#4f46e5',
     grad: 'linear-gradient(135deg,#6366f1,#4338ca)',
     glow: 'rgba(99,102,241,0.25)',
     waveA: '#4338ca', waveB: '#6366f1',
   },
   {
-    id: 'sleep', label: 'Sleep Hypnosis', emoji: '🌙', duration: '15 min', credits: 3,
-    desc: 'Induction · Deepener · Suggestion · Subliminal affirmations',
+    id: 'sleep',
+    label: 'Sleep Hypnosis',
+    emoji: '🌙',
+    duration: '15 min',
+    credits: 3,
+    desc: 'A longer session designed to guide you into restful, rewiring sleep.',
+    hoverDesc: 'Designed to be listened to as you fall asleep. Lets your subconscious do the work overnight.',
     color: '#a855f7', colorB: '#7c3aed',
     grad: 'linear-gradient(135deg,#a855f7,#6d28d9)',
     glow: 'rgba(168,85,247,0.25)',
     waveA: '#6d28d9', waveB: '#a855f7',
   },
   {
-    id: 'subliminal', label: 'Subliminal', emoji: '🌊', duration: '30 min', credits: 3,
-    desc: 'Identity-level suggestions layered under music',
-    color: '#22d3ee', colorB: '#0891b2',
-    grad: 'linear-gradient(135deg,#22d3ee,#0891b2)',
-    glow: 'rgba(34,211,238,0.25)',
-    waveA: '#0891b2', waveB: '#22d3ee',
-  },
-  {
-    id: 'hype', label: 'Hype Coach', emoji: '🔥', duration: '5 min', credits: 1,
-    desc: 'NLP state change · Identity activation · Performance priming',
-    color: '#f59e0b', colorB: '#d97706',
-    grad: 'linear-gradient(135deg,#f59e0b,#d97706)',
-    glow: 'rgba(245,158,11,0.25)',
-    waveA: '#d97706', waveB: '#f59e0b',
+    id: 'walking',
+    label: 'Walking Hypnosis',
+    emoji: '🚶',
+    duration: '5 min',
+    credits: 1,
+    desc: 'Gentle suggestions designed to be safe while walking. Full awareness maintained.',
+    hoverDesc: 'Eyes open and alert. Suggestions arrive as natural thoughts woven through your movement.',
+    color: '#10b981', colorB: '#059669',
+    grad: 'linear-gradient(135deg,#10b981,#059669)',
+    glow: 'rgba(16,185,129,0.25)',
+    waveA: '#059669', waveB: '#10b981',
   },
 ]
+
+const SUBLIMINAL_PRODUCT = {
+  id: 'subliminal',
+  label: 'Subliminal',
+  emoji: '🌊',
+  duration: '30 min',
+  credits: 3,
+  desc: 'Identity-level suggestions layered under music. Play in the background.',
+  hoverDesc: 'Suggestions are layered below conscious hearing. Let it run while you work, rest, or sleep.',
+  color: '#22d3ee', colorB: '#0891b2',
+  grad: 'linear-gradient(135deg,#22d3ee,#0891b2)',
+  glow: 'rgba(34,211,238,0.25)',
+  waveA: '#0891b2', waveB: '#22d3ee',
+}
 
 const GOALS = [
   'Confidence', 'Overthinking', 'Sleep', 'Fear',
   'Success', 'Abundance', 'Self-worth', 'Focus',
-]
-
-const MOMENTS = [
-  { id: 'meeting', emoji: '💼', label: 'Big meeting' },
-  { id: 'workout', emoji: '💪', label: 'Workout' },
-  { id: 'sales',   emoji: '📞', label: 'Sales call' },
-  { id: 'convo',   emoji: '😰', label: 'Difficult conversation' },
-  { id: 'launch',  emoji: '🚀', label: 'Launch or presentation' },
 ]
 
 const BASE = {
@@ -135,6 +142,18 @@ const BASE = {
 
 const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png'
 
+// ─── FRIENDLY ERRORS ──────────────────────────────────────────────────
+function friendlyError(msg) {
+  if (!msg) return 'Something went wrong. Please try again.'
+  if (msg.includes('credits') || msg.includes('Credits')) return "You've run out of credits. Top up to continue."
+  if (msg.includes('Audio') || msg.includes('ElevenLabs') || msg.includes('audio')) return 'Audio generation hit a snag. Please try again in a moment.'
+  if (msg.includes('script') || msg.includes('Script')) return 'Script generation failed. Try rephrasing your intention.'
+  if (msg.includes('limit') || msg.includes('Limit')) return "You've reached your save limit. Upgrade to save more sessions."
+  if (msg.includes('Unauthorized') || msg.includes('Forbidden')) return 'Session expired. Please sign in again.'
+  if (msg.includes('network') || msg.includes('fetch')) return 'Connection issue. Check your internet and try again.'
+  return 'Something went wrong. Please try again.'
+}
+
 // ─── WAVEFORM ─────────────────────────────────────────────────────────
 function Waveform({ active, product }) {
   const [heights, setHeights] = useState(Array(32).fill(5))
@@ -145,7 +164,7 @@ function Waveform({ active, product }) {
     }, 110)
     return () => clearInterval(iv)
   }, [active])
-  const p = product || PRODUCTS[0]
+  const p = product || HYPNOSIS_TYPES[0]
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px', height: '54px' }}>
       {heights.map((h, i) => (
@@ -182,11 +201,6 @@ function VoiceCard({ voice, selected, onSelect, theme }) {
       <div style={{ fontSize: '15px', color: selected ? theme.color : BASE.text, fontWeight: '700', marginBottom: '3px' }}>{voice.name}</div>
       <div style={{ fontSize: '12px', color: BASE.textMuted, marginBottom: '6px' }}>{voice.desc}</div>
       <div style={{ fontSize: '10px', color: BASE.textFaint }}>Free preview · ~15 sec</div>
-      {previewing && (
-        <div style={{ height: '2px', borderRadius: '2px', background: `${theme.color}25`, overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: '100%', background: `linear-gradient(90deg,transparent,${theme.color},transparent)`, animation: 'shimmer 1.5s linear infinite', backgroundSize: '200% auto' }} />
-        </div>
-      )}
     </div>
   )
 }
@@ -241,6 +255,44 @@ function FeedbackButton({ userId }) {
         </div>
       )}
     </>
+  )
+}
+
+// ─── DISCLAIMER MODAL ─────────────────────────────────────────────────
+function DisclaimerModal({ onAccept }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,15,0.95)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
+      <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '24px', padding: '36px', width: '100%', maxWidth: '460px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>⚠️</div>
+          <h2 style={{ fontSize: '20px', color: BASE.text, fontWeight: '800', marginBottom: '6px' }}>Before you begin</h2>
+          <p style={{ fontSize: '13px', color: BASE.textMuted, lineHeight: 1.65 }}>Please read and accept the following before generating your first session.</p>
+        </div>
+
+        <div style={{ display: 'grid', gap: '12px', marginBottom: '28px' }}>
+          {[
+            { icon: '🏥', text: 'RewireMode is not medical advice and is not a substitute for professional mental health treatment.' },
+            { icon: '🧠', text: 'Not suitable for people with serious mental health conditions including psychosis, epilepsy, or severe dissociative disorders.' },
+            { icon: '🚗', text: 'Never use hypnosis sessions while driving, operating machinery, or in any situation requiring your full attention.' },
+            { icon: '✅', text: 'Use responsibly. If you experience any distress during a session, stop immediately.' },
+          ].map(({ icon, text }) => (
+            <div key={text} style={{ display: 'flex', gap: '12px', padding: '14px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: `1px solid ${BASE.border}` }}>
+              <span style={{ fontSize: '18px', flexShrink: 0 }}>{icon}</span>
+              <p style={{ fontSize: '13px', color: BASE.textMuted, lineHeight: 1.6 }}>{text}</p>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={onAccept}
+          style={{ width: '100%', padding: '16px', borderRadius: '14px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', fontSize: '15px', fontWeight: '800', border: 'none', cursor: 'pointer', letterSpacing: '0.02em', boxShadow: '0 4px 24px rgba(99,102,241,0.35)' }}>
+          I understand — continue →
+        </button>
+        <p style={{ textAlign: 'center', fontSize: '11px', color: BASE.textFaint, marginTop: '12px', lineHeight: 1.6 }}>
+          By continuing you confirm you have read and understood the above. You will not be shown this again.{' '}
+          <a href="/terms" target="_blank" style={{ color: '#6366f1' }}>Terms of Service</a>
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -302,8 +354,7 @@ function AuthModal({ onClose, onSuccess }) {
           <h2 style={{ fontSize: '21px', color: '#6366f1', fontWeight: '700', marginBottom: '6px' }}>
             {mode === 'signup' ? 'Start rewiring your mind' : 'Welcome back'}
           </h2>
-          {mode === 'signup' && <p style={{ fontSize: '13px', color: BASE.textMuted }}>5 free credits. No card needed. Generated for you in real time.</p>}
-          {mode === 'signup' && <p style={{ fontSize: '11px', color: BASE.textFaint, marginTop: '4px' }}>✦ 1 credit = 1 Reset or Hype session · 3 credits = Sleep or Subliminal session</p>}
+          {mode === 'signup' && <p style={{ fontSize: '13px', color: BASE.textMuted }}>5 free credits. No card needed.</p>}
         </div>
 
         {success ? (
@@ -392,7 +443,6 @@ function CreditsModal({ profile, user, onClose }) {
           <div style={{ padding: '20px', borderRadius: '14px', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.3)', marginBottom: '20px' }}>
             <div style={{ fontSize: '15px', color: '#a855f7', fontWeight: '700', marginBottom: '5px' }}>💎 The smart choice — Go Pro</div>
             <div style={{ fontSize: '13px', color: BASE.textMuted, marginBottom: '4px', lineHeight: 1.6 }}>100 credits a month for £14.99. Daily sessions for less than the price of one coffee a week.</div>
-            <div style={{ fontSize: '12px', color: BASE.textFaint, marginBottom: '14px' }}>Most people who try RewireMode once, want it every day.</div>
             <a href="/pricing" onClick={onClose} style={{ display: 'block', padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg,#a855f7,#6d28d9)', color: '#fff', fontSize: '14px', fontWeight: '700', textDecoration: 'none', textAlign: 'center', boxShadow: '0 4px 16px rgba(168,85,247,0.3)' }}>
               Upgrade to Pro →
             </a>
@@ -424,8 +474,7 @@ function CreditsModal({ profile, user, onClose }) {
 // ─── QUIZ MODAL ───────────────────────────────────────────────────────
 const QUIZ_QUESTIONS = [
   {
-    id: 'q1',
-    text: 'How does your mind tend to get in your own way?',
+    id: 'q1', text: 'How does your mind tend to get in your own way?',
     options: [
       { label: "I overthink everything and can't switch off", tags: ['Overthinking'] },
       { label: "I doubt myself and hold back", tags: ['Confidence', 'Self-worth'] },
@@ -435,8 +484,7 @@ const QUIZ_QUESTIONS = [
     ],
   },
   {
-    id: 'q2',
-    text: 'Which of these sounds most like you right now?',
+    id: 'q2', text: 'Which of these sounds most like you right now?',
     options: [
       { label: "I wake up anxious before the day's even started", tags: ['Overthinking', 'Fear'] },
       { label: "I know what I need to do but I just can't make myself do it", tags: ['Focus', 'Confidence'] },
@@ -446,8 +494,7 @@ const QUIZ_QUESTIONS = [
     ],
   },
   {
-    id: 'q3',
-    text: 'What would feel like the biggest win for you?',
+    id: 'q3', text: 'What would feel like the biggest win for you?',
     options: [
       { label: "Waking up calm and clear-headed", tags: ['Sleep', 'Overthinking'] },
       { label: "Walking into a room and owning it", tags: ['Confidence'] },
@@ -457,8 +504,7 @@ const QUIZ_QUESTIONS = [
     ],
   },
   {
-    id: 'q4',
-    text: "When things go wrong, what's your first instinct?",
+    id: 'q4', text: "When things go wrong, what's your first instinct?",
     options: [
       { label: "Replay it obsessively and beat myself up", tags: ['Overthinking', 'Self-worth'] },
       { label: "Assume I'm not good enough", tags: ['Self-worth', 'Confidence'] },
@@ -468,8 +514,7 @@ const QUIZ_QUESTIONS = [
     ],
   },
   {
-    id: 'q5',
-    text: 'If you could change one thing about how your mind works, what would it be?',
+    id: 'q5', text: 'If you could change one thing about how your mind works, what would it be?',
     options: [
       { label: "Stop the constant mental noise", tags: ['Overthinking', 'Sleep'] },
       { label: "Trust myself more", tags: ['Confidence', 'Self-worth'] },
@@ -491,9 +536,7 @@ function QuizModal({ onClose, onSelect }) {
     setTimeout(() => {
       const next = [...answers, ...option.tags]
       if (qIndex < QUIZ_QUESTIONS.length - 1) {
-        setAnswers(next)
-        setQIndex(qIndex + 1)
-        setPicked(null)
+        setAnswers(next); setQIndex(qIndex + 1); setPicked(null)
       } else {
         const scores = {}
         next.forEach(tag => { scores[tag] = (scores[tag] || 0) + 1 })
@@ -509,33 +552,28 @@ function QuizModal({ onClose, onSelect }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,15,0.92)', zIndex: 150, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
       <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '24px', padding: '32px', width: '100%', maxWidth: '480px', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
-        <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: 'rgba(232,244,255,0.45)', fontSize: '22px', cursor: 'pointer' }}>×</button>
-
+        <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: BASE.textMuted, fontSize: '22px', cursor: 'pointer' }}>×</button>
         {!results ? (
           <>
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '11px', color: 'rgba(232,244,255,0.4)', letterSpacing: '0.1em' }}>QUESTION {qIndex + 1} OF {QUIZ_QUESTIONS.length}</span>
+                <span style={{ fontSize: '11px', color: BASE.textFaint, letterSpacing: '0.1em' }}>QUESTION {qIndex + 1} OF {QUIZ_QUESTIONS.length}</span>
                 <span style={{ fontSize: '11px', color: '#6366f1' }}>{Math.round(progress)}%</span>
               </div>
               <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '100px', overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg,#6366f1,#a855f7)', borderRadius: '100px', transition: 'width 0.4s ease' }} />
               </div>
             </div>
-
-            <div style={{ fontSize: '18px', color: '#e8f4ff', fontWeight: '700', marginBottom: '22px', lineHeight: 1.45 }}>{q.text}</div>
-
+            <div style={{ fontSize: '18px', color: BASE.text, fontWeight: '700', marginBottom: '22px', lineHeight: 1.45 }}>{q.text}</div>
             <div style={{ display: 'grid', gap: '8px' }}>
               {q.options.map(opt => (
                 <button key={opt.label} onClick={() => handleAnswer(opt)}
-                  style={{ padding: '14px 16px', borderRadius: '12px', textAlign: 'left', border: `1px solid ${picked === opt.label ? 'rgba(99,102,241,0.8)' : 'rgba(255,255,255,0.08)'}`, background: picked === opt.label ? 'rgba(99,102,241,0.18)' : 'rgba(255,255,255,0.03)', color: picked === opt.label ? '#a5b4fc' : 'rgba(232,244,255,0.75)', fontSize: '14px', transition: 'all 0.18s ease', cursor: 'pointer', lineHeight: 1.5 }}>
+                  style={{ padding: '14px 16px', borderRadius: '12px', textAlign: 'left', border: `1px solid ${picked === opt.label ? 'rgba(99,102,241,0.8)' : 'rgba(255,255,255,0.08)'}`, background: picked === opt.label ? 'rgba(99,102,241,0.18)' : 'rgba(255,255,255,0.03)', color: picked === opt.label ? '#a5b4fc' : BASE.textMuted, fontSize: '14px', transition: 'all 0.18s ease', cursor: 'pointer', lineHeight: 1.5 }}>
                   {opt.label}
                 </button>
               ))}
             </div>
-
-            <button onClick={() => onSelect('custom')}
-              style={{ width: '100%', marginTop: '10px', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)', background: 'transparent', color: 'rgba(232,244,255,0.3)', fontSize: '12px', cursor: 'pointer' }}>
+            <button onClick={() => onSelect('custom')} style={{ width: '100%', marginTop: '10px', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)', background: 'transparent', color: BASE.textFaint, fontSize: '12px', cursor: 'pointer' }}>
               I'd rather type my own goal →
             </button>
           </>
@@ -543,25 +581,22 @@ function QuizModal({ onClose, onSelect }) {
           <>
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <div style={{ fontSize: '32px', marginBottom: '10px' }}>✦</div>
-              <div style={{ fontSize: '18px', color: '#e8f4ff', fontWeight: '700', marginBottom: '8px' }}>Here's what your mind wants to rewire</div>
-              <div style={{ fontSize: '13px', color: 'rgba(232,244,255,0.45)' }}>Based on your answers — pick one to start with.</div>
+              <div style={{ fontSize: '18px', color: BASE.text, fontWeight: '700', marginBottom: '8px' }}>Here's what your mind wants to rewire</div>
+              <div style={{ fontSize: '13px', color: BASE.textMuted }}>Based on your answers — pick one to start with.</div>
             </div>
-
             <div style={{ display: 'grid', gap: '10px', marginBottom: '16px' }}>
               {results.map((tag, i) => (
                 <button key={tag} onClick={() => onSelect(tag)}
                   style={{ padding: '16px 18px', borderRadius: '14px', textAlign: 'left', border: `1px solid ${i === 0 ? 'rgba(99,102,241,0.6)' : 'rgba(255,255,255,0.08)'}`, background: i === 0 ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
                   <div>
                     {i === 0 && <div style={{ fontSize: '10px', color: '#6366f1', fontWeight: '700', letterSpacing: '0.1em', marginBottom: '4px' }}>BEST MATCH</div>}
-                    <div style={{ fontSize: '15px', color: i === 0 ? '#a5b4fc' : '#e8f4ff', fontWeight: '700' }}>{tag}</div>
+                    <div style={{ fontSize: '15px', color: i === 0 ? '#a5b4fc' : BASE.text, fontWeight: '700' }}>{tag}</div>
                   </div>
-                  <span style={{ fontSize: '18px', color: i === 0 ? '#6366f1' : 'rgba(232,244,255,0.2)' }}>→</span>
+                  <span style={{ fontSize: '18px', color: i === 0 ? '#6366f1' : BASE.textFaint }}>→</span>
                 </button>
               ))}
             </div>
-
-            <button onClick={() => onSelect('custom')}
-              style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)', background: 'transparent', color: 'rgba(232,244,255,0.35)', fontSize: '12px', cursor: 'pointer' }}>
+            <button onClick={() => onSelect('custom')} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)', background: 'transparent', color: BASE.textFaint, fontSize: '12px', cursor: 'pointer' }}>
               None of these — I'll type my own
             </button>
           </>
@@ -574,16 +609,22 @@ function QuizModal({ onClose, onSelect }) {
 // ─── MAIN APP ─────────────────────────────────────────────────────────
 export default function Home({ user, profile, refreshProfile }) {
   const isMobile = useIsMobile()
+
+  // Steps: 0=select, 1=mood, 2=name, 3=voice, 4=confirm, 5=loading, 6=result
   const [step, setStep] = useState(0)
+
+  // Category selection: null | 'hypnosis' | 'subliminal'
+  const [category, setCategory] = useState(null)
   const [product, setProduct] = useState(null)
+
   const [goal, setGoal] = useState('')
   const [customGoal, setCustomGoal] = useState('')
   const [mood, setMood] = useState(5)
-  const [moment, setMoment] = useState(null)
   const [selectedVoice, setSelectedVoice] = useState(null)
   const [script, setScript] = useState('')
   const [audioUrl, setAudioUrl] = useState(null)
   const [playing, setPlaying] = useState(false)
+  const [looping, setLooping] = useState(false)
   const [timer, setTimer] = useState(0)
   const [progress, setProgress] = useState(0)
   const [loadMsgIndex, setLoadMsgIndex] = useState(0)
@@ -591,53 +632,97 @@ export default function Home({ user, profile, refreshProfile }) {
   const [showAuth, setShowAuth] = useState(false)
   const [showCredits, setShowCredits] = useState(false)
   const [showQuiz, setShowQuiz] = useState(false)
+  const [showDisclaimer, setShowDisclaimer] = useState(false)
   const [saveLimitHit, setSaveLimitHit] = useState(false)
+  const [savedOk, setSavedOk] = useState(false)
   const [streak, setStreak] = useState(0)
-  const [bonusCredits, setBonusCredits] = useState(0)
-  const { safetyState, checkSafety, clearSafety } = useSafetyGate()
   const [firstName, setFirstName] = useState('')
   const [musicVolume, setMusicVolume] = useState(0.18)
+  const { safetyState, checkSafety, clearSafety } = useSafetyGate()
+
   const audioRef = useRef(null)
   const musicRef = useRef(null)
   const timerRef = useRef(null)
   const loadMsgRef = useRef(null)
   const progressRef = useRef(null)
   const wakeLockRef = useRef(null)
+  const pendingGenerateRef = useRef(false)
+
+  // ── Disclaimer: check localStorage ──
+  useEffect(() => {
+    // No disclaimer check here — shown only when user tries to generate
+  }, [])
+
+  function needsDisclaimer() {
+    try { return !localStorage.getItem('rw_disclaimer_accepted') } catch { return false }
+  }
+  function acceptDisclaimer() {
+    try { localStorage.setItem('rw_disclaimer_accepted', '1') } catch {}
+    setShowDisclaimer(false)
+    if (pendingGenerateRef.current) {
+      pendingGenerateRef.current = false
+      startGenerate()
+    }
+  }
 
   useEffect(() => { if (profile) setStreak(profile.streak_count || 0) }, [profile])
   useEffect(() => { if (product?.id) setMusicVolume(MUSIC[product.id]?.volume || 0.18) }, [product])
   useEffect(() => { if (musicRef.current) musicRef.current.volume = musicVolume }, [musicVolume])
 
-  const p = product || PRODUCTS[0]
-  const isHype = product?.id === 'hype'
+  // Auto-select Emily for subliminal, set loop ON
+  useEffect(() => {
+    if (product?.id === 'subliminal') {
+      setSelectedVoice(VOICES.hypnosis[0])
+      setLooping(true)
+    } else {
+      setLooping(false)
+    }
+  }, [product?.id])
+
+  // Sync loop state to audio element
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.loop = looping
+  }, [looping, audioUrl])
+
+  // ── Cleanup on unmount ──
+  useEffect(() => {
+    return () => {
+      clearInterval(timerRef.current)
+      clearInterval(progressRef.current)
+      clearInterval(loadMsgRef.current)
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release().catch(() => {})
+        wakeLockRef.current = null
+      }
+    }
+  }, [])
+
+  const p = product || HYPNOSIS_TYPES[0]
   const isSubliminal = product?.id === 'subliminal'
+  const isWalking = product?.id === 'walking'
   const activeGoal = goal === 'custom' ? customGoal : goal
-  const voices = VOICES[isHype ? 'hype' : 'hypnosis']
   const currentMusic = product ? MUSIC[product.id] : null
   const loadMessages = LOAD_MESSAGES[product?.id] || LOAD_MESSAGES.reset
   const currentLoadMsg = loadMessages[loadMsgIndex] || loadMessages[0]
-
-  // Auto-select Emily for subliminal sessions
-  useEffect(() => {
-    if (isSubliminal && !selectedVoice) {
-      setSelectedVoice(VOICES.hypnosis[0])
-    }
-  }, [isSubliminal])
 
   const moodEmoji = mood <= 2 ? '😔' : mood <= 4 ? '😕' : mood <= 6 ? '😐' : mood <= 8 ? '🙂' : '😄'
   const moodLabel = mood <= 2 ? 'Really struggling' : mood <= 4 ? 'Not great' : mood <= 6 ? 'Getting there' : mood <= 8 ? 'Pretty good' : 'Feeling amazing'
 
   async function startGenerate() {
     if (!user) { setShowAuth(true); return }
-    if (!profile || profile.credits < (product?.credits || 1)) {
-      setShowCredits(true); return
+    if (!profile || profile.credits < (product?.credits || 1)) { setShowCredits(true); return }
+
+    if (needsDisclaimer()) {
+      pendingGenerateRef.current = true
+      setShowDisclaimer(true)
+      return
     }
 
-    // ── Safety check (runs before anything else) ──
     const isSafe = await checkSafety(activeGoal, user.id)
     if (!isSafe) return
 
     setStep(5); setProgress(0); setError(''); setAudioUrl(null); setLoadMsgIndex(0)
+    setSaveLimitHit(false); setSavedOk(false)
 
     let prog = 0
     progressRef.current = setInterval(() => {
@@ -652,19 +737,23 @@ export default function Home({ user, profile, refreshProfile }) {
     }, 3500)
 
     try {
+      // Get the user's current session token for authenticated API calls
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
       const scriptRes = await fetch('/api/generate-script', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goal: activeGoal, productType: product.id, mood, moment, userId: user.id, firstName: firstName.trim() || null }),
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ goal: activeGoal, productType: product.id, mood, userId: user.id, firstName: firstName.trim() || null }),
       })
       const scriptData = await scriptRes.json()
-      if (!scriptRes.ok) throw new Error(scriptData.error)
+      if (!scriptRes.ok) throw new Error(scriptData.error || 'Script generation failed')
       setScript(scriptData.script)
 
       const audioRes = await fetch('/api/generate-audio', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: scriptData.script, voiceId: selectedVoice.id, productType: product.id, userId: user?.id }),
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ text: scriptData.script, voiceId: selectedVoice.id, productType: product.id, userId: user.id }),
       })
       if (!audioRes.ok) throw new Error('Audio generation failed')
       const audioData = await audioRes.json()
@@ -674,13 +763,20 @@ export default function Home({ user, profile, refreshProfile }) {
 
       const saveRes = await fetch('/api/save-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, goal: activeGoal, productType: product.id, script: scriptData.script, audioUrl: url, voiceId: selectedVoice.id, mood, moment, creditCost: scriptData.cost, musicUrl: currentMusic?.url || null }),
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ userId: user.id, goal: activeGoal, productType: product.id, script: scriptData.script, audioUrl: url, voiceId: selectedVoice.id, mood, creditCost: scriptData.cost }),
       })
       const saveData = await saveRes.json()
-      if (saveData.bonusCredits > 0) setBonusCredits(saveData.bonusCredits)
-      if (saveData.streak) setStreak(saveData.streak)
-      if (saveRes.status === 403) setSaveLimitHit(true)
+
+      if (saveRes.status === 403) {
+        setSaveLimitHit(true)
+      } else if (!saveRes.ok) {
+        console.error('Save failed silently:', saveData.error)
+        // Non-blocking: audio still plays, user is informed
+      } else {
+        setSavedOk(true)
+        if (saveData.streak) setStreak(saveData.streak)
+      }
 
       clearInterval(progressRef.current)
       clearInterval(loadMsgRef.current)
@@ -690,7 +786,7 @@ export default function Home({ user, profile, refreshProfile }) {
     } catch (err) {
       clearInterval(progressRef.current)
       clearInterval(loadMsgRef.current)
-      setError(err.message)
+      setError(friendlyError(err.message))
       setStep(6)
     }
   }
@@ -699,6 +795,7 @@ export default function Home({ user, profile, refreshProfile }) {
     if (!audioRef.current) return
     if (!playing) {
       audioRef.current.volume = isSubliminal ? 0.02 : 1.0
+      audioRef.current.loop = looping
       audioRef.current.play()
       if (musicRef.current) { musicRef.current.volume = musicVolume; musicRef.current.loop = true; musicRef.current.play().catch(() => {}) }
       setPlaying(true)
@@ -717,7 +814,15 @@ export default function Home({ user, profile, refreshProfile }) {
     }
   }
 
+  function replaySession() {
+    if (!audioRef.current) return
+    audioRef.current.currentTime = 0
+    if (musicRef.current) musicRef.current.currentTime = 0
+    if (!playing) togglePlay()
+  }
+
   function handleAudioEnd() {
+    if (looping) return // audio element handles looping natively
     if (musicRef.current) {
       let vol = musicRef.current.volume
       const fade = setInterval(() => {
@@ -734,9 +839,11 @@ export default function Home({ user, profile, refreshProfile }) {
     clearInterval(timerRef.current); clearInterval(progressRef.current); clearInterval(loadMsgRef.current)
     if (audioRef.current) audioRef.current.pause()
     if (musicRef.current) { musicRef.current.pause(); musicRef.current.currentTime = 0 }
-    setStep(0); setProduct(null); setGoal(''); setCustomGoal(''); setScript(''); setFirstName('')
-    setPlaying(false); setTimer(0); setProgress(0); setMood(5)
-    setMoment(null); setSelectedVoice(null); setAudioUrl(null); setError(''); setBonusCredits(0); setLoadMsgIndex(0); setSaveLimitHit(false); setFirstName('')
+    if (wakeLockRef.current) { wakeLockRef.current.release().catch(() => {}); wakeLockRef.current = null }
+    setStep(0); setCategory(null); setProduct(null); setGoal(''); setCustomGoal(''); setScript(''); setFirstName('')
+    setPlaying(false); setLooping(false); setTimer(0); setProgress(0); setMood(5)
+    setSelectedVoice(null); setAudioUrl(null); setError(''); setLoadMsgIndex(0)
+    setSaveLimitHit(false); setSavedOk(false)
   }
 
   const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -758,7 +865,6 @@ export default function Home({ user, profile, refreshProfile }) {
           @keyframes spin{to{transform:rotate(360deg)}}
           @keyframes spinR{to{transform:rotate(-360deg)}}
           @keyframes pulse{0%,100%{transform:scale(1);opacity:0.7}50%{transform:scale(1.08);opacity:1}}
-          @keyframes hypePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
           @keyframes fadeMsg{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-6px)}}
           button{cursor:pointer;border:none;background:none;font-family:inherit}
           input,textarea{font-family:inherit;outline:none}
@@ -767,14 +873,13 @@ export default function Home({ user, profile, refreshProfile }) {
           ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.2);border-radius:4px}
         `}</style>
 
-        {audioUrl && <audio ref={audioRef} src={audioUrl} onEnded={handleAudioEnd} />}
+        {audioUrl && <audio ref={audioRef} src={audioUrl} onEnded={handleAudioEnd} loop={looping} />}
         {currentMusic && <audio ref={musicRef} src={currentMusic.url} loop preload="auto" />}
 
         {/* Background */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
           <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(120,50,220,0.08) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 10s ease-in-out infinite 2s' }} />
-          <div style={{ position: 'absolute', top: '40%', left: '60%', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,220,100,0.05) 0%,transparent 65%)', filter: 'blur(50px)', animation: 'pulse 6s ease-in-out infinite 1s' }} />
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(99,102,241,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.03) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
         </div>
 
@@ -821,38 +926,23 @@ export default function Home({ user, profile, refreshProfile }) {
             )}
           </div>
 
-          {/* Video */}
+          {/* Video — step 0 only */}
           {step === 0 && (
             <div style={{ marginBottom: '36px', animation: 'fadeUp 0.8s ease 0.1s both', position: 'relative' }}>
               <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid rgba(99,102,241,0.2)', boxShadow: '0 0 40px rgba(99,102,241,0.15)' }}>
-                <video
-                  id="hero-video"
-                  src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/RewireMode%20home%20page%20video%20%20(1).mp4"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  style={{ width: '100%', display: 'block' }}
-                />
+                <video id="hero-video" src="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/RewireMode%20home%20page%20video%20%20(1).mp4" autoPlay muted loop playsInline style={{ width: '100%', display: 'block' }} />
               </div>
-              <button
-                onClick={() => {
-                  const v = document.getElementById('hero-video')
-                  v.muted = !v.muted
-                  const btn = document.getElementById('mute-btn')
-                  btn.innerText = v.muted ? '🔇' : '🔊'
-                }}
-                id="mute-btn"
+              <button onClick={() => { const v = document.getElementById('hero-video'); v.muted = !v.muted; const btn = document.getElementById('mute-btn'); btn.innerText = v.muted ? '🔇' : '🔊' }} id="mute-btn"
                 style={{ position: 'absolute', bottom: '14px', right: '14px', background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.25)', color: '#fff', borderRadius: '100px', width: '40px', height: '40px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)', zIndex: 10 }}>
                 🔇
               </button>
             </div>
           )}
 
-          {/* Step dots */}
+          {/* Step dots — steps 1–4 */}
           {step > 0 && step < 5 && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '32px' }}>
-              {[1,2,3,4,5,6].map(i => (
+              {[1, 2, 3, 4].map(i => (
                 <div key={i} style={{ width: step >= i ? '24px' : '8px', height: '8px', borderRadius: '100px', background: step >= i ? p.grad : BASE.border, transition: 'all 0.3s ease', boxShadow: step >= i ? `0 0 8px ${p.color}66` : 'none' }} />
               ))}
             </div>
@@ -861,31 +951,23 @@ export default function Home({ user, profile, refreshProfile }) {
           {/* ── STEP 0: SELECT ── */}
           {step === 0 && (
             <div style={{ animation: 'fadeUp 0.5s ease both' }}>
-              <div style={{ marginBottom: '28px' }}>
-                <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: 'rgba(232,244,255,0.6)', marginBottom: '14px', fontWeight: '700' }}>WHAT ARE YOU READY TO REWRITE?</div>
 
-                {/* Optional name field */}
+              {/* Goal selection */}
+              <div style={{ marginBottom: '28px' }}>
+                <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: BASE.textMuted, marginBottom: '14px', fontWeight: '700' }}>WHAT ARE YOU READY TO REWRITE?</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', padding: '12px 16px', borderRadius: '10px', background: BASE.bgCard, border: `1px solid ${BASE.border}` }}>
                   <span style={{ fontSize: '16px' }}>👤</span>
-                  <input
-                    value={firstName}
-                    onChange={e => setFirstName(e.target.value)}
-                    placeholder="Your first name (optional — we'll weave it into your script)"
-                    style={{ flex: 1, background: 'none', border: 'none', color: BASE.text, fontSize: '13px', outline: 'none' }}
-                  />
+                  <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Your first name (optional — we'll weave it into your script)"
+                    style={{ flex: 1, background: 'none', border: 'none', color: BASE.text, fontSize: '13px', outline: 'none' }} />
                 </div>
-
-                {/* Topic buttons */}
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
                   {GOALS.map(g => (
                     <button key={g} onClick={() => setGoal(g)}
-                      style={{ padding: '11px 8px', borderRadius: '10px', fontSize: '13px', fontWeight: '600', border: `1px solid ${goal === g ? '#6366f1' : 'rgba(255,255,255,0.12)'}`, background: goal === g ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.04)', color: goal === g ? '#a5b4fc' : 'rgba(232,244,255,0.7)', transition: 'all 0.18s ease', boxShadow: goal === g ? '0 0 20px rgba(99,102,241,0.3)' : 'none' }}>
+                      style={{ padding: '11px 8px', borderRadius: '10px', fontSize: '13px', fontWeight: '600', border: `1px solid ${goal === g ? '#6366f1' : 'rgba(255,255,255,0.12)'}`, background: goal === g ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.04)', color: goal === g ? '#a5b4fc' : BASE.textMuted, transition: 'all 0.18s ease', boxShadow: goal === g ? '0 0 20px rgba(99,102,241,0.3)' : 'none' }}>
                       {g}
                     </button>
                   ))}
                 </div>
-
-                {/* Custom goal input */}
                 <button onClick={() => setGoal('custom')}
                   style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', textAlign: 'left', border: `1px solid ${goal === 'custom' ? '#6366f1cc' : BASE.border}`, background: goal === 'custom' ? 'rgba(99,102,241,0.08)' : BASE.bgCard, color: goal === 'custom' ? '#6366f1' : BASE.textMuted, fontSize: '13px', marginBottom: '8px' }}>
                   ✍️ What do you want to rewire?
@@ -895,8 +977,6 @@ export default function Home({ user, profile, refreshProfile }) {
                     placeholder="e.g. stop self-sabotaging, feel calm under pressure, believe I'm enough..."
                     style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.04)', color: BASE.text, fontSize: '14px', lineHeight: '1.65', resize: 'vertical', minHeight: '80px', marginBottom: '8px' }} />
                 )}
-
-                {/* Quiz entry */}
                 <button onClick={() => setShowQuiz(true)}
                   style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', textAlign: 'left', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', color: 'rgba(165,180,252,0.7)', fontSize: '13px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>🔍 Not sure? Find out what to rewire</span>
@@ -904,45 +984,82 @@ export default function Home({ user, profile, refreshProfile }) {
                 </button>
               </div>
 
+              {/* Session type — two-category layout */}
               <div style={{ marginBottom: '28px' }}>
-                <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: BASE.textMuted, marginBottom: '14px', fontWeight: '600' }}>CHOOSE YOUR SESSION TYPE</div>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr', gap: isMobile ? '8px' : '12px' }}>
-                  {PRODUCTS.map(pr => (
-                    <button key={pr.id} onClick={() => setProduct(pr)}
-                      style={{ padding: isMobile ? '14px 12px' : '20px 18px', borderRadius: '16px', textAlign: 'left', border: `1px solid ${product?.id === pr.id ? pr.color + 'cc' : BASE.border}`, background: product?.id === pr.id ? pr.color + '12' : BASE.bgCard, transition: 'all 0.2s ease', boxShadow: product?.id === pr.id ? `0 0 28px ${pr.glow}` : 'none' }}>
-                      <div style={{ fontSize: isMobile ? '22px' : '26px', marginBottom: '8px' }}>{pr.emoji}</div>
-                      <div style={{ fontSize: isMobile ? '12px' : '14px', color: product?.id === pr.id ? pr.color : BASE.text, fontWeight: '700', marginBottom: '4px' }}>{pr.label}</div>
-                      {!isMobile && <div style={{ fontSize: '11px', color: BASE.textMuted, marginBottom: '10px', lineHeight: 1.5 }}>{pr.desc}</div>}
-                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '11px', color: BASE.textFaint }}>{pr.duration}</span>
-                        <span style={{ fontSize: '11px', color: pr.color, background: pr.color + '18', padding: '2px 8px', borderRadius: '100px', fontWeight: '600' }}>✦ {pr.credits}</span>
-                      </div>
-                    </button>
-                  ))}
+                <div style={{ fontSize: '13px', color: BASE.text, fontWeight: '700', marginBottom: '16px', textAlign: 'center' }}>
+                  Choose how you want to rewire your mind today
                 </div>
 
-                {/* Hypnosis vs Subliminal explainer */}
-                <div style={{ marginTop: '12px', padding: '14px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: `1px solid ${BASE.border}`, display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                  <div style={{ flex: 1, minWidth: '140px' }}>
-                    <div style={{ fontSize: '11px', color: '#a5b4fc', fontWeight: '700', marginBottom: '4px' }}>🧠 Hypnosis sessions</div>
-                    <div style={{ fontSize: '11px', color: BASE.textMuted, lineHeight: 1.6 }}>You listen actively. A guided voice leads your mind into theta state and delivers therapeutic suggestion directly to your subconscious.</div>
+                {/* Top-level: Hypnosis or Subliminals */}
+                {!category && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                    <button onClick={() => setCategory('hypnosis')}
+                      style={{ padding: '24px 16px', borderRadius: '18px', textAlign: 'center', border: '1px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.08)', transition: 'all 0.2s ease' }}>
+                      <div style={{ fontSize: '32px', marginBottom: '10px' }}>🧠</div>
+                      <div style={{ fontSize: '16px', color: '#a5b4fc', fontWeight: '800', marginBottom: '6px' }}>Hypnosis</div>
+                      <div style={{ fontSize: '12px', color: BASE.textMuted, lineHeight: 1.55 }}>You listen actively. A guided voice leads your mind into theta state.</div>
+                    </button>
+                    <button onClick={() => { setCategory('subliminal'); setProduct(SUBLIMINAL_PRODUCT) }}
+                      style={{ padding: '24px 16px', borderRadius: '18px', textAlign: 'center', border: '1px solid rgba(34,211,238,0.3)', background: 'rgba(34,211,238,0.06)', transition: 'all 0.2s ease' }}>
+                      <div style={{ fontSize: '32px', marginBottom: '10px' }}>🌊</div>
+                      <div style={{ fontSize: '16px', color: '#22d3ee', fontWeight: '800', marginBottom: '6px' }}>Subliminals</div>
+                      <div style={{ fontSize: '12px', color: BASE.textMuted, lineHeight: 1.55 }}>Play in the background. Suggestions layered under music below conscious hearing.</div>
+                    </button>
                   </div>
-                  <div style={{ flex: 1, minWidth: '140px' }}>
-                    <div style={{ fontSize: '11px', color: '#22d3ee', fontWeight: '700', marginBottom: '4px' }}>🌊 Subliminal sessions</div>
-                    <div style={{ fontSize: '11px', color: BASE.textMuted, lineHeight: 1.6 }}>Play in the background. Suggestions are layered under music below conscious hearing. Let it run while you work, rest, or sleep.</div>
+                )}
+
+                {/* Hypnosis sub-types */}
+                {category === 'hypnosis' && (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                      <button onClick={() => { setCategory(null); setProduct(null) }} style={{ fontSize: '12px', color: BASE.textMuted, padding: '5px 10px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>← Back</button>
+                      <div style={{ fontSize: '12px', color: BASE.textMuted, fontWeight: '600', letterSpacing: '0.08em' }}>CHOOSE YOUR SESSION</div>
+                    </div>
+                    <div style={{ display: 'grid', gap: '10px' }}>
+                      {HYPNOSIS_TYPES.map(pr => (
+                        <button key={pr.id} onClick={() => setProduct(pr)}
+                          title={pr.hoverDesc}
+                          style={{ padding: '18px 20px', borderRadius: '16px', textAlign: 'left', border: `1px solid ${product?.id === pr.id ? pr.color + 'cc' : BASE.border}`, background: product?.id === pr.id ? pr.color + '12' : BASE.bgCard, transition: 'all 0.2s ease', boxShadow: product?.id === pr.id ? `0 0 28px ${pr.glow}` : 'none', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <div style={{ fontSize: '28px', flexShrink: 0 }}>{pr.emoji}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '15px', color: product?.id === pr.id ? pr.color : BASE.text, fontWeight: '700', marginBottom: '4px' }}>{pr.label}</div>
+                            <div style={{ fontSize: '12px', color: BASE.textMuted, lineHeight: 1.5, marginBottom: '8px' }}>{pr.desc}</div>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <span style={{ fontSize: '11px', color: BASE.textFaint }}>{pr.duration}</span>
+                              <span style={{ fontSize: '11px', color: pr.color, background: pr.color + '18', padding: '2px 8px', borderRadius: '100px', fontWeight: '600' }}>✦ {pr.credits}</span>
+                            </div>
+                          </div>
+                          {product?.id === pr.id && <div style={{ fontSize: '18px', color: pr.color, flexShrink: 0 }}>✓</div>}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Subliminal selected — show confirmation chip */}
+                {category === 'subliminal' && (
+                  <div style={{ padding: '16px 20px', borderRadius: '14px', border: `1px solid ${SUBLIMINAL_PRODUCT.color}cc`, background: SUBLIMINAL_PRODUCT.color + '12', display: 'flex', alignItems: 'center', gap: '14px', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ fontSize: '24px' }}>{SUBLIMINAL_PRODUCT.emoji}</div>
+                      <div>
+                        <div style={{ fontSize: '14px', color: SUBLIMINAL_PRODUCT.color, fontWeight: '700' }}>{SUBLIMINAL_PRODUCT.label}</div>
+                        <div style={{ fontSize: '11px', color: BASE.textMuted }}>{SUBLIMINAL_PRODUCT.duration} · ✦ {SUBLIMINAL_PRODUCT.credits} credits</div>
+                      </div>
+                    </div>
+                    <button onClick={() => { setCategory(null); setProduct(null) }} style={{ fontSize: '11px', color: BASE.textMuted, padding: '5px 10px', borderRadius: '8px', border: `1px solid ${BASE.border}`, flexShrink: 0 }}>Change</button>
                   </div>
-                </div>
+                )}
               </div>
 
               <button onClick={() => activeGoal.trim() && product && setStep(1)} disabled={!activeGoal.trim() || !product}
-                style={{ width: '100%', padding: '18px', borderRadius: '14px', background: activeGoal.trim() && product ? p.grad : 'rgba(255,255,255,0.06)', color: activeGoal.trim() && product ? '#ffffff' : 'rgba(232,244,255,0.3)', fontSize: '16px', fontWeight: '800', transition: 'all 0.25s ease', marginBottom: '20px', letterSpacing: '0.02em', boxShadow: activeGoal.trim() && product ? `0 6px 32px ${p.glow}` : 'none', border: activeGoal.trim() && product ? 'none' : `1px solid rgba(255,255,255,0.06)` }}>
+                style={{ width: '100%', padding: '18px', borderRadius: '14px', background: activeGoal.trim() && product ? p.grad : 'rgba(255,255,255,0.06)', color: activeGoal.trim() && product ? '#ffffff' : BASE.textFaint, fontSize: '16px', fontWeight: '800', transition: 'all 0.25s ease', marginBottom: '20px', letterSpacing: '0.02em', boxShadow: activeGoal.trim() && product ? `0 6px 32px ${p.glow}` : 'none', border: activeGoal.trim() && product ? 'none' : `1px solid rgba(255,255,255,0.06)` }}>
                 {activeGoal.trim() && product ? 'Next →' : 'Select your intention and session type'}
               </button>
 
               {/* Science strip */}
               <div style={{ padding: isMobile ? '16px' : '20px 22px', borderRadius: '14px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', marginBottom: '20px' }}>
                 <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#a5b4fc', fontWeight: '700', marginBottom: '10px' }}>THE SCIENCE</div>
-                <p style={{ fontSize: '13px', color: 'rgba(232,244,255,0.65)', lineHeight: '1.75' }}>
+                <p style={{ fontSize: '13px', color: BASE.textMuted, lineHeight: '1.75' }}>
                   During hypnosis, your brain enters theta state — the same brainwave frequency present during deep sleep. In this state, the critical faculty quiets and the subconscious becomes receptive. New neural pathways form. Old beliefs dissolve. This is neuroplasticity, and it is how RewireMode creates lasting change, not just temporary relief.
                 </p>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
@@ -982,58 +1099,28 @@ export default function Home({ user, profile, refreshProfile }) {
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setStep(0)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
-                <button onClick={() => setStep(product?.id === 'hype' ? 2 : isSubliminal ? 4 : 2.5)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>Next →</button>
+                <button onClick={() => setStep(isSubliminal ? 4 : 2)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>Next →</button>
               </div>
             </div>
           )}
 
-          {/* ── STEP 2.5: FIRST NAME ── */}
-          {step === 2.5 && (
+          {/* ── STEP 2: NAME ── */}
+          {step === 2 && (
             <div style={{ animation: 'fadeUp 0.5s ease both' }}>
               <div style={{ textAlign: 'center', marginBottom: '28px' }}>
                 <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: BASE.textMuted, marginBottom: '12px', fontWeight: '600' }}>MAKE IT PERSONAL</div>
                 <p style={{ fontSize: '15px', color: BASE.text, fontWeight: '600', marginBottom: '8px' }}>What's your first name?</p>
                 <p style={{ fontSize: '13px', color: BASE.textMuted, lineHeight: 1.6 }}>Optional. If you share it, your name will be woven naturally into your session.</p>
               </div>
-              <input
-                value={firstName}
-                onChange={e => setFirstName(e.target.value)}
-                placeholder="Your first name (optional)"
-                autoFocus
-                onKeyDown={e => e.key === 'Enter' && setStep(product?.id === 'hype' ? 2 : 3)}
-                style={{ width: '100%', padding: '16px', borderRadius: '12px', border: `1px solid ${p.color}33`, background: 'rgba(255,255,255,0.03)', color: BASE.text, fontSize: '16px', marginBottom: '20px', textAlign: 'center', letterSpacing: '0.02em' }}
-              />
+              <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Your first name (optional)" autoFocus
+                onKeyDown={e => e.key === 'Enter' && setStep(3)}
+                style={{ width: '100%', padding: '16px', borderRadius: '12px', border: `1px solid ${p.color}33`, background: 'rgba(255,255,255,0.03)', color: BASE.text, fontSize: '16px', marginBottom: '20px', textAlign: 'center', letterSpacing: '0.02em' }} />
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setStep(1)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
-                <button onClick={() => setStep(product?.id === 'hype' ? 2 : 3)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>
+                <button onClick={() => setStep(3)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>
                   {firstName.trim() ? `Continue as ${firstName.trim()} →` : 'Skip →'}
                 </button>
               </div>
-            </div>
-          )}
-
-          {/* ── STEP 2: MOMENT (HYPE) ── */}
-          {step === 2 && (
-            <div style={{ animation: 'fadeUp 0.5s ease both' }}>
-              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: BASE.textMuted, marginBottom: '12px', fontWeight: '600' }}>WHAT ARE YOU ABOUT TO DO?</div>
-                <p style={{ fontSize: '13px', color: BASE.textMuted }}>Your session will be written for this exact moment.</p>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
-                {MOMENTS.map(m => (
-                  <button key={m.id} onClick={() => setMoment(m.id === moment ? null : m.id)}
-                    style={{ padding: '18px 12px', borderRadius: '13px', textAlign: 'center', border: `1px solid ${moment === m.id ? p.color + 'cc' : BASE.border}`, background: moment === m.id ? p.color + '12' : BASE.bgCard, color: moment === m.id ? p.color : BASE.textMuted, transition: 'all 0.18s ease', boxShadow: moment === m.id ? `0 0 20px ${p.glow}` : 'none' }}>
-                    <div style={{ fontSize: '26px', marginBottom: '8px' }}>{m.emoji}</div>
-                    <div style={{ fontSize: '13px', fontWeight: moment === m.id ? '700' : '500' }}>{m.label}</div>
-                  </button>
-                ))}
-                <button onClick={() => { setMoment(null); setStep(3) }}
-                  style={{ padding: '18px 12px', borderRadius: '13px', textAlign: 'center', border: `1px solid ${BASE.border}`, background: BASE.bgCard, color: BASE.textFaint, fontSize: '13px' }}>
-                  <div style={{ fontSize: '26px', marginBottom: '8px' }}>✨</div>Just hype me up
-                </button>
-              </div>
-              {moment && <button onClick={() => setStep(3)} style={{ width: '100%', padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '800', marginBottom: '10px', boxShadow: `0 4px 20px ${p.glow}` }}>Next →</button>}
-              <button onClick={() => setStep(2.5)} style={{ width: '100%', padding: '13px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
             </div>
           )}
 
@@ -1045,12 +1132,12 @@ export default function Home({ user, profile, refreshProfile }) {
                 <p style={{ fontSize: '13px', color: BASE.textMuted }}>Preview each voice before you choose. This voice guides your entire session.</p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-                {voices.map(v => (
+                {VOICES.hypnosis.map(v => (
                   <VoiceCard key={v.id} voice={v} selected={selectedVoice?.id === v.id} onSelect={() => setSelectedVoice(v)} theme={p} />
                 ))}
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => setStep(product?.id === 'hype' ? 2 : 2.5)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
+                <button onClick={() => setStep(2)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
                 <button onClick={() => selectedVoice && setStep(4)} disabled={!selectedVoice}
                   style={{ flex: 1, padding: '15px', borderRadius: '12px', background: selectedVoice ? p.grad : 'rgba(255,255,255,0.05)', color: selectedVoice ? '#03050f' : BASE.textFaint, fontSize: '15px', fontWeight: '700', boxShadow: selectedVoice ? `0 4px 20px ${p.glow}` : 'none' }}>Next →</button>
               </div>
@@ -1075,15 +1162,22 @@ export default function Home({ user, profile, refreshProfile }) {
                   ['Intention', activeGoal],
                   ['Voice', isSubliminal ? 'Emily (default for subliminal)' : selectedVoice?.name],
                   ['Mood', `${mood}/10 — ${moodLabel}`],
-                  moment && ['Moment', MOMENTS.find(m => m.id === moment)?.label],
                 ].filter(Boolean).map(([k, v]) => (
                   <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '12px' }}>
                     <span style={{ color: BASE.textMuted }}>{k}</span>
                     <span style={{ color: BASE.text, fontWeight: '500' }}>{v}</span>
                   </div>
                 ))}
-                <div style={{ borderTop: `1px solid ${BASE.border}`, paddingTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '13px', color: BASE.textMuted }}>Cost <span style={{ fontSize: '11px', color: BASE.textFaint }}>(Reset/Hype = 1 credit · Sleep/Subliminal = 3)</span></span>
+
+                {/* Walking warning */}
+                {isWalking && (
+                  <div style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', marginTop: '8px' }}>
+                    <div style={{ fontSize: '12px', color: '#34d399', lineHeight: 1.6 }}>⚠️ Designed for walking outdoors. Your awareness stays fully active throughout. Do not use while driving.</div>
+                  </div>
+                )}
+
+                <div style={{ borderTop: `1px solid ${BASE.border}`, paddingTop: '14px', marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '13px', color: BASE.textMuted }}>Cost</span>
                   <span style={{ color: p.color, fontWeight: '700', fontSize: '15px' }}>✦ {product?.credits} credit{product?.credits > 1 ? 's' : ''}</span>
                 </div>
                 {profile && (
@@ -1097,25 +1191,16 @@ export default function Home({ user, profile, refreshProfile }) {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setStep(isSubliminal ? 1 : 3)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>← Back</button>
                 <button onClick={startGenerate}
-                  style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '800', boxShadow: `0 4px 24px ${p.glow}`, animation: isHype ? 'hypePulse 1.8s ease-in-out infinite' : 'none', letterSpacing: '0.02em' }}>
-                  {user ? (isHype ? '🔥 Generate My Audio' : '✦ Generate My Audio') : '✦ Sign Up Free and Generate'}
+                  style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#03050f', fontSize: '15px', fontWeight: '800', boxShadow: `0 4px 24px ${p.glow}`, letterSpacing: '0.02em' }}>
+                  {user ? '✦ Generate My Audio' : '✦ Sign Up Free and Generate'}
                 </button>
               </div>
 
-              {safetyState?.type === 'crisis' && (
-                <CrisisBlock onDismiss={clearSafety} />
-              )}
+              {safetyState?.type === 'crisis' && <CrisisBlock onDismiss={clearSafety} />}
               {safetyState?.type === 'block' && (
-                <SafetyBlock
-                  category={safetyState.category}
-                  suggestedRewrite={safetyState.suggestedRewrite}
-                  onUseRewrite={(rewrite) => {
-                    setGoal('custom')
-                    setCustomGoal(rewrite)
-                    clearSafety()
-                  }}
-                  onDismiss={clearSafety}
-                />
+                <SafetyBlock category={safetyState.category} suggestedRewrite={safetyState.suggestedRewrite}
+                  onUseRewrite={(rewrite) => { setGoal('custom'); setCustomGoal(rewrite); clearSafety() }}
+                  onDismiss={clearSafety} />
               )}
             </div>
           )}
@@ -1128,17 +1213,14 @@ export default function Home({ user, profile, refreshProfile }) {
                 <div style={{ position: 'absolute', inset: '12px', borderRadius: '50%', border: `1px solid ${p.colorB}44`, borderBottomColor: p.colorB, animation: 'spinR 2s linear infinite' }} />
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>{product?.emoji}</div>
               </div>
-
               <div style={{ minHeight: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px', padding: '0 20px' }}>
                 <div key={loadMsgIndex} style={{ fontSize: isMobile ? '14px' : '15px', color: p.color, fontWeight: '600', animation: 'fadeMsg 3.5s ease both', maxWidth: '420px', lineHeight: 1.6, textAlign: 'center' }}>
                   {currentLoadMsg}
                 </div>
               </div>
-
               <p style={{ fontSize: '12px', color: BASE.textFaint, marginBottom: '36px' }}>
                 Your session is built fresh every time. This takes 60 to 90 seconds.
               </p>
-
               <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '100px', height: '4px', overflow: 'hidden', marginBottom: '10px', maxWidth: '400px', margin: '0 auto 10px' }}>
                 <div style={{ height: '100%', width: `${progress}%`, background: p.grad, borderRadius: '100px', transition: 'width 0.8s ease', boxShadow: `0 0 10px ${p.color}` }} />
               </div>
@@ -1166,12 +1248,13 @@ export default function Home({ user, profile, refreshProfile }) {
                   <div style={{ textAlign: 'center', marginBottom: '24px', padding: '24px', borderRadius: '18px', background: p.color + '08', border: `1px solid ${p.color}33`, boxShadow: `0 0 40px ${p.glow}` }}>
                     <div style={{ fontSize: '40px', marginBottom: '10px' }}>{product?.emoji}</div>
                     <div style={{ fontSize: '20px', color: p.color, fontWeight: '800', marginBottom: '5px' }}>Your {product?.label} is ready</div>
-                    <div style={{ fontSize: '12px', color: BASE.textMuted }}>{selectedVoice?.name} · {currentMusic?.label} · Mood {mood}/10</div>
+                    <div style={{ fontSize: '12px', color: BASE.textMuted }}>{isSubliminal ? 'Emily' : selectedVoice?.name} · {MUSIC[product?.id]?.label} · Mood {mood}/10</div>
+                    {savedOk && <div style={{ marginTop: '10px', fontSize: '12px', color: '#34d399', fontWeight: '600' }}>✓ Saved to your library · <a href="/dashboard" style={{ color: '#34d399' }}>View library →</a></div>}
                   </div>
 
                   <div style={{ background: BASE.bgCard, border: `1px solid ${BASE.border}`, borderRadius: '16px', padding: '22px 24px', marginBottom: '14px', maxHeight: '200px', overflowY: 'auto' }}>
                     <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: p.color, marginBottom: '12px', fontWeight: '600' }}>YOUR SCRIPT</div>
-                    <div style={{ fontSize: '15px', lineHeight: '2', color: 'rgba(232,244,255,0.75)', whiteSpace: 'pre-wrap', fontFamily: "'Georgia',serif" }}>{script}</div>
+                    <div style={{ fontSize: '15px', lineHeight: '2', color: BASE.textMuted, whiteSpace: 'pre-wrap', fontFamily: "'Georgia',serif" }}>{script}</div>
                   </div>
 
                   <div style={{ background: BASE.bgCard, border: `1px solid ${p.color}22`, borderRadius: '14px', padding: '18px 20px', marginBottom: '12px' }}>
@@ -1179,14 +1262,14 @@ export default function Home({ user, profile, refreshProfile }) {
                     {playing && (
                       <>
                         <div style={{ textAlign: 'center', marginTop: '10px', marginBottom: '14px' }}>
-                          <div style={{ fontSize: '12px', color: p.color, fontFamily: 'monospace', marginBottom: '3px' }}>{fmt(timer)} — {isHype ? 'Performance priming in progress' : 'Session in progress'}</div>
+                          <div style={{ fontSize: '12px', color: p.color, fontFamily: 'monospace', marginBottom: '3px' }}>{fmt(timer)} — Session in progress</div>
                           <div style={{ fontSize: '11px', color: BASE.textFaint, fontStyle: 'italic' }}>
-                            {isSubliminal ? 'Relax and let the music wash over you.' : isHype ? 'Feel it. Believe it. Own it.' : 'Close your eyes. Breathe slowly. Let the words reach you.'}
+                            {isSubliminal ? 'Relax and let the music wash over you.' : isWalking ? 'Keep your eyes open. Walk at your own pace.' : 'Close your eyes. Breathe slowly. Let the words reach you.'}
                           </div>
                         </div>
                         {!isSubliminal && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '11px', color: BASE.textFaint, whiteSpace: 'nowrap' }}>🎵 Music volume</span>
+                            <span style={{ fontSize: '11px', color: BASE.textFaint, whiteSpace: 'nowrap' }}>🎵 Music</span>
                             <style>{`input[type=range].mv{background:linear-gradient(to right,${p.color},${p.color}33)} input[type=range].mv::-webkit-slider-thumb{background:${p.color};border:none;width:14px;height:14px}`}</style>
                             <input type="range" min="0" max="0.4" step="0.01" value={musicVolume} onChange={e => setMusicVolume(Number(e.target.value))} className="mv" style={{ flex: 1, height: '3px' }} />
                             <span style={{ fontSize: '11px', color: BASE.textFaint, whiteSpace: 'nowrap' }}>{Math.round(musicVolume * 250)}%</span>
@@ -1196,13 +1279,28 @@ export default function Home({ user, profile, refreshProfile }) {
                     )}
                   </div>
 
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+                  {/* Controls row */}
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
                     <button onClick={togglePlay} disabled={!audioUrl}
-                      style={{ flex: 1, padding: isMobile ? '14px' : '15px', borderRadius: '12px', background: audioUrl ? p.grad : 'rgba(255,255,255,0.04)', color: '#ffffff', fontSize: isMobile ? '14px' : '15px', fontWeight: '800', boxShadow: audioUrl && !playing ? `0 4px 20px ${p.glow}` : 'none', animation: !playing && isHype && audioUrl ? 'hypePulse 1.8s ease-in-out infinite' : 'none' }}>
-                      {playing ? '⏸ Pause' : (isHype ? '🔥 Play' : '▶ Play')}
+                      style={{ flex: 1, padding: isMobile ? '14px' : '15px', borderRadius: '12px', background: audioUrl ? p.grad : 'rgba(255,255,255,0.04)', color: '#ffffff', fontSize: isMobile ? '14px' : '15px', fontWeight: '800', boxShadow: audioUrl && !playing ? `0 4px 20px ${p.glow}` : 'none' }}>
+                      {playing ? '⏸ Pause' : '▶ Play'}
                     </button>
-                    <button onClick={reset} title="Start a new session" style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: isMobile ? '11px' : '12px', fontWeight: '600', whiteSpace: 'nowrap' }}>{isMobile ? '↩' : 'New session'}</button>
+                    <button onClick={replaySession} title="Replay from start"
+                      style={{ padding: '14px 16px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '14px' }}>↩</button>
+                    <button onClick={reset} title="New session"
+                      style={{ padding: '14px', borderRadius: '12px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: isMobile ? '11px' : '12px', fontWeight: '600', whiteSpace: 'nowrap' }}>{isMobile ? '+' : 'New'}</button>
                   </div>
+
+                  {/* Loop toggle for subliminal */}
+                  {isSubliminal && (
+                    <button onClick={() => {
+                      const newLoop = !looping
+                      setLooping(newLoop)
+                      if (audioRef.current) audioRef.current.loop = newLoop
+                    }} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: `1px solid ${looping ? SUBLIMINAL_PRODUCT.color + '44' : BASE.border}`, background: looping ? SUBLIMINAL_PRODUCT.color + '10' : 'transparent', color: looping ? SUBLIMINAL_PRODUCT.color : BASE.textMuted, fontSize: '13px', fontWeight: '600', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      {looping ? '🔁 Loop On — tap to turn off' : '↩ Loop Off — tap to turn on'}
+                    </button>
+                  )}
 
                   {saveLimitHit && (
                     <div style={{ padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,159,67,0.08)', border: '1px solid rgba(255,159,67,0.25)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
@@ -1253,20 +1351,14 @@ export default function Home({ user, profile, refreshProfile }) {
         </div>
       </div>
 
+      {showDisclaimer && <DisclaimerModal onAccept={acceptDisclaimer} />}
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={() => { setShowAuth(false); if (step === 4) startGenerate() }} />}
       {showCredits && user && <CreditsModal profile={profile} user={user} onClose={() => setShowCredits(false)} />}
       {showQuiz && (
-        <QuizModal
-          onClose={() => setShowQuiz(false)}
-          onSelect={(selectedGoal) => {
-            if (selectedGoal === 'custom') {
-              setGoal('custom')
-            } else {
-              setGoal(selectedGoal)
-            }
-            setShowQuiz(false)
-          }}
-        />
+        <QuizModal onClose={() => setShowQuiz(false)} onSelect={(selectedGoal) => {
+          if (selectedGoal === 'custom') { setGoal('custom') } else { setGoal(selectedGoal) }
+          setShowQuiz(false)
+        }} />
       )}
     </>
   )
