@@ -328,6 +328,7 @@ export default function Home({ user, profile, refreshProfile }) {
   const [showQuiz, setShowQuiz] = useState(false)
   const [showDisclaimer, setShowDisclaimer] = useState(false)
   const [saveLimitHit, setSaveLimitHit] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [savedOk, setSavedOk] = useState(false)
   const [showFounder, setShowFounder] = useState(false)
   const [streak, setStreak] = useState(0)
@@ -937,9 +938,17 @@ export default function Home({ user, profile, refreshProfile }) {
                 )}
               </div>
               {error && <p style={{ color: '#ff6b6b', fontSize: '13px', marginBottom: '12px', textAlign: 'center' }}>{error}</p>}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '14px', padding: '12px 14px', borderRadius: '10px', background: 'rgba(99,102,241,0.04)', border: `1px solid ${C.border}` }}>
+                <div onClick={() => setTermsAccepted(!termsAccepted)} style={{ width: '18px', height: '18px', borderRadius: '4px', border: `2px solid ${termsAccepted ? C.purple : 'rgba(255,255,255,0.2)'}`, background: termsAccepted ? C.purple : 'transparent', cursor: 'pointer', flexShrink: 0, marginTop: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {termsAccepted && <span style={{ color: '#fff', fontSize: '11px', fontWeight: '800' }}>✓</span>}
+                </div>
+                <p style={{ fontSize: '12px', color: C.textBody, lineHeight: 1.6, cursor: 'pointer', margin: 0 }} onClick={() => setTermsAccepted(!termsAccepted)}>
+                  By generating, you agree to our <a href="/terms" target="_blank" style={{ color: C.purpleLight }} onClick={e => e.stopPropagation()}>terms and conditions</a>
+                </p>
+              </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setStep(isSubliminal ? 1 : 3)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${C.border}`, color: C.textMuted, fontSize: '14px' }}>← Back</button>
-                <button onClick={startGenerate} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#fff', fontSize: '15px', fontWeight: '800', boxShadow: `0 4px 24px ${p.glow}`, letterSpacing: '0.02em' }}>
+                <button onClick={startGenerate} disabled={!termsAccepted} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: termsAccepted ? p.grad : 'rgba(255,255,255,0.05)', color: termsAccepted ? '#fff' : 'rgba(255,255,255,0.3)', fontSize: '15px', fontWeight: '800', boxShadow: termsAccepted ? `0 4px 24px ${p.glow}` : 'none', letterSpacing: '0.02em', cursor: termsAccepted ? 'pointer' : 'not-allowed', transition: 'all 0.2s ease' }}>
                   {user ? '✦ Generate My Audio' : '✦ Sign Up Free and Generate'}
                 </button>
               </div>
