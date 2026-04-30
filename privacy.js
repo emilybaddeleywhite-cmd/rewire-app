@@ -56,7 +56,7 @@ export default function Privacy() {
           <div style={{ marginBottom: '40px' }}>
             <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: '#6366f1', fontWeight: '700', marginBottom: '12px' }}>LEGAL</div>
             <h1 style={{ fontSize: '32px', fontWeight: '800', color: BASE.text, marginBottom: '10px' }}>Privacy Policy</h1>
-            <p style={{ fontSize: '13px', color: BASE.textFaint }}>Last updated: March 2026</p>
+            <p style={{ fontSize: '13px', color: BASE.textFaint }}>Last updated: April 2026</p>
           </div>
 
           <div style={{ padding: '20px', borderRadius: '12px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.15)', marginBottom: '32px' }}>
@@ -118,6 +118,19 @@ export default function Privacy() {
             <li>Comply with our legal obligations</li>
           </ul>
           <p>We do not use your data for advertising, and we do not sell your data to third parties.</p>
+
+          <h2>3a. How Your Session Prompts Are Handled</h2>
+          <div style={{ padding: '20px', borderRadius: '12px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.15)', marginBottom: '24px' }}>
+            <p style={{ margin: '0 0 12px' }}>Because RewireMode processes sensitive personal goals and intentions, we want to be explicit about exactly how your session data is used.</p>
+            <ul>
+              <li><strong style={{ color: BASE.text }}>Your goal / intention</strong> is sent to the Anthropic API (Claude) to generate your personalised script. It is processed in real time and is not stored by Anthropic for model training under our enterprise agreement.</li>
+              <li><strong style={{ color: BASE.text }}>Your mood score and optional moment context</strong> are used solely to adjust the tone of your script. They are not stored in any analytics or profiling system.</li>
+              <li><strong style={{ color: BASE.text }}>Your session script</strong> is stored in your account so you can replay your saved sessions. You can delete any saved session from your dashboard at any time, which permanently removes both the session record and the associated audio file.</li>
+              <li><strong style={{ color: BASE.text }}>Your prompts are never used to train AI models.</strong> RewireMode does not use your session data — goals, scripts, or audio — to train, fine-tune, or evaluate any AI model, including our own or any third-party model.</li>
+              <li><strong style={{ color: BASE.text }}>Your prompts are never sold or shared</strong> with advertisers, data brokers, or any third party beyond the processors listed in Section 4 below.</li>
+              <li><strong style={{ color: BASE.text }}>Safety screening</strong> — before each session is generated, your goal is screened by an automated safety classifier. If a goal is flagged, only the category of the flag and a timestamp are logged — no prompt text is stored in the safety log. This is privacy by design.</li>
+            </ul>
+          </div>
 
           <h2>4. Who We Share Data With</h2>
           <p>We share your data only with the following trusted service providers, who process it on our behalf:</p>
