@@ -265,9 +265,9 @@ function FounderModal({ user, onClose }) {
         {/* Benefits */}
         <div style={{ display: 'grid', gap: '10px', marginBottom: '28px' }}>
           {[
-            { icon: '✦', text: '50 credits every month, forever', sub: 'That's up to 50 sessions a month, every month' },
-            { icon: '🧠', text: 'Every session type, always', sub: 'Reset, Sleep, Walking Hypnosis, Subliminals — and anything we add' },
-            { icon: '🚀', text: 'Every new feature included', sub: 'We're just getting started. You get all of it.' },
+            { icon: '✦', text: '50 credits every month, forever', sub: "That's up to 50 sessions a month, every month" },
+            { icon: '🧠', text: 'Every session type, always', sub: 'Reset, Sleep, Walking Hypnosis, Subliminals and anything we add' },
+            { icon: '🚀', text: 'Every new feature included', sub: "We're just getting started. You get all of it." },
             { icon: '🔒', text: 'Locked in at £99. Permanently.', sub: 'Pro is £14.99/month. This pays for itself in 7 months.' },
           ].map(b => (
             <div key={b.icon} style={{ display: 'flex', gap: '14px', padding: '14px 16px', borderRadius: '12px', background: 'rgba(123,79,224,0.06)', border: `1px solid ${C.border}`, alignItems: 'flex-start' }}>
