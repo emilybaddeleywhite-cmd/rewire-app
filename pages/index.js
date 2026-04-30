@@ -226,6 +226,82 @@ function FeedbackButton({userId}){
   </>)
 }
 
+
+// ─── FOUNDER UPSELL MODAL ─────────────────────────────────────────────
+function FounderModal({ user, onClose }) {
+  const [loading, setLoading] = useState(false)
+
+  async function goToCheckout() {
+    setLoading(true)
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productKey: 'lifetime_founder', userId: user?.id, email: user?.email }),
+    })
+    const data = await res.json()
+    if (data.url) window.location.href = data.url
+    setLoading(false)
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(10,12,22,0.94)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
+      <div style={{ background: 'linear-gradient(145deg,#0f1729,#0a0c16)', border: `1px solid rgba(123,79,224,0.35)`, borderRadius: '24px', padding: '40px 36px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 0 80px rgba(123,79,224,0.2)' }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: C.textMuted, fontSize: '22px', cursor: 'pointer' }}>×</button>
+
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(123,79,224,0.4)', background: 'rgba(123,79,224,0.12)', fontSize: '11px', fontWeight: '700', color: C.purpleLight, letterSpacing: '0.1em', marginBottom: '16px' }}>
+            🔒 FOUNDER OFFER · FIRST 1,000 ONLY
+          </div>
+          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: '26px', fontWeight: '800', color: C.textH, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '10px' }}>
+            Own RewireMode.<br />
+            <span style={{ background: C.gradText, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Forever. £99.</span>
+          </h2>
+          <p style={{ fontSize: '14px', color: C.textBody, lineHeight: 1.65 }}>
+            One payment. No subscription. Every feature we ever build — included.
+          </p>
+        </div>
+
+        {/* Benefits */}
+        <div style={{ display: 'grid', gap: '10px', marginBottom: '28px' }}>
+          {[
+            { icon: '✦', text: '50 credits every month, forever', sub: 'That's up to 50 sessions a month, every month' },
+            { icon: '🧠', text: 'Every session type, always', sub: 'Reset, Sleep, Walking Hypnosis, Subliminals — and anything we add' },
+            { icon: '🚀', text: 'Every new feature included', sub: 'We're just getting started. You get all of it.' },
+            { icon: '🔒', text: 'Locked in at £99. Permanently.', sub: 'Pro is £14.99/month. This pays for itself in 7 months.' },
+          ].map(b => (
+            <div key={b.icon} style={{ display: 'flex', gap: '14px', padding: '14px 16px', borderRadius: '12px', background: 'rgba(123,79,224,0.06)', border: `1px solid ${C.border}`, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>{b.icon}</span>
+              <div>
+                <div style={{ fontSize: '13px', color: C.textH, fontWeight: '700', marginBottom: '2px' }}>{b.text}</div>
+                <div style={{ fontSize: '12px', color: C.textMuted, lineHeight: 1.5 }}>{b.sub}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Urgency bar */}
+        <div style={{ padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,159,67,0.08)', border: '1px solid rgba(255,159,67,0.25)', marginBottom: '20px', textAlign: 'center' }}>
+          <div style={{ fontSize: '13px', color: '#ff9f43', fontWeight: '700' }}>⚡ Limited to the first 1,000 founder members</div>
+          <div style={{ fontSize: '12px', color: C.textMuted, marginTop: '3px' }}>Once they're gone, this price is gone. We won't offer it again.</div>
+        </div>
+
+        {/* CTA */}
+        <button onClick={goToCheckout} disabled={loading}
+          style={{ width: '100%', padding: '17px', borderRadius: '14px', background: C.grad, color: '#fff', fontSize: '16px', fontWeight: '800', border: 'none', cursor: 'pointer', boxShadow: '0 4px 28px rgba(123,79,224,0.45)', letterSpacing: '-0.01em', marginBottom: '12px' }}>
+          {loading ? 'Taking you to checkout...' : 'Claim Founder Lifetime — £99 →'}
+        </button>
+        <p style={{ textAlign: 'center', fontSize: '12px', color: C.textMuted, lineHeight: 1.6 }}>
+          Secure checkout via Stripe · One-time payment · No hidden fees
+        </p>
+        <button onClick={onClose} style={{ display: 'block', width: '100%', marginTop: '10px', padding: '10px', fontSize: '12px', color: C.textMuted, background: 'none', border: 'none', cursor: 'pointer' }}>
+          No thanks, I'll stay on the free plan
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── MAIN PAGE ────────────────────────────────────────────────────────
 export default function Home({ user, profile, refreshProfile }) {
   const isMobile = useIsMobile()
@@ -253,6 +329,7 @@ export default function Home({ user, profile, refreshProfile }) {
   const [showDisclaimer, setShowDisclaimer] = useState(false)
   const [saveLimitHit, setSaveLimitHit] = useState(false)
   const [savedOk, setSavedOk] = useState(false)
+  const [showFounder, setShowFounder] = useState(false)
   const [streak, setStreak] = useState(0)
   const [firstName, setFirstName] = useState('')
   const [musicVolume, setMusicVolume] = useState(0.18)
@@ -338,7 +415,10 @@ export default function Home({ user, profile, refreshProfile }) {
       else if (saveRes.ok) { setSavedOk(true); if (saveData.streak) setStreak(saveData.streak) }
       clearInterval(progressRef.current); clearInterval(loadMsgRef.current)
       setProgress(100); refreshProfile()
-      setTimeout(() => setStep(6), 400)
+      setTimeout(() => {
+        setStep(6)
+        if (!profile || profile.plan === 'free') setTimeout(() => setShowFounder(true), 2200)
+      }, 400)
     } catch (err) {
       clearInterval(progressRef.current); clearInterval(loadMsgRef.current)
       setError(friendlyError(err.message)); setStep(6)
@@ -976,6 +1056,7 @@ export default function Home({ user, profile, refreshProfile }) {
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={() => { setShowAuth(false); setView('app') }} />}
       {showCredits && user && <CreditsModal profile={profile} user={user} onClose={() => setShowCredits(false)} />}
       {showQuiz && <QuizModal onClose={() => setShowQuiz(false)} onSelect={(g) => { if (g === 'custom') setGoal('custom'); else setGoal(g); setShowQuiz(false) }} />}
+      {showFounder && user && <FounderModal user={user} onClose={() => setShowFounder(false)} />}
     </>
   )
 }
