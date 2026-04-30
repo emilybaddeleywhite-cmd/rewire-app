@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
 import { CrisisBlock, SafetyBlock, useSafetyGate } from '../components/SafetyBlock'
-
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
@@ -13,7 +12,6 @@ function useIsMobile() {
   }, [])
   return isMobile
 }
-
 const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png'
 const C = {
   purple:'#7B4FE0', purpleLight:'#9B6FF0', purpleDim:'rgba(123,79,224,0.14)',
