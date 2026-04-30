@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import { useState } from 'react'
 
 const BASE = {
   bg: '#03050f',
@@ -104,17 +103,14 @@ const FAQS = [
 ]
 
 function FAQItem({ question, answer }) {
-  const [open, setOpen] = useState(false)
   return (
-    <div style={{ borderBottom: `1px solid ${BASE.border}` }}>
-      <button onClick={() => setOpen(!open)} style={{ width: '100%', padding: '18px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
-        <span style={{ fontSize: '15px', color: open ? '#6366f1' : BASE.text, fontWeight: '600', lineHeight: 1.4, transition: 'color 0.2s ease' }}>{question}</span>
-        <span style={{ fontSize: '20px', color: '#6366f1', flexShrink: 0, transform: open ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s ease', lineHeight: 1 }}>+</span>
-      </button>
-      {open && (
-        <div style={{ paddingBottom: '20px', fontSize: '14px', color: BASE.textMuted, lineHeight: '1.8' }}>{answer}</div>
-      )}
-    </div>
+    <details style={{ borderBottom: `1px solid ${BASE.border}` }}>
+      <summary style={{ padding: '18px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', cursor: 'pointer', listStyle: 'none', WebkitAppearance: 'none' }}>
+        <span style={{ fontSize: '15px', color: BASE.text, fontWeight: '600', lineHeight: 1.4 }}>{question}</span>
+        <span className="faq-icon" style={{ fontSize: '20px', color: '#6366f1', flexShrink: 0, lineHeight: 1 }}>+</span>
+      </summary>
+      <div style={{ paddingBottom: '20px', fontSize: '14px', color: BASE.textMuted, lineHeight: '1.8' }}>{answer}</div>
+    </details>
   )
 }
 
@@ -133,6 +129,12 @@ export default function FAQ({ user, profile }) {
           @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
           button{cursor:pointer;font-family:inherit}
           ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.2);border-radius:4px}
+          details summary::-webkit-details-marker{display:none}
+          details summary::marker{display:none}
+          details[open] summary span:first-child{color:#6366f1}
+          details[open] .faq-icon{transform:rotate(45deg)}
+          .faq-icon{transition:transform 0.2s ease}
+          details summary span:first-child{transition:color 0.2s ease}
         `}</style>
 
         {/* Background */}
