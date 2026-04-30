@@ -417,7 +417,8 @@ export default function Home({ user, profile, refreshProfile }) {
       setProgress(100); refreshProfile()
       setTimeout(() => {
         setStep(6)
-        if (!profile || profile.plan === 'free') setTimeout(() => setShowFounder(true), 2200)
+        // Always show to free users every time they generate
+        if (!profile || profile.plan === 'free') setTimeout(() => setShowFounder(true), 1800)
       }, 400)
     } catch (err) {
       clearInterval(progressRef.current); clearInterval(loadMsgRef.current)
@@ -489,7 +490,7 @@ export default function Home({ user, profile, refreshProfile }) {
         {/* NAV */}
         <nav style={{ position: 'fixed', inset: '0 0 auto', zIndex: 200, height: '66px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', borderBottom: `1px solid ${navScrolled ? 'rgba(123,79,224,0.22)' : C.border}`, background: 'rgba(13,15,26,0.82)', backdropFilter: 'blur(18px)', transition: 'border-color 0.3s' }}>
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-            <img src={LOGO} alt="RewireMode" style={{ height: '32px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => e.target.style.display = 'none'} />
+            <img src={LOGO} alt="RewireMode" style={{ height: '48px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => e.target.style.display = 'none'} />
             <span style={{ fontFamily: "'Sora',sans-serif", fontSize: '18px', fontWeight: '700', letterSpacing: '-0.025em', color: C.textH }}>Rewire<span style={{ color: C.cyanLight }}>Mode</span></span>
           </a>
           <div className="hide-mob" style={{ display: 'flex', gap: '28px' }}>
