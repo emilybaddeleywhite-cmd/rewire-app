@@ -98,3 +98,25 @@ export default async function handler(req, res) {
       .from('profiles')
       .update({
         streak_count: newStreak,
+        last_session_date: today,
+        credits: newCredits,
+      })
+      .eq('id', authUser.id)
+
+    const transactions = []
+    if (cost > 0) {
+      transactions.push({ user_id: authUser.id, amount: -cost, reason: `generation:${productType}` })
+    }
+    if (bonusCredits > 0) {
+      transactions.push({ user_id: authUser.id, amount: bonusCredits, reason: `streak_reward:${newStreak}days` })
+    }
+    if (transactions.length > 0) {
+      await supabase.from('credit_transactions').insert(transactions)
+    }
+
+    return res.status(200).json({ session, streak: newStreak, bonusCredits, creditsRemaining: newCredits })
+  } catch (err) {
+    console.error('Save session error:', err)
+    return res.status(500).json({ error: 'Something went wrong. Please try again.' })
+  }
+}
