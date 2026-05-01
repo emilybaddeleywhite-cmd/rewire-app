@@ -268,7 +268,12 @@ export default function Dashboard({ user, profile, refreshProfile }) {
 
   return (
     <>
-      <Head><title>Dashboard — RewireMode</title></Head>
+      <Head>
+        <title>Dashboard — RewireMode</title>
+        <link rel="icon" type="image/png" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
+        <link rel="shortcut icon" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
+        <link rel="apple-touch-icon" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
+      </Head>
       <div style={{ minHeight: '100vh', background: BASE.bg, color: BASE.text, fontFamily: "'Inter','Segoe UI',system-ui,sans-serif" }}>
         <style>{`
           *{box-sizing:border-box;margin:0;padding:0}
