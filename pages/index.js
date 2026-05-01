@@ -517,7 +517,9 @@ export default function Home({ user, profile, refreshProfile }) {
         <title>RewireMode — Personalised Hypnosis & Subliminal Audio</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Personalised hypnosis and subliminal audio designed to support focus, relaxation, and positive mental patterns through repetition." />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
+        <link rel="shortcut icon" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
+        <link rel="apple-touch-icon" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
       </Head>
       <div style={{ minHeight: '100vh', background: C.bg, color: C.textBody, fontFamily: "'DM Sans',system-ui,sans-serif", overflowX: 'hidden' }}>
         <style>{GS}</style>
@@ -763,7 +765,9 @@ export default function Home({ user, profile, refreshProfile }) {
       <Head>
         <title>RewireMode — Create Your Session</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
+        <link rel="shortcut icon" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
+        <link rel="apple-touch-icon" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
       </Head>
       <div style={{ minHeight: '100vh', background: C.bg, color: C.textH, fontFamily: "'DM Sans',system-ui,sans-serif", overflowX: 'hidden' }}>
         <style>{GS}</style>
