@@ -465,8 +465,8 @@ export default function Home({ user, profile, refreshProfile }) {
   async function togglePlay() {
     if (!audioRef.current) return
     if (!playing) {
-      audioRef.current.volume = isSubliminal ? 0.02 : 1.0
-      audioRef.current.loop = looping
+      audioRef.current.volume = isSubliminal ? 0.001 : 1.0
+      audioRef.current.loop = isSubliminal ? true : looping
       audioRef.current.play()
       if (musicRef.current) { musicRef.current.volume = musicVolume; musicRef.current.loop = true; musicRef.current.play().catch(() => {}) }
       setPlaying(true)
@@ -488,7 +488,10 @@ export default function Home({ user, profile, refreshProfile }) {
   }
 
   function handleAudioEnd() {
-    if (looping) return
+    if (looping || isSubliminal) {
+      if (audioRef.current) { audioRef.current.loop = true; audioRef.current.play().catch(() => {}) }
+      return
+    }
     if (musicRef.current) {
       let vol = musicRef.current.volume
       const fade = setInterval(() => { vol = Math.max(0, vol - 0.02); if (musicRef.current) musicRef.current.volume = vol; if (vol <= 0) { clearInterval(fade); if (musicRef.current) musicRef.current.pause() } }, 150)
