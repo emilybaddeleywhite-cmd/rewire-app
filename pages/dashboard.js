@@ -151,6 +151,7 @@ export default function Dashboard({ user, profile, refreshProfile }) {
   const [renamingId, setRenamingId] = useState(null)
   const [renameValue, setRenameValue] = useState('')
   const [playingId, setPlayingId] = useState(null)
+  const [loopingId, setLoopingId] = useState(null)
   const [showDeleteAccount, setShowDeleteAccount] = useState(false)
   const audioRef = useRef(null)
   const musicRef = useRef(null)
@@ -177,10 +178,13 @@ export default function Dashboard({ user, profile, refreshProfile }) {
       if (audioRef.current) audioRef.current.pause()
       if (musicRef.current) { musicRef.current.pause(); musicRef.current.src = '' }
       setPlayingId(session.id)
+      if (isSubliminal) setLoopingId(session.id)
+      const shouldLoop = isSubliminal ? true : loopingId === session.id
       setTimeout(() => {
         if (audioRef.current) {
           audioRef.current.src = session.audio_url
-          audioRef.current.volume = isSubliminal ? 0.005 : 1.0
+          audioRef.current.volume = isSubliminal ? 0.001 : 1.0
+          audioRef.current.loop = shouldLoop
           audioRef.current.play().catch(() => setPlayingId(null))
         }
         if (musicUrl && musicRef.current) {
@@ -190,6 +194,15 @@ export default function Dashboard({ user, profile, refreshProfile }) {
           musicRef.current.play().catch(() => {})
         }
       }, 50)
+    }
+  }
+
+  function toggleLoop(session) {
+    const isSubliminal = session.product_type === 'subliminal'
+    const isNowLooping = isSubliminal ? true : loopingId !== session.id
+    setLoopingId(isNowLooping ? session.id : null)
+    if (audioRef.current && playingId === session.id) {
+      audioRef.current.loop = isNowLooping
     }
   }
 
@@ -450,6 +463,12 @@ export default function Dashboard({ user, profile, refreshProfile }) {
                             {s.audio_url && (
                               <button onClick={() => togglePlay(s)} style={{ padding: isMobile ? '5px 8px' : '7px 12px', borderRadius: '8px', border: `1px solid ${cfg.color}44`, background: isPlaying ? cfg.color + '20' : 'transparent', color: cfg.color, fontSize: '12px', fontWeight: '700', flexShrink: 0 }}>
                                 {isPlaying ? '⏸' : '▶'}
+                              </button>
+                            )}
+                            {s.product_type === 'subliminal' && s.audio_url && (
+                              <button onClick={() => toggleLoop(s)} title={loopingId === s.id ? 'Loop on' : 'Loop off'}
+                                style={{ padding: isMobile ? '5px 8px' : '7px 12px', borderRadius: '8px', border: `1px solid ${loopingId === s.id ? cfg.color + '88' : BASE.border}`, background: loopingId === s.id ? cfg.color + '18' : 'transparent', color: loopingId === s.id ? cfg.color : BASE.textMuted, fontSize: '12px', flexShrink: 0 }}>
+                                🔁
                               </button>
                             )}
                             {isMobile && (
