@@ -180,12 +180,12 @@ export default function Dashboard({ user, profile, refreshProfile }) {
       setTimeout(() => {
         if (audioRef.current) {
           audioRef.current.src = session.audio_url
-          audioRef.current.volume = isSubliminal ? 0.02 : 1.0
+          audioRef.current.volume = isSubliminal ? 0.005 : 1.0
           audioRef.current.play().catch(() => setPlayingId(null))
         }
         if (musicUrl && musicRef.current) {
           musicRef.current.src = musicUrl
-          musicRef.current.volume = isSubliminal ? 0.20 : 0.18
+          musicRef.current.volume = isSubliminal ? 0.22 : 0.18
           musicRef.current.loop = true
           musicRef.current.play().catch(() => {})
         }
