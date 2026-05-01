@@ -97,7 +97,7 @@ const GS = `
   @keyframes nodePulse{0%,100%{opacity:0.5;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
   @keyframes coreGlow{0%,100%{box-shadow:0 0 40px rgba(123,79,224,0.15)}50%{box-shadow:0 0 60px rgba(123,79,224,0.3)}}
   @keyframes fadeMsg{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
-  .reveal{opacity:0;transform:translateY(22px);transition:opacity 0.65s ease,transform 0.65s ease} .reveal.in{opacity:1;transform:none}
+  .reveal{opacity:1;transform:none;transition:opacity 0.65s ease,transform 0.65s ease} @media(min-width:900px){.reveal{opacity:0;transform:translateY(22px)}} .reveal.in{opacity:1;transform:none}
   .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
   button{cursor:pointer;border:none;background:none;font-family:inherit} input,textarea{font-family:inherit;outline:none}
   input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:5px;cursor:pointer}
@@ -526,9 +526,8 @@ export default function Home({ user, profile, refreshProfile }) {
 
         {/* NAV */}
         <nav style={{ position: 'fixed', inset: '0 0 auto', zIndex: 200, height: '66px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', borderBottom: `1px solid ${navScrolled ? 'rgba(123,79,224,0.22)' : C.border}`, background: 'rgba(13,15,26,0.82)', backdropFilter: 'blur(18px)', transition: 'border-color 0.3s' }}>
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+          <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <img src={LOGO} alt="RewireMode" style={{ height: '48px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => e.target.style.display = 'none'} />
-            <span style={{ fontFamily: "'Sora',sans-serif", fontSize: '18px', fontWeight: '700', letterSpacing: '-0.025em', color: C.textH }}>Rewire<span style={{ color: C.cyanLight }}>Mode</span></span>
           </a>
           <div className="hide-mob" style={{ display: 'flex', gap: '28px' }}>
             {[['#how', 'How it works'], ['#why', 'Why RewireMode'], ['#science', 'The science'], ['/faq', 'FAQ']].map(([href, label]) => (
