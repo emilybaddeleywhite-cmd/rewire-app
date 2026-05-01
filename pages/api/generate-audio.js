@@ -44,7 +44,7 @@ export default async function handler(req, res) {
   }
 
   const voiceSettings = productType === 'subliminal'
-    ? { stability: 0.98, similarity_boost: 0.60, style: 0.00, use_speaker_boost: false, speed: 0.75 }
+    ? { stability: 0.98, similarity_boost: 0.40, style: 0.00, use_speaker_boost: false, speed: 0.75 }
     : productType === 'sleep'
     ? { stability: 0.98, similarity_boost: 0.80, style: 0.00, use_speaker_boost: false, speed: 0.75 }
     : productType === 'walking'
