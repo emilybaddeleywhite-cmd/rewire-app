@@ -50,6 +50,9 @@ export default function Pricing({ user, profile }) {
       <Head>
         <title>Pricing — RewireMode</title>
         <meta name="description" content="Simple, transparent pricing for RewireMode." />
+        <link rel="icon" type="image/png" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
+        <link rel="shortcut icon" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
+        <link rel="apple-touch-icon" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
       </Head>
       <div style={{ minHeight:'100vh', background:C.bg, color:C.textBody, fontFamily:"'DM Sans',system-ui,sans-serif" }}>
         <style>{`
