@@ -25,11 +25,115 @@ const C = {
   border:'rgba(123,79,224,0.14)', borderHover:'rgba(123,79,224,0.35)',
   textH:'#ffffff', textBody:'#b8bdd4', textMuted:'#676e8a',
 }
-const MUSIC = {
-  reset:      { url:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-calm.mp3.mp3',       volume:0.18, label:'Calm ambient' },
-  sleep:      { url:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-sleep.mp3.mp3',      volume:0.15, label:'Sleep ambient' },
-  subliminal: { url:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-subliminal.mp3.mp3', volume:0.20, label:'Subliminal ambient' },
-  walking:    { url:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-calm.mp3.mp3',       volume:0.15, label:'Ambient walking' },
+// Legacy fallback (used for volume defaults only — actual selection via MUSIC_LIBRARY)
+const MUSIC_DEFAULTS = {
+  reset:      { volume: 0.18 },
+  sleep:      { volume: 0.15 },
+  subliminal: { volume: 0.20 },
+  walking:    { volume: 0.15 },
+}
+
+// Full music library — each track scoped to compatible session types
+const MUSIC_LIBRARY = [
+  // ── RESET ────────────────────────────────────────────────────────────
+  {
+    id: 'ambient-reset',
+    name: 'Ambient Reset',
+    desc: 'Soft pads and slow textures — clears the mind without distraction.',
+    url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/Ambient%20Reset.mp3',
+    types: ['reset'],
+    mood: 'Calming',
+    icon: '✦',
+  },
+  {
+    id: 'ocean-reset',
+    name: 'Ocean Water',
+    desc: 'Gentle ocean waves that dissolve tension and slow racing thoughts.',
+    url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/Ocean%20Water%20reset.mp3',
+    types: ['reset'],
+    mood: 'Grounding',
+    icon: '🌊',
+  },
+  {
+    id: 'rain-reset',
+    name: 'Rain',
+    desc: 'A steady, soft rainfall — perfect for resetting a busy, overloaded mind.',
+    url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/Rain%20Reset.mp3',
+    types: ['reset'],
+    mood: 'Soothing',
+    icon: '🌧',
+  },
+  // ── WALKING ──────────────────────────────────────────────────────────
+  {
+    id: 'binaural-walking',
+    name: 'Binaural Beats',
+    desc: 'Engineered frequencies that keep your mind clear and alert while walking.',
+    url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/Binaural%20beats%20Walking.mp3',
+    types: ['walking'],
+    mood: 'Focused',
+    icon: '🎧',
+  },
+  {
+    id: 'nature-walking',
+    name: 'Nature Forest',
+    desc: 'Birdsong and woodland ambience — grounds you in the present moment.',
+    url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/Nature%20Forest%20Walking.mp3',
+    types: ['walking'],
+    mood: 'Natural',
+    icon: '🌲',
+  },
+  // ── SLEEP ────────────────────────────────────────────────────────────
+  {
+    id: 'rain-sleep',
+    name: 'Rain',
+    desc: 'Deep, consistent rainfall to mask noise and ease you into deep sleep.',
+    url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/Rain%20sleep%20music.mp3',
+    types: ['sleep'],
+    mood: 'Deep sleep',
+    icon: '🌧',
+  },
+  {
+    id: 'whitenoise-sleep',
+    name: 'White Noise',
+    desc: 'Clinically-formulated white noise that supports uninterrupted sleep cycles.',
+    url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/White%20Noise%20Sleep.mp3',
+    types: ['sleep'],
+    mood: 'Neutral',
+    icon: '〰',
+  },
+  // ── SUBLIMINAL ───────────────────────────────────────────────────────
+  {
+    id: 'ambient-subliminal',
+    name: 'Ambient Drift',
+    desc: 'Lush ambient textures that carry suggestions beneath conscious awareness.',
+    url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/Ambient%20Subliminal.mp3',
+    types: ['subliminal'],
+    mood: 'Immersive',
+    icon: '✦',
+  },
+  {
+    id: 'ocean-subliminal',
+    name: 'Ocean Water',
+    desc: 'Flowing ocean sounds that mask affirmations in a natural, calming layer.',
+    url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/Ocean%20water%20subliminal.mp3',
+    types: ['subliminal'],
+    mood: 'Flowing',
+    icon: '🌊',
+  },
+  {
+    id: 'whitenoise-subliminal',
+    name: 'White Noise',
+    desc: 'Pure white noise — the most neutral carrier for subliminal suggestions.',
+    url: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/white%20noise%20subliminal.mp3',
+    types: ['subliminal'],
+    mood: 'Neutral',
+    icon: '〰',
+  },
+]
+
+// Get tracks compatible with a given session type
+function getTracksForType(typeId) {
+  return MUSIC_LIBRARY.filter(t => t.types.includes(typeId))
 }
 const LOAD_MESSAGES = {
   reset:      ['Analysing your intention...','Crafting your induction sequence...','Building your personalised suggestion phase...','Layering embedded commands...','This takes 60 to 90 seconds. Your subconscious is worth it.','Almost ready. Something written just for you, right now.'],
@@ -97,6 +201,8 @@ const GS = `
   @keyframes nodePulse{0%,100%{opacity:0.5;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
   @keyframes coreGlow{0%,100%{box-shadow:0 0 40px rgba(123,79,224,0.15)}50%{box-shadow:0 0 60px rgba(123,79,224,0.3)}}
   @keyframes fadeMsg{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
+  @keyframes previewProgress{from{width:0%}to{width:100%}}
+  @keyframes pulse{0%,100%{opacity:0.5}50%{opacity:1}}
   .reveal{opacity:1;transform:none;transition:opacity 0.65s ease,transform 0.65s ease} @media(min-width:900px){.reveal{opacity:0;transform:translateY(22px)}} .reveal.in{opacity:1;transform:none}
   .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
   button{cursor:pointer;border:none;background:none;font-family:inherit} input,textarea{font-family:inherit;outline:none}
@@ -138,6 +244,111 @@ function VoiceCard({voice,selected,onSelect,theme}){
     <div style={{fontSize:'10px',color:C.textMuted}}>Free preview · ~15 sec</div>
   </div>)
 }
+function MusicCard({ track, selected, onSelect, theme, previewingId, setPreviewingId }) {
+  const aRef = useRef(null)
+  const isPreviewPlaying = previewingId === track.id
+
+  // Stop this audio if another track starts previewing
+  useEffect(() => {
+    if (!isPreviewPlaying && aRef.current && !aRef.current.paused) {
+      aRef.current.pause()
+      aRef.current.currentTime = 0
+    }
+  }, [isPreviewPlaying])
+
+  function togglePreview(e) {
+    e.stopPropagation()
+    if (!aRef.current) return
+    if (isPreviewPlaying) {
+      aRef.current.pause()
+      aRef.current.currentTime = 0
+      setPreviewingId(null)
+    } else {
+      // Stop all other previews via event
+      setPreviewingId(track.id)
+      aRef.current.play().catch(() => setPreviewingId(null))
+    }
+  }
+
+  return (
+    <div
+      onClick={onSelect}
+      style={{
+        padding: '16px',
+        borderRadius: '14px',
+        border: `1px solid ${selected ? theme.color + 'cc' : C.border}`,
+        background: selected ? theme.color + '12' : C.bgCard,
+        transition: 'all 0.2s ease',
+        boxShadow: selected ? `0 0 22px ${theme.glow}` : 'none',
+        cursor: 'pointer',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {selected && (
+        <div style={{
+          position: 'absolute', top: '10px', right: '10px',
+          width: '20px', height: '20px', borderRadius: '50%',
+          background: theme.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <span style={{ color: '#fff', fontSize: '10px', fontWeight: '900' }}>✓</span>
+        </div>
+      )}
+      <audio
+        ref={aRef}
+        src={track.url}
+        onEnded={() => setPreviewingId(null)}
+      />
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+        <div style={{
+          width: '42px', height: '42px', borderRadius: '10px', flexShrink: 0,
+          background: selected ? theme.color + '25' : 'rgba(255,255,255,0.05)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '18px', border: `1px solid ${selected ? theme.color + '44' : C.border}`,
+          transition: 'all 0.2s ease',
+        }}>
+          {isPreviewPlaying ? (
+            <span style={{ fontSize: '12px', color: theme.color, animation: 'pulse 0.8s ease infinite' }}>▐▐</span>
+          ) : track.icon}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '14px', color: selected ? theme.color : C.textH, fontWeight: '700', marginBottom: '3px' }}>
+            {track.name}
+          </div>
+          <div style={{ fontSize: '11px', color: C.textMuted, lineHeight: 1.5, marginBottom: '8px' }}>
+            {track.desc}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              fontSize: '10px', padding: '2px 8px', borderRadius: '100px',
+              border: `1px solid ${selected ? theme.color + '44' : C.border}`,
+              color: selected ? theme.color : C.textMuted, fontWeight: '600', letterSpacing: '0.05em',
+            }}>
+              {track.mood}
+            </span>
+            <button
+              onClick={togglePreview}
+              style={{
+                padding: '4px 10px', borderRadius: '100px', fontSize: '10px', fontWeight: '700',
+                border: `1px solid ${theme.color}55`,
+                background: isPreviewPlaying ? theme.color + '25' : 'transparent',
+                color: theme.color, cursor: 'pointer', letterSpacing: '0.04em',
+              }}
+            >
+              {isPreviewPlaying ? '⏹ Stop' : '▶ Preview'}
+            </button>
+          </div>
+        </div>
+      </div>
+      {isPreviewPlaying && (
+        <div style={{ marginTop: '10px', height: '2px', borderRadius: '2px', overflow: 'hidden', background: `${theme.color}18` }}>
+          <div style={{ height: '100%', background: theme.color, animation: 'previewProgress 30s linear forwards', borderRadius: '2px' }} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 function DisclaimerModal({onAccept}){
   return(<div style={{position:'fixed',inset:0,background:'rgba(10,12,22,0.97)',zIndex:300,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px',backdropFilter:'blur(12px)'}}>
     <div style={{background:'linear-gradient(145deg,#0f1729,#0a0c16)',border:`1px solid ${C.border}`,borderRadius:'24px',padding:'36px',width:'100%',maxWidth:'460px',maxHeight:'90vh',overflowY:'auto'}}>
@@ -345,6 +556,8 @@ export default function Home({ user, profile, refreshProfile }) {
   const [customGoal, setCustomGoal] = useState('')
   const [mood, setMood] = useState(5)
   const [selectedVoice, setSelectedVoice] = useState(null)
+  const [selectedMusic, setSelectedMusic] = useState(null)
+  const [previewingMusicId, setPreviewingMusicId] = useState(null)
   const [script, setScript] = useState('')
   const [audioUrl, setAudioUrl] = useState(null)
   const [playing, setPlaying] = useState(false)
@@ -378,7 +591,15 @@ export default function Home({ user, profile, refreshProfile }) {
 
   useEffect(() => { if (user) setView('app') }, [user])
   useEffect(() => { if (profile) setStreak(profile.streak_count || 0) }, [profile])
-  useEffect(() => { if (product?.id) setMusicVolume(MUSIC[product.id]?.volume || 0.18) }, [product])
+  useEffect(() => {
+    if (product?.id) {
+      setMusicVolume(MUSIC_DEFAULTS[product.id]?.volume || 0.18)
+      // Auto-select first compatible track
+      const tracks = getTracksForType(product.id)
+      setSelectedMusic(tracks[0] || null)
+      setPreviewingMusicId(null)
+    }
+  }, [product?.id])
   useEffect(() => { if (musicRef.current) musicRef.current.volume = musicVolume }, [musicVolume])
   useEffect(() => {
     if (product?.id === 'subliminal') { setSelectedVoice(VOICES.hypnosis[0]); setLooping(true) }
@@ -408,7 +629,8 @@ export default function Home({ user, profile, refreshProfile }) {
   const isSubliminal = product?.id === 'subliminal'
   const isWalking = product?.id === 'walking'
   const activeGoal = goal === 'custom' ? customGoal : goal
-  const currentMusic = product ? MUSIC[product.id] : null
+  const currentMusicUrl = selectedMusic?.url || null
+  const currentMusicLabel = selectedMusic?.name || 'No music'
   const loadMessages = LOAD_MESSAGES[product?.id] || LOAD_MESSAGES.reset
   const currentLoadMsg = loadMessages[loadMsgIndex] || loadMessages[0]
   const moodEmoji = mood<=2?'😔':mood<=4?'😕':mood<=6?'😐':mood<=8?'🙂':'😄'
@@ -422,7 +644,7 @@ export default function Home({ user, profile, refreshProfile }) {
     if (needsDisclaimer()) { pendingGenerateRef.current = true; setShowDisclaimer(true); return }
     const isSafe = await checkSafety(activeGoal, user.id)
     if (!isSafe) return
-    setStep(5); setProgress(0); setError(''); setAudioUrl(null); setLoadMsgIndex(0)
+    setStep(6); setProgress(0); setError(''); setAudioUrl(null); setLoadMsgIndex(0)
     setSaveLimitHit(false); setSavedOk(false)
     let prog = 0
     progressRef.current = setInterval(() => { prog += Math.random() * 1.2; if (prog < 88) setProgress(Math.min(prog, 88)) }, 400)
@@ -441,14 +663,14 @@ export default function Home({ user, profile, refreshProfile }) {
       if (audioData.error) throw new Error(audioData.error)
       const url = audioData.audioUrl
       setAudioUrl(url)
-      const saveRes = await fetch('/api/save-session', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ userId: user.id, goal: activeGoal, productType: product.id, script: scriptData.script, audioUrl: url, voiceId: selectedVoice.id, mood, creditCost: scriptData.cost }) })
+      const saveRes = await fetch('/api/save-session', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ userId: user.id, goal: activeGoal, productType: product.id, script: scriptData.script, audioUrl: url, voiceId: selectedVoice.id, mood, creditCost: scriptData.cost, musicUrl: selectedMusic?.url || null }) })
       const saveData = await saveRes.json()
       if (saveRes.status === 403) setSaveLimitHit(true)
       else if (saveRes.ok) { setSavedOk(true); if (saveData.streak) setStreak(saveData.streak) }
       clearInterval(progressRef.current); clearInterval(loadMsgRef.current)
       setProgress(100); refreshProfile()
       setTimeout(() => {
-        setStep(6)
+        setStep(7)
         // Always show to free users every time they generate
         if (!profile || profile.plan === 'free') setTimeout(() => setShowFounder(true), 1800)
         // Show social nudge after a short delay (every 3rd session or first session)
@@ -458,7 +680,7 @@ export default function Home({ user, profile, refreshProfile }) {
       }, 400)
     } catch (err) {
       clearInterval(progressRef.current); clearInterval(loadMsgRef.current)
-      setError(friendlyError(err.message)); setStep(6)
+      setError(friendlyError(err.message)); setStep(7)
     }
   }
 
@@ -468,8 +690,7 @@ export default function Home({ user, profile, refreshProfile }) {
       audioRef.current.volume = isSubliminal ? 0.001 : 1.0
       audioRef.current.loop = isSubliminal ? true : looping
       audioRef.current.play()
-      if (musicRef.current) { musicRef.current.volume = musicVolume; musicRef.current.loop = true; musicRef.current.play().catch(() => {}) }
-      setPlaying(true)
+      if (musicRef.current) { musicRef.current.volume = musicVolume; musicRef.current.loop = true; musicRef.current.play().catch(() => {}) }      setPlaying(true)
       timerRef.current = setInterval(() => setTimer(t => t + 1), 1000)
       try { if ('wakeLock' in navigator) wakeLockRef.current = await navigator.wakeLock.request('screen') } catch (e) {}
     } else {
@@ -507,7 +728,7 @@ export default function Home({ user, profile, refreshProfile }) {
     if (wakeLockRef.current) { wakeLockRef.current.release().catch(() => {}); wakeLockRef.current = null }
     setStep(0); setCategory(null); setProduct(null); setGoal(''); setCustomGoal(''); setScript(''); setFirstName('')
     setPlaying(false); setLooping(false); setTimer(0); setProgress(0); setMood(5)
-    setSelectedVoice(null); setAudioUrl(null); setError(''); setLoadMsgIndex(0)
+    setSelectedVoice(null); setSelectedMusic(null); setPreviewingMusicId(null); setAudioUrl(null); setError(''); setLoadMsgIndex(0)
     setSaveLimitHit(false); setSavedOk(false)
   }
 
@@ -775,7 +996,7 @@ export default function Home({ user, profile, refreshProfile }) {
       <div style={{ minHeight: '100vh', background: C.bg, color: C.textH, fontFamily: "'DM Sans',system-ui,sans-serif", overflowX: 'hidden' }}>
         <style>{GS}</style>
         {audioUrl && <audio ref={audioRef} src={audioUrl} onEnded={handleAudioEnd} loop={looping} />}
-        {currentMusic && <audio ref={musicRef} src={currentMusic.url} loop preload="auto" />}
+        {currentMusicUrl && <audio ref={musicRef} src={currentMusicUrl} loop preload="auto" />}
 
         {/* BG */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
@@ -806,9 +1027,9 @@ export default function Home({ user, profile, refreshProfile }) {
         </nav>
 
         <div style={{ maxWidth: '700px', margin: '0 auto', padding: isMobile ? '24px 14px 60px' : '44px 20px 80px', position: 'relative', zIndex: 1 }}>
-          {step > 0 && step < 5 && (
+          {step > 0 && step < 6 && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '32px' }}>
-              {[1, 2, 3, 4].map(i => (
+              {[1, 2, 3, 4, 5].map(i => (
                 <div key={i} style={{ width: step >= i ? '24px' : '8px', height: '8px', borderRadius: '100px', background: step >= i ? p.grad : C.border, transition: 'all 0.3s ease', boxShadow: step >= i ? `0 0 8px ${p.color}66` : 'none' }} />
               ))}
             </div>
@@ -962,8 +1183,56 @@ export default function Home({ user, profile, refreshProfile }) {
             </div>
           )}
 
-          {/* STEP 4: CONFIRM */}
-          {step === 4 && (
+          {/* STEP 4: MUSIC SELECTION */}
+          {step === 4 && (() => {
+            const tracks = getTracksForType(product?.id)
+            return (
+              <div style={{ animation: 'fadeUp 0.5s ease both' }}>
+                <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                  <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: C.textMuted, fontWeight: '600', marginBottom: '10px' }}>BACKGROUND MUSIC</div>
+                  <div style={{ fontFamily: "'Sora',sans-serif", fontSize: isMobile ? '20px' : '24px', color: C.textH, fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '8px' }}>
+                    Choose your soundscape
+                  </div>
+                  <p style={{ fontSize: '13px', color: C.textBody, lineHeight: 1.65, maxWidth: '360px', margin: '0 auto' }}>
+                    Preview each track. Music plays softly beneath your session.
+                  </p>
+                </div>
+                <div style={{ display: 'grid', gap: '10px', marginBottom: '16px' }}>
+                  {tracks.map(track => (
+                    <MusicCard
+                      key={track.id}
+                      track={track}
+                      selected={selectedMusic?.id === track.id}
+                      onSelect={() => { setSelectedMusic(track); setPreviewingMusicId(null) }}
+                      theme={p}
+                      previewingId={previewingMusicId}
+                      setPreviewingId={setPreviewingMusicId}
+                    />
+                  ))}
+                </div>
+                <div
+                  onClick={() => { setSelectedMusic(null); setPreviewingMusicId(null) }}
+                  style={{ padding: '14px 18px', borderRadius: '12px', marginBottom: '24px', border: `1px solid ${!selectedMusic ? p.color + '88' : C.border}`, background: !selectedMusic ? p.color + '08' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s ease' }}
+                >
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: !selectedMusic ? p.color + '20' : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>🔇</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '13px', color: !selectedMusic ? p.color : C.textBody, fontWeight: !selectedMusic ? '700' : '400' }}>No music — voice only</div>
+                    <div style={{ fontSize: '11px', color: C.textMuted }}>Pure guided session without background audio</div>
+                  </div>
+                  {!selectedMusic && <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: p.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><span style={{ color: '#fff', fontSize: '10px', fontWeight: '900' }}>✓</span></div>}
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={() => setStep(isSubliminal ? 1 : 3)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${C.border}`, color: C.textMuted, fontSize: '14px' }}>← Back</button>
+                  <button onClick={() => setStep(5)} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: p.grad, color: '#fff', fontSize: '15px', fontWeight: '700', boxShadow: `0 4px 20px ${p.glow}` }}>
+                    {selectedMusic ? `Continue with ${selectedMusic.name} →` : 'Continue →'}
+                  </button>
+                </div>
+              </div>
+            )
+          })()}
+
+          {/* STEP 5: CONFIRM */}
+          {step === 5 && (
             <div style={{ animation: 'fadeUp 0.5s ease both' }}>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}><div style={{ fontSize: '11px', letterSpacing: '0.15em', color: C.textMuted, fontWeight: '600' }}>YOUR SESSION</div></div>
               <div style={{ padding: '24px', borderRadius: '18px', background: C.bgCard, border: `1px solid ${p.color}33`, marginBottom: '20px', boxShadow: `0 0 30px ${p.glow}` }}>
@@ -971,10 +1240,10 @@ export default function Home({ user, profile, refreshProfile }) {
                   <div style={{ fontSize: '32px' }}>{product?.emoji}</div>
                   <div>
                     <div style={{ fontFamily: "'Sora',sans-serif", fontSize: '16px', color: p.color, fontWeight: '700' }}>{product?.label}</div>
-                    <div style={{ fontSize: '12px', color: C.textBody }}>{product?.duration} · {MUSIC[product?.id]?.label}</div>
+                    <div style={{ fontSize: '12px', color: C.textBody }}>{product?.duration} · {selectedMusic?.name || 'No music'}</div>
                   </div>
                 </div>
-                {[['Intention', activeGoal], ['Voice', isSubliminal ? 'Emily (default for subliminal)' : selectedVoice?.name], ['Mood', `${mood}/10 — ${moodLabel}`]].map(([k, v]) => (
+                {[['Intention', activeGoal], ['Voice', isSubliminal ? 'Emily (default for subliminal)' : selectedVoice?.name], ['Music', selectedMusic ? selectedMusic.name : 'None — voice only'], ['Mood', `${mood}/10 — ${moodLabel}`]].map(([k, v]) => (
                   <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '12px' }}>
                     <span style={{ color: C.textBody }}>{k}</span><span style={{ color: C.textH, fontWeight: '500' }}>{v}</span>
                   </div>
@@ -1005,7 +1274,7 @@ export default function Home({ user, profile, refreshProfile }) {
                 </p>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => setStep(isSubliminal ? 1 : 3)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${C.border}`, color: C.textMuted, fontSize: '14px' }}>← Back</button>
+                <button onClick={() => setStep(4)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${C.border}`, color: C.textMuted, fontSize: '14px' }}>← Back</button>
                 <button onClick={startGenerate} disabled={!termsAccepted} style={{ flex: 1, padding: '15px', borderRadius: '12px', background: termsAccepted ? p.grad : 'rgba(255,255,255,0.05)', color: termsAccepted ? '#fff' : 'rgba(255,255,255,0.3)', fontSize: '15px', fontWeight: '800', boxShadow: termsAccepted ? `0 4px 24px ${p.glow}` : 'none', letterSpacing: '0.02em', cursor: termsAccepted ? 'pointer' : 'not-allowed', transition: 'all 0.2s ease' }}>
                   {user ? '✦ Generate My Audio' : '✦ Sign Up Free and Generate'}
                 </button>
@@ -1015,8 +1284,8 @@ export default function Home({ user, profile, refreshProfile }) {
             </div>
           )}
 
-          {/* STEP 5: LOADING */}
-          {step === 5 && (
+          {/* STEP 6: LOADING */}
+          {step === 6 && (
             <div style={{ animation: 'fadeUp 0.5s ease both', textAlign: 'center', padding: isMobile ? '20px 0' : '40px 0' }}>
               <div style={{ position: 'relative', width: '90px', height: '90px', margin: '0 auto 32px' }}>
                 <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `2px solid ${p.color}33`, borderTopColor: p.color, animation: 'spin 1.4s linear infinite' }} />
@@ -1034,8 +1303,8 @@ export default function Home({ user, profile, refreshProfile }) {
             </div>
           )}
 
-          {/* STEP 6: RESULT */}
-          {step === 6 && (
+          {/* STEP 7: RESULT */}
+          {step === 7 && (
             <div style={{ animation: 'fadeUp 0.6s ease both' }}>
               {error ? (
                 <div style={{ padding: '24px', borderRadius: '16px', background: 'rgba(255,60,60,0.06)', border: '1px solid rgba(255,80,80,0.2)', marginBottom: '16px', textAlign: 'center' }}>
@@ -1051,7 +1320,7 @@ export default function Home({ user, profile, refreshProfile }) {
                   <div style={{ textAlign: 'center', marginBottom: '24px', padding: '24px', borderRadius: '18px', background: p.color + '08', border: `1px solid ${p.color}33`, boxShadow: `0 0 40px ${p.glow}` }}>
                     <div style={{ fontSize: '40px', marginBottom: '10px' }}>{product?.emoji}</div>
                     <div style={{ fontFamily: "'Sora',sans-serif", fontSize: '20px', color: p.color, fontWeight: '800', marginBottom: '5px' }}>Your {product?.label} is ready</div>
-                    <div style={{ fontSize: '12px', color: C.textBody }}>{isSubliminal ? 'Emily' : selectedVoice?.name} · {MUSIC[product?.id]?.label} · Mood {mood}/10</div>
+                    <div style={{ fontSize: '12px', color: C.textBody }}>{isSubliminal ? 'Emily' : selectedVoice?.name} · {currentMusicLabel} · Mood {mood}/10</div>
                     {savedOk && <div style={{ marginTop: '10px', fontSize: '12px', color: '#34d399', fontWeight: '600' }}>✓ Saved to your library · <a href="/dashboard" style={{ color: '#34d399' }}>View library →</a></div>}
                   </div>
                   <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: '16px', padding: '22px 24px', marginBottom: '14px', maxHeight: '200px', overflowY: 'auto' }}>
