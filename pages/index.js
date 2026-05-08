@@ -456,19 +456,18 @@ function FounderModal({ user, onClose }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(10,12,22,0.94)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
-      <div style={{ background: 'linear-gradient(145deg,#0f1729,#0a0c16)', border: `1px solid rgba(123,79,224,0.35)`, borderRadius: '24px', padding: '40px 36px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 0 80px rgba(123,79,224,0.2)' }}>
-        <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: C.textMuted, fontSize: '22px', cursor: 'pointer' }}>×</button>
+      <div style={{ background: 'linear-gradient(145deg,#0f1729,#0a0c16)', border: `1px solid rgba(123,79,224,0.35)`, borderRadius: '24px', padding: '40px 36px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 0 80px rgba(123,79,224,0.2)', fontFamily: "'DM Sans',system-ui,sans-serif" }}>
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(123,79,224,0.4)', background: 'rgba(123,79,224,0.12)', fontSize: '11px', fontWeight: '700', color: C.purpleLight, letterSpacing: '0.1em', marginBottom: '16px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(123,79,224,0.4)', background: 'rgba(123,79,224,0.12)', fontSize: '11px', fontWeight: '700', color: C.purpleLight, letterSpacing: '0.1em', marginBottom: '16px', fontFamily: "'DM Sans',system-ui,sans-serif" }}>
             🔒 FOUNDER OFFER · FIRST 1,000 ONLY
           </div>
           <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: '26px', fontWeight: '800', color: C.textH, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '10px' }}>
             Own RewireMode.<br />
             <span style={{ background: C.gradText, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Forever. £99.</span>
           </h2>
-          <p style={{ fontSize: '14px', color: C.textBody, lineHeight: 1.65 }}>
+          <p style={{ fontSize: '14px', color: C.textBody, lineHeight: 1.65, fontFamily: "'DM Sans',system-ui,sans-serif" }}>
             One payment. No subscription. Every feature we ever build — included.
           </p>
         </div>
@@ -484,8 +483,8 @@ function FounderModal({ user, onClose }) {
             <div key={b.icon} style={{ display: 'flex', gap: '14px', padding: '14px 16px', borderRadius: '12px', background: 'rgba(123,79,224,0.06)', border: `1px solid ${C.border}`, alignItems: 'flex-start' }}>
               <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>{b.icon}</span>
               <div>
-                <div style={{ fontSize: '13px', color: C.textH, fontWeight: '700', marginBottom: '2px' }}>{b.text}</div>
-                <div style={{ fontSize: '12px', color: C.textMuted, lineHeight: 1.5 }}>{b.sub}</div>
+                <div style={{ fontSize: '13px', color: C.textH, fontWeight: '700', marginBottom: '2px', fontFamily: "'DM Sans',system-ui,sans-serif" }}>{b.text}</div>
+                <div style={{ fontSize: '12px', color: C.textMuted, lineHeight: 1.5, fontFamily: "'DM Sans',system-ui,sans-serif" }}>{b.sub}</div>
               </div>
             </div>
           ))}
@@ -493,21 +492,50 @@ function FounderModal({ user, onClose }) {
 
         {/* Urgency bar */}
         <div style={{ padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,159,67,0.08)', border: '1px solid rgba(255,159,67,0.25)', marginBottom: '20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '13px', color: '#ff9f43', fontWeight: '700' }}>⚡ Limited to the first 1,000 founder members</div>
-          <div style={{ fontSize: '12px', color: C.textMuted, marginTop: '3px' }}>Once they're gone, this price is gone. We won't offer it again.</div>
+          <div style={{ fontSize: '13px', color: '#ff9f43', fontWeight: '700', fontFamily: "'DM Sans',system-ui,sans-serif" }}>⚡ Limited to the first 1,000 founder members</div>
+          <div style={{ fontSize: '12px', color: C.textMuted, marginTop: '3px', fontFamily: "'DM Sans',system-ui,sans-serif" }}>Once they're gone, this price is gone. We won't offer it again.</div>
         </div>
 
         {/* CTA */}
         <button onClick={goToCheckout} disabled={loading}
-          style={{ width: '100%', padding: '17px', borderRadius: '14px', background: C.grad, color: '#fff', fontSize: '16px', fontWeight: '800', border: 'none', cursor: 'pointer', boxShadow: '0 4px 28px rgba(123,79,224,0.45)', letterSpacing: '-0.01em', marginBottom: '12px' }}>
+          style={{ width: '100%', padding: '17px', borderRadius: '14px', background: C.grad, color: '#fff', fontSize: '16px', fontWeight: '800', border: 'none', cursor: 'pointer', boxShadow: '0 4px 28px rgba(123,79,224,0.45)', letterSpacing: '-0.01em', marginBottom: '12px', fontFamily: "'DM Sans',system-ui,sans-serif" }}>
           {loading ? 'Taking you to checkout...' : 'Claim Founder Lifetime — £99 →'}
         </button>
-        <p style={{ textAlign: 'center', fontSize: '12px', color: C.textMuted, lineHeight: 1.6 }}>
+        <p style={{ textAlign: 'center', fontSize: '12px', color: C.textMuted, lineHeight: 1.6, fontFamily: "'DM Sans',system-ui,sans-serif" }}>
           Secure checkout via Stripe · One-time payment · No hidden fees
         </p>
-        <button onClick={onClose} style={{ display: 'block', width: '100%', marginTop: '10px', padding: '10px', fontSize: '12px', color: C.textMuted, background: 'none', border: 'none', cursor: 'pointer' }}>
-          No thanks, I'll stay on the free plan
-        </button>
+
+        {/* Dismiss — clearly labelled as "stay on page", visually distinct */}
+        <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: `1px solid ${C.border}` }}>
+          <button
+            onClick={onClose}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              width: '100%',
+              padding: '13px 16px',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.04)',
+              border: `1px solid ${C.border}`,
+              color: C.textBody,
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              fontFamily: "'DM Sans',system-ui,sans-serif",
+              transition: 'background 0.18s ease',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+          >
+            <span style={{ fontSize: '16px', lineHeight: 1 }}>←</span>
+            Not now — take me back to the app
+          </button>
+          <p style={{ textAlign: 'center', fontSize: '11px', color: C.textMuted, marginTop: '8px', fontFamily: "'DM Sans',system-ui,sans-serif" }}>
+            This offer will stay available in your account
+          </p>
+        </div>
       </div>
     </div>
   )
