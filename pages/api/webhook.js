@@ -18,11 +18,13 @@ async function getRawBody(req) {
   })
 }
 
+// Whitelist of valid credit amounts per product — never read from metadata
 const CREDIT_AMOUNTS = {
   credits_10: 10,
   credits_50: 50,
   credits_100: 100,
   pro_monthly: 100,
+  lifetime_founder: 500,
 }
 
 export default async function handler(req, res) {
@@ -40,12 +42,12 @@ export default async function handler(req, res) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object
-    const { userId, productKey, credits } = session.metadata
+    const { userId, productKey } = session.metadata
 
-    const creditAmount = credits ? parseInt(credits) : CREDIT_AMOUNTS[productKey] || 0
+    // Always derive credit amount from our whitelist — never trust metadata
+    const creditAmount = CREDIT_AMOUNTS[productKey] ?? 0
 
     if (creditAmount > 0 && userId) {
-      // Add credits
       const { data: profile } = await supabase
         .from('profiles')
         .select('credits')
