@@ -142,10 +142,10 @@ const LOAD_MESSAGES = {
   walking:    ['Writing your walking session — designed to keep you grounded...','Crafting suggestions that work with your moving body...','Building language patterns that feel like natural thoughts...','Almost ready. Keep your eyes open and walk at your own pace.'],
 }
 const VOICES = { hypnosis:[
-  { id:'TKePFuDtAVp14EppI8GC', name:'Emily',  gender:'female', desc:'Warm and grounding',  preview:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Emily_Sample.mp3' },
-  { id:'xGDJhCwcqw94ypljc95Z', name:'Callum', gender:'male',   desc:'Calm and measured',   preview:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice2_Sample.mp3' },
-  { id:'KH1SQLVulwP6uG4O3nmT', name:'River',  gender:'male',   desc:'Deep and soothing',   preview:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice3_Sample.mp3' },
-  { id:'OOk3INdXVLRmSaQoAX9D', name:'Serena', gender:'female', desc:'Soft and serene',      preview:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice4_Sample.mp3' },
+  { id:'TKePFuDtAVp14EppI8GC', name:'Emily',  gender:'female', desc:'Warm and grounding',  preview:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Emily_Sample.mp3',  free: true },
+  { id:'xGDJhCwcqw94ypljc95Z', name:'Callum', gender:'male',   desc:'Calm and measured',   preview:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice2_Sample.mp3', proOnly: true },
+  { id:'KH1SQLVulwP6uG4O3nmT', name:'River',  gender:'male',   desc:'Deep and soothing',   preview:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice3_Sample.mp3', proOnly: true },
+  { id:'OOk3INdXVLRmSaQoAX9D', name:'Serena', gender:'female', desc:'Soft and serene',      preview:'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/Voice4_Sample.mp3', proOnly: true },
 ]}
 const HYPNOSIS_TYPES = [
   { id:'reset',   label:'Reset Hypnosis',   emoji:'🧠', duration:'5 min',  credits:1,  desc:'A quick mental reset. Clears stress and recentres you in minutes.',                         color:C.purple,      colorB:'#4A8FE8',    grad:C.grad,                                          glow:'rgba(123,79,224,0.25)',  waveA:'#4A8FE8',    waveB:C.purple },
@@ -230,18 +230,59 @@ function Waveform({active,product}){
   const p=product||HYPNOSIS_TYPES[0]
   return(<div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'3px',height:'54px'}}>{heights.map((h,i)=>(<div key={i} style={{width:'3px',borderRadius:'2px',height:`${h}px`,background:`linear-gradient(to top,${p.waveA},${p.waveB})`,transition:'height 0.11s ease',opacity:active?0.9:0.2}}/>))}</div>)
 }
-function VoiceCard({voice,selected,onSelect,theme}){
+function VoiceUpgradeModal({ onClose }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(10,12,22,0.96)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
+      <div style={{ background: 'linear-gradient(145deg,#0f1729,#0a0c16)', border: `1px solid ${C.border}`, borderRadius: '24px', padding: '40px 36px', width: '100%', maxWidth: '440px', position: 'relative', textAlign: 'center' }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', color: C.textMuted, fontSize: '22px', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+        <div style={{ fontSize: '36px', marginBottom: '16px' }}>🔒</div>
+        <h2 style={{ fontSize: '21px', color: C.purpleLight, fontWeight: '700', marginBottom: '10px', lineHeight: 1.3 }}>Pro voices unlock on upgrade</h2>
+        <p style={{ fontSize: '13px', color: C.textBody, lineHeight: 1.65, marginBottom: '28px' }}>
+          Callum, River, and Serena are available on the Pro plan. Upgrade to access all four voice models and unlock unlimited session customisation.
+        </p>
+        <div style={{ padding: '18px 20px', borderRadius: '14px', background: 'rgba(123,79,224,0.08)', border: `1px solid rgba(123,79,224,0.2)`, marginBottom: '20px', textAlign: 'left' }}>
+          <div style={{ fontSize: '13px', color: C.purpleLight, fontWeight: '700', marginBottom: '8px' }}>💎 What you get with Pro</div>
+          {[
+            'All 4 clinical voice models',
+            '100 credits every month',
+            'Save up to 50 sessions',
+            'Priority generation speed',
+          ].map(f => (
+            <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <span style={{ color: C.purpleLight, fontSize: '12px' }}>✦</span>
+              <span style={{ fontSize: '13px', color: C.textBody }}>{f}</span>
+            </div>
+          ))}
+        </div>
+        <a href="/pricing" style={{ display: 'block', padding: '14px', borderRadius: '12px', background: C.grad, color: '#fff', fontSize: '15px', fontWeight: '700', textDecoration: 'none', boxShadow: '0 4px 20px rgba(123,79,224,0.35)' }}>
+          Upgrade to Pro →
+        </a>
+        <button onClick={onClose} style={{ marginTop: '14px', background: 'none', border: 'none', color: C.textMuted, fontSize: '13px', cursor: 'pointer' }}>Continue with Emily (free)</button>
+      </div>
+    </div>
+  )
+}
+function VoiceCard({voice,selected,onSelect,theme,isPro,onLockedClick}){
   const aRef=useRef(null);const[prev,setPrev]=useState(false)
-  function tp(e){e.stopPropagation();if(!aRef.current)return;if(prev){aRef.current.pause();aRef.current.currentTime=0;setPrev(false)}else{aRef.current.play();setPrev(true)}}
-  return(<div onClick={onSelect} style={{padding:'18px 16px',borderRadius:'14px',border:`1px solid ${selected?theme.color+'cc':C.border}`,background:selected?theme.color+'12':C.bgCard,transition:'all 0.2s ease',boxShadow:selected?`0 0 22px ${theme.glow}`:'none',cursor:'pointer'}}>
+  const isLocked = voice.proOnly && !isPro
+  function tp(e){e.stopPropagation();if(isLocked)return;if(!aRef.current)return;if(prev){aRef.current.pause();aRef.current.currentTime=0;setPrev(false)}else{aRef.current.play();setPrev(true)}}
+  function handleClick(){if(isLocked){onLockedClick&&onLockedClick();return}onSelect()}
+  return(<div onClick={handleClick} style={{padding:'18px 16px',borderRadius:'14px',border:`1px solid ${isLocked?'rgba(255,255,255,0.06)':selected?theme.color+'cc':C.border}`,background:isLocked?'rgba(255,255,255,0.02)':selected?theme.color+'12':C.bgCard,transition:'all 0.2s ease',boxShadow:selected?`0 0 22px ${theme.glow}`:'none',cursor:'pointer',position:'relative',opacity:isLocked?0.72:1}}>
     <audio ref={aRef} src={voice.preview} onEnded={()=>setPrev(false)}/>
+    {isLocked && (
+      <div style={{position:'absolute',top:'10px',right:'10px',background:'rgba(123,79,224,0.15)',border:'1px solid rgba(123,79,224,0.3)',borderRadius:'100px',padding:'2px 8px',display:'flex',alignItems:'center',gap:'4px'}}>
+        <span style={{fontSize:'10px'}}>🔒</span>
+        <span style={{fontSize:'10px',color:C.purpleLight,fontWeight:'700',letterSpacing:'0.05em'}}>PRO</span>
+      </div>
+    )}
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}}>
       <div style={{fontSize:'22px'}}>{voice.gender==='female'?'👩':'👨'}</div>
-      <button onClick={tp} style={{padding:'4px 10px',borderRadius:'100px',fontSize:'11px',fontWeight:'700',border:`1px solid ${theme.color}55`,background:prev?theme.color+'25':'transparent',color:theme.color,cursor:'pointer'}}>{prev?'⏹ Stop':'▶ Preview'}</button>
+      {!isLocked && <button onClick={tp} style={{padding:'4px 10px',borderRadius:'100px',fontSize:'11px',fontWeight:'700',border:`1px solid ${theme.color}55`,background:prev?theme.color+'25':'transparent',color:theme.color,cursor:'pointer'}}>{prev?'⏹ Stop':'▶ Preview'}</button>}
+      {isLocked && <button onClick={e=>{e.stopPropagation();onLockedClick&&onLockedClick()}} style={{padding:'4px 10px',borderRadius:'100px',fontSize:'11px',fontWeight:'700',border:`1px solid rgba(123,79,224,0.3)`,background:'rgba(123,79,224,0.08)',color:C.purpleLight,cursor:'pointer'}}>Unlock →</button>}
     </div>
-    <div style={{fontSize:'15px',color:selected?theme.color:C.textH,fontWeight:'700',marginBottom:'3px'}}>{voice.name}</div>
-    <div style={{fontSize:'12px',color:C.textBody,marginBottom:'6px'}}>{voice.desc}</div>
-    <div style={{fontSize:'10px',color:C.textMuted}}>Free preview · ~15 sec</div>
+    <div style={{fontSize:'15px',color:isLocked?C.textMuted:selected?theme.color:C.textH,fontWeight:'700',marginBottom:'3px'}}>{voice.name}</div>
+    <div style={{fontSize:'12px',color:isLocked?C.textMuted:C.textBody,marginBottom:'6px'}}>{voice.desc}</div>
+    <div style={{fontSize:'10px',color:C.textMuted}}>{isLocked?'Pro plan required':'Free preview · ~15 sec'}</div>
   </div>)
 }
 function MusicCard({ track, selected, onSelect, theme, previewingId, setPreviewingId }) {
@@ -603,11 +644,13 @@ export default function Home({ user, profile, refreshProfile }) {
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [savedOk, setSavedOk] = useState(false)
   const [showFounder, setShowFounder] = useState(false)
+  const [showVoiceUpgrade, setShowVoiceUpgrade] = useState(false)
   const [streak, setStreak] = useState(0)
   const [firstName, setFirstName] = useState('')
   const [musicVolume, setMusicVolume] = useState(0.18)
   const [navScrolled, setNavScrolled] = useState(false)
   const { safetyState, checkSafety, clearSafety } = useSafetyGate()
+  const isPro = profile?.plan === 'pro'
 
   const audioRef = useRef(null)
   const musicRef = useRef(null)
@@ -1202,7 +1245,7 @@ export default function Home({ user, profile, refreshProfile }) {
                 <p style={{ fontSize: '13px', color: C.textBody }}>Preview each voice before you choose. This voice guides your entire session.</p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-                {VOICES.hypnosis.map(v => (<VoiceCard key={v.id} voice={v} selected={selectedVoice?.id === v.id} onSelect={() => setSelectedVoice(v)} theme={p} />))}
+                {VOICES.hypnosis.map(v => (<VoiceCard key={v.id} voice={v} selected={selectedVoice?.id === v.id} onSelect={() => setSelectedVoice(v)} theme={p} isPro={isPro} onLockedClick={() => setShowVoiceUpgrade(true)} />))}
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setStep(2)} style={{ padding: '15px 18px', borderRadius: '12px', border: `1px solid ${C.border}`, color: C.textMuted, fontSize: '14px' }}>← Back</button>
@@ -1420,6 +1463,7 @@ export default function Home({ user, profile, refreshProfile }) {
       {showDisclaimer && <DisclaimerModal onAccept={acceptDisclaimer} />}
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} onSuccess={() => { setShowAuth(false); setView('app') }} />}
       {showCredits && user && <CreditsModal profile={profile} user={user} onClose={() => setShowCredits(false)} />}
+      {showVoiceUpgrade && <VoiceUpgradeModal onClose={() => setShowVoiceUpgrade(false)} />}
       {showQuiz && <QuizModal onClose={() => setShowQuiz(false)} onSelect={(g) => { if (g === 'custom') setGoal('custom'); else setGoal(g); setShowQuiz(false) }} />}
       {showFounder && user && <FounderModal user={user} onClose={() => setShowFounder(false)} />}
       {showSocialNudge && <SocialNudgeModal onClose={() => setShowSocialNudge(false)} />}
