@@ -1,4 +1,10 @@
+// reset-credits.js (Vercel cron route)
+// Runs weekly — tops up free users to 5 credits and emails each one.
+// Schedule in vercel.json: { "crons": [{ "path": "/api/reset-credits", "schedule": "0 8 * * 1" }] }
+// That fires every Monday at 08:00 UTC.
+
 import { createClient } from '@supabase/supabase-js'
+import { sendCreditsReset } from '../../lib/brevo'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -6,7 +12,6 @@ const supabase = createClient(
 )
 
 export default async function handler(req, res) {
-  // Vercel cron jobs send this header for security
   const authHeader = req.headers.authorization
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' })
@@ -15,7 +20,7 @@ export default async function handler(req, res) {
   try {
     const { data: users, error: fetchError } = await supabase
       .from('profiles')
-      .select('id, credits')
+      .select('id, credits, email')
       .eq('plan', 'free')
       .lt('credits', 5)
 
@@ -24,6 +29,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, message: 'No users needed topping up', count: 0 })
     }
 
+    // Top up credits
     await supabase.from('profiles').update({ credits: 5 }).eq('plan', 'free').lt('credits', 5)
 
     const transactions = users.map(u => ({
@@ -33,7 +39,25 @@ export default async function handler(req, res) {
     }))
     await supabase.from('credit_transactions').insert(transactions)
 
-    return res.status(200).json({ success: true, message: `Topped up ${users.length} free users`, count: users.length })
+    // Send reset emails — fire all in parallel, log individual failures
+    const emailResults = await Promise.allSettled(
+      users
+        .filter(u => u.email)
+        .map(u => sendCreditsReset({ email: u.email }))
+    )
+
+    const emailsFailed = emailResults.filter(r => r.status === 'rejected').length
+    if (emailsFailed > 0) {
+      console.error(`Weekly reset: ${emailsFailed} email(s) failed to send`)
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Topped up ${users.length} free users`,
+      count: users.length,
+      emailsSent: users.length - emailsFailed,
+      emailsFailed,
+    })
   } catch (err) {
     return res.status(500).json({ error: err.message })
   }
