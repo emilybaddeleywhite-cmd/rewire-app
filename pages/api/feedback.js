@@ -3,12 +3,19 @@ export default async function handler(req, res) {
 
   const { feedback, userId } = req.body
 
+  if (!feedback || typeof feedback !== 'string' || feedback.trim().length === 0) {
+    return res.status(400).json({ error: 'Feedback is required' })
+  }
+  if (feedback.length > 2000) {
+    return res.status(400).json({ error: 'Feedback too long' })
+  }
+
   const body = `
 New feedback from RewireMode
 
 User ID: ${userId || 'unknown'}
 Feedback:
-${feedback}
+${feedback.trim()}
 
 Sent: ${new Date().toISOString()}
   `.trim()
