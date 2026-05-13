@@ -412,7 +412,7 @@ function AuthModal({onClose,onSuccess}){
     if(mode==='signup'&&!agreed){setError('Please agree to the Terms of Service.');return}
     if(password.length<6){setError('Password must be at least 6 characters.');return}
     setLoading(true);setError('')
-    if(mode==='signup'){const{data,error}=await supabase.auth.signUp({email,password,options:{data:{name}}});if(error)setError(error.message);else if(data.session)onSuccess();else setSuccess(true)}
+    if(mode==='signup'){const{data,error}=await supabase.auth.signUp({email,password,options:{data:{name}}});if(error)setError(error.message);else{if(data.session){fetch('/api/send-welcome',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${data.session.access_token}`},body:JSON.stringify({email})}).catch(()=>{});onSuccess()}else setSuccess(true)}}
     else{const{error}=await supabase.auth.signInWithPassword({email,password});if(error)setError(error.message);else onSuccess()}
     setLoading(false)
   }
