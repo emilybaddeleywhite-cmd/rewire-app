@@ -1,4 +1,6 @@
+// pages/api/generate-script.js
 import { createClient } from '@supabase/supabase-js'
+import { sendCreditsEmpty, sendGenerationFailed } from '../../lib/brevo'
 
 export const config = {
   maxDuration: 60,
@@ -14,6 +16,15 @@ const CREDIT_COSTS = {
   sleep:      3,
   subliminal: 3,
   walking:    1,
+}
+
+// Format next Monday's date as "Monday 19 May"
+function nextResetDate() {
+  const now = new Date()
+  const daysUntilMonday = (8 - now.getDay()) % 7 || 7
+  const next = new Date(now)
+  next.setDate(now.getDate() + daysUntilMonday)
+  return next.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
 export default async function handler(req, res) {
@@ -37,14 +48,20 @@ export default async function handler(req, res) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('credits, plan')
+    .select('credits, plan, email')
     .eq('id', authUser.id)
     .single()
 
   if (profileError || !profile) return res.status(404).json({ error: 'User not found' })
 
   const cost = CREDIT_COSTS[productType] || 1
+
   if (profile.credits < cost) {
+    // Send credits empty email (fire and forget — don't block the response)
+    if (profile.email && profile.plan === 'free') {
+      sendCreditsEmpty({ email: profile.email, resetDate: nextResetDate() })
+        .catch(err => console.error('Credits empty email failed:', err.message))
+    }
     return res.status(402).json({ error: 'Not enough credits', credits: profile.credits })
   }
 
@@ -87,12 +104,24 @@ export default async function handler(req, res) {
     })
 
     const data = await response.json()
-    if (!data.content?.[0]) return res.status(500).json({ error: 'No script returned' })
+    if (!data.content?.[0]) {
+      // Generation failed — email the user (fire and forget)
+      if (profile.email) {
+        sendGenerationFailed({ email: profile.email })
+          .catch(err => console.error('Generation failed email error:', err.message))
+      }
+      return res.status(500).json({ error: 'No script returned' })
+    }
 
     const script = data.content[0].text
 
     return res.status(200).json({ script, cost })
   } catch (err) {
+    // Generation failed — email the user (fire and forget)
+    if (profile.email) {
+      sendGenerationFailed({ email: profile.email })
+        .catch(err => console.error('Generation failed email error:', err.message))
+    }
     return res.status(500).json({ error: err.message })
   }
 }
