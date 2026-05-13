@@ -91,11 +91,18 @@ export default async function handler(req, res) {
       return res.send(Buffer.from(audioBuffer))
     }
 
-    const { data: { publicUrl } } = supabase.storage
+    // Generate a signed URL valid for 12 hours — only the authenticated user
+    // who just generated this session will need it in that window
+    const { data: signedData, error: signedError } = await supabase.storage
       .from('audio')
-      .getPublicUrl(filePath)
+      .createSignedUrl(filePath, 60 * 60 * 12)
 
-    return res.status(200).json({ audioUrl: publicUrl })
+    if (signedError) {
+      console.error('Signed URL error:', signedError)
+      return res.status(500).json({ error: 'Audio generated but could not create playback URL. Please try again.' })
+    }
+
+    return res.status(200).json({ audioUrl: signedData.signedUrl })
 
   } catch (err) {
     return res.status(500).json({ error: 'Audio generation failed. Please try again.' })
