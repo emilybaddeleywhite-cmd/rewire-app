@@ -34,16 +34,29 @@ const PRODUCTS = {
   lifetime_founder: {
     type: 'payment',
     priceId: 'prod_UQmyGGD0898D6i',
-    amount: 9900, // £99.00
+    amount: 9900,
     name: 'RewireMode Founder Lifetime',
-    credits: 0, // handled by webhook
+    credits: 0,
   },
 }
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
+  const token = req.headers.authorization?.split('Bearer ')[1]
+  if (!token) return res.status(401).json({ error: 'Unauthorized' })
+
+  const authClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    { global: { headers: { Authorization: `Bearer ${token}` } } }
+  )
+  const { data: { user: authUser } } = await authClient.auth.getUser()
+  if (!authUser) return res.status(401).json({ error: 'Unauthorized' })
+
   const { productKey, userId, email } = req.body
+  if (userId !== authUser.id) return res.status(403).json({ error: 'Forbidden' })
+
   const product = PRODUCTS[productKey]
   if (!product) return res.status(400).json({ error: 'Invalid product' })
 
@@ -60,10 +73,9 @@ export default async function handler(req, res) {
         line_items: [{ price: product.priceId, quantity: 1 }],
         success_url: `${baseUrl}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/pricing`,
-        metadata: { userId, productKey },
+        metadata: { userId: authUser.id, productKey },
       })
     } else if (productKey === 'lifetime_founder') {
-      // Use the existing Stripe product directly
       session = await stripe.checkout.sessions.create({
         mode: 'payment',
         payment_method_types: ['card'],
@@ -78,7 +90,7 @@ export default async function handler(req, res) {
         }],
         success_url: `${baseUrl}/dashboard?success=lifetime&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/pricing`,
-        metadata: { userId, productKey },
+        metadata: { userId: authUser.id, productKey },
       })
     } else {
       session = await stripe.checkout.sessions.create({
@@ -95,7 +107,7 @@ export default async function handler(req, res) {
         }],
         success_url: `${baseUrl}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/pricing`,
-        metadata: { userId, productKey, credits: product.credits },
+        metadata: { userId: authUser.id, productKey, credits: product.credits },
       })
     }
 
