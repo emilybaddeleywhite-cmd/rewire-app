@@ -1121,15 +1121,22 @@ export default function Home({ user, profile, refreshProfile }) {
                 <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Your first name (optional — we'll weave it into your script)" style={{ flex: 1, background: 'none', border: 'none', color: C.textH, fontSize: '13px', outline: 'none' }} />
               </div>
               <div style={{ fontSize: '11px', letterSpacing: '0.15em', color: C.textMuted, marginBottom: '12px', fontWeight: '700' }}>WHAT ARE YOU READY TO REWRITE?</div>
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '14px' }}>
                 {GOALS.map(g => (
-                  <button key={g} onClick={() => setGoal(g)} style={{ padding: '11px 8px', borderRadius: '10px', fontSize: '13px', fontWeight: '600', border: `1px solid ${goal === g ? C.purple : 'rgba(255,255,255,0.1)'}`, background: goal === g ? 'rgba(123,79,224,0.2)' : 'rgba(255,255,255,0.03)', color: goal === g ? C.purpleLight : C.textBody, transition: 'all 0.18s ease', boxShadow: goal === g ? '0 0 20px rgba(123,79,224,0.25)' : 'none' }}>{g}</button>
+                  <button key={g} onClick={() => { setGoal(g); setCustomGoal('') }} style={{ padding: '11px 8px', borderRadius: '10px', fontSize: '13px', fontWeight: '600', border: `1px solid ${goal === g ? C.purple : 'rgba(255,255,255,0.1)'}`, background: goal === g ? 'rgba(123,79,224,0.2)' : 'rgba(255,255,255,0.03)', color: goal === g ? C.purpleLight : C.textBody, transition: 'all 0.18s ease', boxShadow: goal === g ? '0 0 20px rgba(123,79,224,0.25)' : 'none' }}>{g}</button>
                 ))}
               </div>
-              <button onClick={() => setGoal('custom')} style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', textAlign: 'left', border: `1px solid ${goal === 'custom' ? C.purple + 'cc' : C.border}`, background: goal === 'custom' ? 'rgba(123,79,224,0.08)' : C.bgCard, color: goal === 'custom' ? C.purpleLight : C.textMuted, fontSize: '13px', marginBottom: '8px' }}>✍️ What do you want to rewire?</button>
-              {goal === 'custom' && (
-                <textarea autoFocus value={customGoal} onChange={e => setCustomGoal(e.target.value)} placeholder="e.g. stop self-sabotaging, feel calm under pressure, believe I'm enough..." style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid rgba(123,79,224,0.25)', background: 'rgba(123,79,224,0.04)', color: C.textH, fontSize: '14px', lineHeight: '1.65', resize: 'vertical', minHeight: '80px', marginBottom: '8px' }} />
-              )}
+              <div style={{ marginBottom: '8px' }}>
+                <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: C.textMuted, fontWeight: '600', marginBottom: '8px' }}>OR DESCRIBE YOUR OWN INTENTION</div>
+                <textarea
+                  value={customGoal}
+                  onChange={e => { setCustomGoal(e.target.value); if (e.target.value.trim()) setGoal('custom') }}
+                  onFocus={() => { if (customGoal.trim()) setGoal('custom') }}
+                  placeholder="Type anything — e.g. stop self-sabotaging, feel calm under pressure, believe I'm enough..."
+                  rows={2}
+                  style={{ width: '100%', padding: '13px 14px', borderRadius: '10px', border: `1px solid ${goal === 'custom' && customGoal.trim() ? C.purple + 'cc' : 'rgba(255,255,255,0.1)'}`, background: goal === 'custom' && customGoal.trim() ? 'rgba(123,79,224,0.06)' : C.bgCard, color: C.textH, fontSize: '13px', lineHeight: '1.6', resize: 'none', outline: 'none', fontFamily: 'inherit', transition: 'border-color 0.2s ease', boxSizing: 'border-box' }}
+                />
+              </div>
               <button onClick={() => setShowQuiz(true)} style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', textAlign: 'left', border: '1px solid rgba(123,79,224,0.2)', background: 'rgba(123,79,224,0.04)', color: `${C.purpleLight}bb`, fontSize: '13px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>🔍 Not sure? Find out what to rewire</span>
                 <span style={{ fontSize: '11px', color: C.textMuted }}>5 quick questions →</span>
