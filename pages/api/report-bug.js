@@ -5,13 +5,19 @@ export default async function handler(req, res) {
 
   const { error, userId, productType, goal } = req.body
 
+  if (!error || typeof error !== 'string') {
+    return res.status(400).json({ error: 'Error description is required' })
+  }
+  const safeError = error.slice(0, 500)
+  const safeGoal = typeof goal === 'string' ? goal.slice(0, 200) : 'unknown'
+
   const emailBody = `
 Bug Report from RewireMode
 
-Error: ${error}
+Error: ${safeError}
 User ID: ${userId || 'unknown'}
 Session Type: ${productType || 'unknown'}
-Goal: ${goal || 'unknown'}
+Goal: ${safeGoal}
 Time: ${new Date().toISOString()}
   `.trim()
 
@@ -31,13 +37,12 @@ Time: ${new Date().toISOString()}
     })
 
     if (!response.ok) {
-      // If Resend fails, still return success to user
       console.error('Failed to send bug report email')
     }
 
     return res.status(200).json({ success: true })
   } catch (err) {
     console.error('Bug report error:', err)
-    return res.status(200).json({ success: true }) // Don't show error to user
+    return res.status(200).json({ success: true })
   }
 }
