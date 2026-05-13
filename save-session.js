@@ -5,11 +5,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 )
 
-const MUSIC_URLS = {
-  subliminal: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-subliminal.mp3.mp3',
-  sleep: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-sleep.mp3.mp3',
-  reset: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-calm.mp3.mp3',
-  walking: 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/music/music-calm.mp3.mp3',
+const CREDIT_COSTS = {
+  reset:      1,
+  sleep:      3,
+  subliminal: 3,
+  walking:    1,
 }
 
 export default async function handler(req, res) {
@@ -27,8 +27,11 @@ export default async function handler(req, res) {
   const { data: { user: authUser } } = await authClient.auth.getUser()
   if (!authUser) return res.status(401).json({ error: 'Unauthorized' })
 
-  const { userId, goal, productType, script, audioUrl, voiceId, mood, creditCost } = req.body
+  const { userId, goal, productType, script, audioUrl, voiceId, mood, musicUrl: clientMusicUrl } = req.body
   if (userId !== authUser.id) return res.status(403).json({ error: 'Forbidden' })
+
+  // Derive cost server-side — never trust the client's creditCost value
+  const cost = CREDIT_COSTS[productType] ?? 1
 
   try {
     const { data: profile, error: profileError } = await supabase
@@ -67,7 +70,7 @@ export default async function handler(req, res) {
     if (newStreak === 30) bonusCredits = 10
 
     const cleanAudioUrl = audioUrl && audioUrl.startsWith('http') ? audioUrl : null
-    const musicUrl = MUSIC_URLS[productType] || null
+    const musicUrl = (clientMusicUrl && clientMusicUrl.startsWith('http')) ? clientMusicUrl : null
 
     const { data: session, error: sessionError } = await supabase
       .from('sessions')
@@ -91,10 +94,31 @@ export default async function handler(req, res) {
       })
     }
 
-    const cost = creditCost || 0
     const newCredits = Math.max(0, profile.credits + bonusCredits - cost)
 
     await supabase
       .from('profiles')
       .update({
         streak_count: newStreak,
+        last_session_date: today,
+        credits: newCredits,
+      })
+      .eq('id', authUser.id)
+
+    const transactions = []
+    if (cost > 0) {
+      transactions.push({ user_id: authUser.id, amount: -cost, reason: `generation:${productType}` })
+    }
+    if (bonusCredits > 0) {
+      transactions.push({ user_id: authUser.id, amount: bonusCredits, reason: `streak_reward:${newStreak}days` })
+    }
+    if (transactions.length > 0) {
+      await supabase.from('credit_transactions').insert(transactions)
+    }
+
+    return res.status(200).json({ session, streak: newStreak, bonusCredits, creditsRemaining: newCredits })
+  } catch (err) {
+    console.error('Save session error:', err)
+    return res.status(500).json({ error: 'Something went wrong. Please try again.' })
+  }
+}
