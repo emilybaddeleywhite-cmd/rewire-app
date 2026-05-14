@@ -502,7 +502,7 @@ function FounderModal({ user, onClose }) {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(123,79,224,0.4)', background: 'rgba(123,79,224,0.12)', fontSize: '11px', fontWeight: '700', color: C.purpleLight, letterSpacing: '0.1em', marginBottom: '16px', fontFamily: "'DM Sans',system-ui,sans-serif" }}>
-            🔒 FOUNDER OFFER · FIRST 1,000 ONLY
+            🔒 FOUNDER OFFER · FOUNDING ROUND
           </div>
           <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: '26px', fontWeight: '800', color: C.textH, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '10px' }}>
             Own RewireMode.<br />
@@ -533,7 +533,7 @@ function FounderModal({ user, onClose }) {
 
         {/* Urgency bar */}
         <div style={{ padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,159,67,0.08)', border: '1px solid rgba(255,159,67,0.25)', marginBottom: '20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '13px', color: '#ff9f43', fontWeight: '700', fontFamily: "'DM Sans',system-ui,sans-serif" }}>⚡ Limited to the first 1,000 founder members</div>
+          <div style={{ fontSize: '13px', color: '#ff9f43', fontWeight: '700', fontFamily: "'DM Sans',system-ui,sans-serif" }}>⚡ This founding round will not reopen</div>
           <div style={{ fontSize: '12px', color: C.textMuted, marginTop: '3px', fontFamily: "'DM Sans',system-ui,sans-serif" }}>Once they're gone, this price is gone. We won't offer it again.</div>
         </div>
 
