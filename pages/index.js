@@ -726,6 +726,7 @@ export default function Home({ user, profile, refreshProfile }) {
       const token = session?.access_token
       const scriptRes = await fetch('/api/generate-script', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ goal: activeGoal, productType: product.id, mood, userId: user.id, firstName: firstName.trim() || null }) })
       const scriptData = await scriptRes.json()
+      if (scriptRes.status === 402) { clearInterval(progressRef.current); clearInterval(loadMsgRef.current); setStep(7); setTimeout(() => setShowFounder(true), 400); return }
       if (!scriptRes.ok) throw new Error(scriptData.error || 'Script generation failed')
       setScript(scriptData.script)
       const audioRes = await fetch('/api/generate-audio', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ text: scriptData.script, voiceId: selectedVoice.id, productType: product.id, userId: user.id }) })
