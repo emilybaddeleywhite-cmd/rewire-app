@@ -101,8 +101,8 @@ export default function Pricing({ user, profile }) {
           {/* Founder urgency banner */}
           <div style={{ padding:'16px 24px', borderRadius:'14px', background:'rgba(255,159,67,0.07)', border:'1px solid rgba(255,159,67,0.25)', marginBottom:'32px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'16px', flexWrap:'wrap', animation:'fadeUp 0.6s ease 0.05s both' }}>
             <div>
-              <div style={{ fontSize:'14px', color:'#ff9f43', fontWeight:'700', marginBottom:'3px' }}>⚡ Founder Lifetime offer — limited to the first 1,000 members</div>
-              <div style={{ fontSize:'13px', color:C.textMuted }}>We haven't run a single ad. This is for our early community only. Once 1,000 are claimed, it's gone.</div>
+              <div style={{ fontSize:'14px', color:'#ff9f43', fontWeight:'700', marginBottom:'3px' }}>⚡ Founder Lifetime offer — this founding round will not reopen</div>
+              <div style={{ fontSize:'13px', color:C.textMuted }}>We haven't run a single ad. This is for our early community only. Once this round closes, it closes permanently.</div>
             </div>
             <div style={{ fontSize:'13px', color:'#ff9f43', fontWeight:'700', whiteSpace:'nowrap', background:'rgba(255,159,67,0.12)', border:'1px solid rgba(255,159,67,0.3)', padding:'6px 14px', borderRadius:'100px' }}>Scroll down ↓</div>
           </div>
@@ -141,7 +141,7 @@ export default function Pricing({ user, profile }) {
 
             {/* Founder Lifetime */}
             <div style={{ padding:'36px 32px', borderRadius:'22px', border:'1px solid rgba(255,159,67,0.4)', background:'rgba(255,159,67,0.04)', position:'relative', boxShadow:'0 0 50px rgba(255,159,67,0.08)' }}>
-              <div style={{ position:'absolute', top:'-14px', left:'50%', transform:'translateX(-50%)', background:'linear-gradient(135deg,#ff9f43,#e67e22)', color:'#fff', fontSize:'11px', fontWeight:'800', padding:'5px 18px', borderRadius:'100px', letterSpacing:'0.1em', whiteSpace:'nowrap' }}>🔒 FOUNDER OFFER · FIRST 1,000 ONLY</div>
+              <div style={{ position:'absolute', top:'-14px', left:'50%', transform:'translateX(-50%)', background:'linear-gradient(135deg,#ff9f43,#e67e22)', color:'#fff', fontSize:'11px', fontWeight:'800', padding:'5px 18px', borderRadius:'100px', letterSpacing:'0.1em', whiteSpace:'nowrap' }}>🔒 FOUNDER OFFER · FOUNDING ROUND</div>
               <div style={{ fontSize:'12px', color:'#ff9f43', fontWeight:'700', marginBottom:'10px', letterSpacing:'0.1em' }}>FOUNDER LIFETIME</div>
               <div style={{ marginBottom:'6px' }}>
                 <span style={{ fontFamily:"'Sora',sans-serif", fontSize:'44px', fontWeight:'800', color:C.textH, letterSpacing:'-0.03em' }}>£99</span>
@@ -164,7 +164,7 @@ export default function Pricing({ user, profile }) {
                 ))}
               </div>
               <div style={{ padding:'10px 14px', borderRadius:'10px', background:'rgba(255,159,67,0.1)', border:'1px solid rgba(255,159,67,0.25)', marginBottom:'20px' }}>
-                <div style={{ fontSize:'12px', color:'#ff9f43', lineHeight:1.6 }}>⚡ Once 1,000 founder memberships are claimed, this offer closes permanently. We will never offer this price again.</div>
+                <div style={{ fontSize:'12px', color:'#ff9f43', lineHeight:1.6 }}>⚡ Once this founding round closes, it closes permanently. We will never offer this price again.</div>
               </div>
               <button onClick={() => checkout('lifetime_founder')} style={{ width:'100%', padding:'16px', borderRadius:'13px', background:'linear-gradient(135deg,#ff9f43,#e67e22)', color:'#fff', fontSize:'15px', fontWeight:'800', boxShadow:'0 4px 24px rgba(255,159,67,0.35)', letterSpacing:'0.01em' }}>
                 {loading==='lifetime_founder' ? 'Loading...' : 'Claim Founder Lifetime — £99 →'}
@@ -247,7 +247,7 @@ export default function Pricing({ user, profile }) {
             <h3 style={{ fontFamily:"'Sora',sans-serif", fontSize:'18px', fontWeight:'800', color:C.textH, marginBottom:'24px' }}>Common questions</h3>
             {[
               ['What is a credit?', 'One credit generates one Reset Hypnosis or Walking Hypnosis session (5 minutes). Sleep Hypnosis and Subliminal sessions use 3 credits each due to their length.'],
-              ['What happens to the Founder Lifetime offer?', 'It closes permanently once 1,000 memberships are claimed. We will not offer it again at any price.'],
+              ['What happens to the Founder Lifetime offer?', 'Once this founding round closes, it closes permanently. We will not offer it again at any price.'],
               ['Can I cancel the monthly plan anytime?', 'Yes. Cancel from your dashboard at any time. You keep access until the end of the billing period.'],
               ['Do unused credits roll over?', 'Monthly subscription credits reset each month. Pay-as-you-go credit packs never expire.'],
               ['Is my payment secure?', 'All payments are processed securely by Stripe. We never store your card details.'],
