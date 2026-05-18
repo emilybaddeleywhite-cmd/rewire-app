@@ -6,6 +6,15 @@ export default function App({ Component, pageProps }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // Capture ?ref=influencername from URL and store in a 30-day cookie
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const ref = params.get('ref')
+    if (ref) {
+      document.cookie = `rwm_ref=${encodeURIComponent(ref)};path=/;max-age=2592000`
+    }
+  }, [])
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
