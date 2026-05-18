@@ -406,13 +406,14 @@ function DisclaimerModal({onAccept}){
 }
 function AuthModal({onClose,onSuccess}){
   const[mode,setMode]=useState('signup');const[name,setName]=useState('');const[email,setEmail]=useState('');const[password,setPassword]=useState('');const[loading,setLoading]=useState(false);const[error,setError]=useState('');const[success,setSuccess]=useState(false);const[successMsg,setSuccessMsg]=useState('');const[agreed,setAgreed]=useState(false)
+  function getReferralCode(){try{const c=document.cookie.split('; ').find(r=>r.startsWith('rwm_ref='));return c?decodeURIComponent(c.split('=')[1]):null}catch{return null}}
   async function gsi(){const{error}=await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin}});if(error)setError(error.message)}
   async function fp(){if(!email){setError('Enter your email address first.');return};setLoading(true);const{error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/reset-password`});if(error)setError(error.message);else{setError('');setSuccess(true);setSuccessMsg('Password reset email sent. Check your inbox.')};setLoading(false)}
   async function hs(){
     if(mode==='signup'&&!agreed){setError('Please agree to the Terms of Service.');return}
     if(password.length<6){setError('Password must be at least 6 characters.');return}
     setLoading(true);setError('')
-    if(mode==='signup'){const{data,error}=await supabase.auth.signUp({email,password,options:{data:{name}}});if(error)setError(error.message);else{if(data.session){fetch('/api/send-welcome',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${data.session.access_token}`},body:JSON.stringify({email})}).catch(()=>{});onSuccess()}else setSuccess(true)}}
+    if(mode==='signup'){const refCode=getReferralCode();const{data,error}=await supabase.auth.signUp({email,password,options:{data:{name,referral_code:refCode}}});if(error)setError(error.message);else{if(data.session){fetch('/api/send-welcome',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${data.session.access_token}`},body:JSON.stringify({email})}).catch(()=>{});onSuccess()}else setSuccess(true)}}
     else{const{error}=await supabase.auth.signInWithPassword({email,password});if(error)setError(error.message);else onSuccess()}
     setLoading(false)
   }
