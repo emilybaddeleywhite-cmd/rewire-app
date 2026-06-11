@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase'
 import { useSafetyGate } from '../components/SafetyBlock'
 import NeuralField from '../components/NeuralField'
 import LogoWeave from '../components/LogoWeave'
-import { T, FONT_LINK } from '../styles/theme'
+
 import { VOICES, EXPERIENCES, atmospheresFor, CREATION_PHASES, LOGO_URL } from '../lib/catalog'
 
 const CHIPS = ['Confidence', 'Calm', 'Sleep', 'Self-belief', 'Focus', 'Letting go', 'Abundance', 'Motivation']
@@ -273,7 +273,7 @@ export default function Rewire() {
       <Head>
         <title>Create a Rewire — RewireMode</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link href={FONT_LINK} rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Newsreader:ital,opsz,wght@1,6..72,300;1,6..72,400&display=swap" rel="stylesheet" />
       </Head>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <NeuralField intensity="ambient" />
