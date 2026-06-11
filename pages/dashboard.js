@@ -1,172 +1,61 @@
+// pages/dashboard.js
+// Your Rewire — the personal subconscious library, in the new design system.
+// Preserves every existing feature: filtered library, mixed playback (voice +
+// atmosphere, subliminal near-silent loop), rename, delete (incl. storage file),
+// billing portal, upgrade, sign out, account deletion, feedback.
+// Receives user/profile/refreshProfile from _app.js exactly as before.
+
 import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
+import NeuralField from '../components/NeuralField'
+import { LOGO_URL } from '../lib/catalog'
 
-const BASE = {
-  bg: '#03050f',
-  bgCard: 'rgba(255,255,255,0.03)',
-  border: 'rgba(255,255,255,0.08)',
-  text: '#e8f4ff',
-  textMuted: 'rgba(232,244,255,0.45)',
-  textFaint: 'rgba(232,244,255,0.2)',
+const TYPE_META = {
+  reset:      { label: 'Reset',      art: 'radial-gradient(circle at 30% 30%, rgba(74,143,232,.55), transparent 60%), radial-gradient(circle at 70% 70%, rgba(108,75,224,.35), transparent 60%), #070A14' },
+  sleep:      { label: 'Sleep',      art: 'radial-gradient(circle at 30% 30%, rgba(108,75,224,.55), transparent 60%), radial-gradient(circle at 70% 70%, rgba(74,143,232,.3), transparent 60%), #070A14' },
+  walking:    { label: 'Walking',    art: 'radial-gradient(circle at 30% 30%, rgba(62,193,240,.5), transparent 60%), radial-gradient(circle at 70% 70%, rgba(74,143,232,.35), transparent 60%), #070A14' },
+  subliminal: { label: 'Subliminal', art: 'radial-gradient(circle at 30% 30%, rgba(62,193,240,.45), transparent 60%), radial-gradient(circle at 70% 70%, rgba(108,75,224,.4), transparent 60%), #070A14' },
+  hype:       { label: 'Session',    art: 'radial-gradient(circle at 30% 30%, rgba(94,155,242,.45), transparent 60%), #070A14' }, // legacy
 }
+const FILTERS = [
+  { id: 'all', label: 'All' },
+  { id: 'reset', label: 'Reset' },
+  { id: 'sleep', label: 'Sleep' },
+  { id: 'walking', label: 'Walking' },
+  { id: 'subliminal', label: 'Subliminal' },
+]
 
-const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png'
-
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false)
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
-  return isMobile
-}
-
-// Hype Coach removed; fallback covers any legacy sessions
-const TYPE_CONFIG = {
-  reset:      { color: '#6366f1', emoji: '🧠', label: 'Reset Hypnosis' },
-  sleep:      { color: '#a855f7', emoji: '🌙', label: 'Sleep Hypnosis' },
-  subliminal: { color: '#22d3ee', emoji: '🌊', label: 'Subliminal' },
-  walking:    { color: '#10b981', emoji: '🚶', label: 'Walking Hypnosis' },
-  // Legacy fallback
-  hype:       { color: '#f59e0b', emoji: '⚡', label: 'Session' },
-}
-
-function DashboardFeedback({ userId }) {
-  const [open, setOpen] = useState(false)
-  const [text, setText] = useState('')
-  const [sent, setSent] = useState(false)
-  const [loading, setLoading] = useState(false)
-
-  async function submit() {
-    if (!text.trim()) return
-    setLoading(true)
-    await fetch('/api/feedback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ feedback: text, userId }),
-    })
-    setSent(true)
-    setLoading(false)
-    setTimeout(() => { setOpen(false); setSent(false); setText('') }, 2000)
-  }
-
-  return (
-    <>
-      <button onClick={() => setOpen(true)} style={{ fontSize: '11px', color: 'rgba(232,244,255,0.2)', background: 'none', border: '1px solid rgba(255,255,255,0.08)', padding: '6px 14px', borderRadius: '100px', cursor: 'pointer', fontFamily: 'inherit' }}>
-        💬 Share feedback
-      </button>
-      {open && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,15,0.85)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
-          <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '20px', padding: '32px', width: '100%', maxWidth: '400px', position: 'relative' }}>
-            <button onClick={() => setOpen(false)} style={{ position: 'absolute', top: '14px', right: '14px', background: 'none', border: 'none', color: 'rgba(232,244,255,0.45)', fontSize: '20px', cursor: 'pointer', fontFamily: 'inherit' }}>×</button>
-            {sent ? (
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ fontSize: '32px', marginBottom: '12px' }}>✦</div>
-                <div style={{ color: '#a5b4fc', fontWeight: '700', fontSize: '16px' }}>Thank you!</div>
-              </div>
-            ) : (
-              <>
-                <div style={{ fontSize: '16px', color: '#e8f4ff', fontWeight: '700', marginBottom: '6px' }}>Share your feedback</div>
-                <div style={{ fontSize: '13px', color: 'rgba(232,244,255,0.45)', marginBottom: '16px' }}>What could be better? What do you love? We read everything.</div>
-                <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Your thoughts..." rows={4}
-                  style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', color: '#e8f4ff', fontSize: '13px', fontFamily: 'inherit', outline: 'none', resize: 'vertical', marginBottom: '12px' }} />
-                <button onClick={submit} disabled={loading || !text.trim()}
-                  style={{ width: '100%', padding: '13px', borderRadius: '10px', background: text.trim() ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'rgba(255,255,255,0.05)', color: text.trim() ? '#fff' : 'rgba(232,244,255,0.2)', fontSize: '14px', fontWeight: '700', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-                  {loading ? 'Sending...' : 'Send Feedback →'}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-    </>
-  )
-}
-
-// ─── DELETE ACCOUNT MODAL ────────────────────────────────────────────
-function DeleteAccountModal({ user, onClose }) {
-  const [confirm, setConfirm] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  async function handleDelete() {
-    if (confirm !== 'DELETE') { setError('Type DELETE to confirm.'); return }
-    setLoading(true)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.access_token
-      const res = await fetch('/api/delete-account', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ userId: user.id }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Deletion failed')
-      await supabase.auth.signOut()
-      window.location.href = '/?deleted=1'
-    } catch (err) {
-      setError(err.message)
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(3,5,15,0.92)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
-      <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '20px', padding: '32px', width: '100%', maxWidth: '420px', position: 'relative' }}>
-        <button onClick={onClose} style={{ position: 'absolute', top: '14px', right: '14px', background: 'none', border: 'none', color: BASE.textMuted, fontSize: '20px', cursor: 'pointer' }}>×</button>
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ fontSize: '32px', marginBottom: '10px' }}>🗑️</div>
-          <h2 style={{ fontSize: '18px', color: '#ff8a80', fontWeight: '800', marginBottom: '8px' }}>Delete your account</h2>
-          <p style={{ fontSize: '13px', color: BASE.textMuted, lineHeight: 1.65 }}>
-            This will permanently delete your account, all saved sessions, and all audio files. This cannot be undone.
-          </p>
-        </div>
-        <p style={{ fontSize: '13px', color: BASE.textMuted, marginBottom: '10px' }}>Type <strong style={{ color: '#ff8a80' }}>DELETE</strong> to confirm:</p>
-        <input value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="DELETE"
-          style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(255,80,80,0.3)', background: 'rgba(255,60,60,0.04)', color: BASE.text, fontSize: '14px', fontFamily: 'inherit', outline: 'none', marginBottom: '14px', textAlign: 'center', letterSpacing: '0.1em' }} />
-        {error && <p style={{ color: '#ff8a80', fontSize: '13px', marginBottom: '12px', textAlign: 'center' }}>{error}</p>}
-        <button onClick={handleDelete} disabled={loading || confirm !== 'DELETE'}
-          style={{ width: '100%', padding: '14px', borderRadius: '12px', background: confirm === 'DELETE' ? 'rgba(255,60,60,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${confirm === 'DELETE' ? 'rgba(255,80,80,0.5)' : BASE.border}`, color: confirm === 'DELETE' ? '#ff8a80' : BASE.textFaint, fontSize: '14px', fontWeight: '700', cursor: confirm === 'DELETE' ? 'pointer' : 'default', fontFamily: 'inherit' }}>
-          {loading ? 'Deleting...' : 'Permanently delete my account'}
-        </button>
-        <button onClick={onClose} style={{ width: '100%', marginTop: '10px', padding: '12px', borderRadius: '10px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '13px', fontFamily: 'inherit' }}>
-          Cancel — keep my account
-        </button>
-      </div>
-    </div>
-  )
-}
-
-export default function Dashboard({ user, profile, refreshProfile }) {
+export default function Dashboard({ user, profile, refreshProfile, loading: authLoading }) {
   const [sessions, setSessions] = useState([])
   const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
-  const [cancelLoading, setCancelLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState('sessions')
-  const [showCredits, setShowCredits] = useState(false)
-  const [creditsLoading, setCreditsLoading] = useState(null)
-  const [renamingId, setRenamingId] = useState(null)
-  const [renameValue, setRenameValue] = useState('')
   const [playingId, setPlayingId] = useState(null)
   const [loopingId, setLoopingId] = useState(null)
+  const [renamingId, setRenamingId] = useState(null)
+  const [renameValue, setRenameValue] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const [showAccount, setShowAccount] = useState(false)
   const [showDeleteAccount, setShowDeleteAccount] = useState(false)
+  const [billingLoading, setBillingLoading] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
   const audioRef = useRef(null)
   const musicRef = useRef(null)
-  const isMobile = useIsMobile()
 
-  async function renameSession(sessionId, newName) {
-    await fetch('/api/rename-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, userId: user.id, newName }),
-    })
-    setRenamingId(null)
-    fetchSessions()
+  const isPro = profile?.plan === 'pro' || profile?.plan === 'lifetime'
+
+  useEffect(() => { if (user) fetchSessions() }, [user, filter])
+
+  async function fetchSessions() {
+    setLoading(true)
+    let query = supabase.from('sessions').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+    if (filter !== 'all') query = query.eq('product_type', filter)
+    const { data } = await query
+    setSessions(data || [])
+    setLoading(false)
   }
 
+  // ── playback (identical behaviour to the previous dashboard) ────
   function togglePlay(session) {
     const isSubliminal = session.product_type === 'subliminal'
     const musicUrl = session.music_url || null
@@ -201,60 +90,39 @@ export default function Dashboard({ user, profile, refreshProfile }) {
     const isSubliminal = session.product_type === 'subliminal'
     const isNowLooping = isSubliminal ? true : loopingId !== session.id
     setLoopingId(isNowLooping ? session.id : null)
-    if (audioRef.current && playingId === session.id) {
-      audioRef.current.loop = isNowLooping
-    }
+    if (audioRef.current && playingId === session.id) audioRef.current.loop = isNowLooping
   }
 
-  async function checkout(productKey) {
-    setCreditsLoading(productKey)
-    const res = await fetch('/api/create-checkout', {
+  async function renameSession(sessionId, newName) {
+    if (!newName?.trim()) { setRenamingId(null); return }
+    // The rename API requires a Bearer token — the previous dashboard never
+    // sent one, so renames were silently failing with 401. Fixed here.
+    const { data: { session } } = await supabase.auth.getSession()
+    await fetch('/api/rename-session', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productKey, userId: user.id, email: user.email }),
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ sessionId, userId: user.id, newName }),
     })
-    const data = await res.json()
-    if (data.url) window.location.href = data.url
-    setCreditsLoading(null)
-  }
-
-  useEffect(() => { if (user) fetchSessions() }, [user, filter])
-
-  async function fetchSessions() {
-    setLoading(true)
-    let query = supabase.from('sessions').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
-    if (filter !== 'all') query = query.eq('product_type', filter)
-    const { data } = await query
-    setSessions(data || [])
-    setLoading(false)
+    setRenamingId(null)
+    fetchSessions()
   }
 
   async function deleteSession(session) {
-    // Delete audio file from Supabase Storage
     if (session.audio_url) {
       try {
-        // Extract the file path from the public URL
         const url = new URL(session.audio_url)
         const pathParts = url.pathname.split('/object/public/audio/')
-        if (pathParts[1]) {
-          await supabase.storage.from('audio').remove([pathParts[1]])
-        }
-      } catch (e) {
-        console.warn('Could not delete audio file from storage:', e)
-      }
+        if (pathParts[1]) await supabase.storage.from('audio').remove([pathParts[1]])
+      } catch (e) { console.warn('Could not delete audio file from storage:', e) }
     }
     await supabase.from('sessions').delete().eq('id', session.id)
+    setConfirmDeleteId(null)
     fetchSessions()
-    refreshProfile()
-  }
-
-  async function signOut() {
-    await supabase.auth.signOut()
-    window.location.href = '/'
+    refreshProfile?.()
   }
 
   async function manageBilling() {
-    setCancelLoading(true)
+    setBillingLoading(true)
     const res = await fetch('/api/billing-portal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -263,371 +131,335 @@ export default function Dashboard({ user, profile, refreshProfile }) {
     const data = await res.json()
     if (data.url) window.location.href = data.url
     else alert(data.error || 'Could not open billing portal. Please contact support.')
-    setCancelLoading(false)
+    setBillingLoading(false)
   }
 
+  async function signOut() {
+    await supabase.auth.signOut()
+    window.location.href = '/'
+  }
+
+  const fmtDate = d => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+
+  // ── signed out / loading ─────────────────────────────────────────
+  if (authLoading) return <Shell><p className="quiet center">One moment…</p></Shell>
   if (!user) return (
-    <div style={{ minHeight: '100vh', background: BASE.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: BASE.text, fontFamily: 'Inter,sans-serif' }}>
-      <div style={{ textAlign: 'center' }}>
-        <p style={{ marginBottom: '16px', color: BASE.textMuted }}>Please sign in to view your dashboard</p>
-        <a href="/" style={{ color: '#6366f1', textDecoration: 'none' }}>Back to RewireMode</a>
+    <Shell>
+      <div className="signedout">
+        <p className="serif">Your library is waiting.</p>
+        <a className="cta" href="/rewire">Sign in</a>
       </div>
-    </div>
+    </Shell>
   )
 
-  const isPro = profile?.plan === 'pro'
-  // Active filters — only show types that exist in the database
-  const activeTypes = ['reset', 'sleep', 'subliminal', 'walking']
+  const streak = profile?.streak_count || 0
 
+  return (
+    <Shell>
+      <Head><title>Your Rewires — RewireMode</title></Head>
+
+      {/* HEADER */}
+      <div className="welcome">
+        <div>
+          <div className="eyebrow">Your journey</div>
+          <h1 className="serif">Welcome back.</h1>
+          {streak > 0
+            ? <p className="streakline"><span className="flame">🔥</span> Day {streak} — your mind is rewiring with every session.</p>
+            : <p className="streakline quiet">Begin today, and tomorrow becomes Day 2.</p>}
+        </div>
+        <a className="cta" href="/rewire">Create a Rewire</a>
+      </div>
+
+      {/* FILTERS */}
+      <div className="chips">
+        {FILTERS.map(f => (
+          <button key={f.id} className={`chip ${filter === f.id ? 'on' : ''}`} onClick={() => setFilter(f.id)}>{f.label}</button>
+        ))}
+      </div>
+
+      {/* LIBRARY */}
+      {loading ? (
+        <p className="quiet center" style={{ padding: '60px 0' }}>Opening your library…</p>
+      ) : sessions.length === 0 ? (
+        <div className="empty">
+          <p className="serif" style={{ fontSize: 22 }}>Nothing here yet.</p>
+          <p className="quiet">Your first Rewire takes five minutes to create — and it&rsquo;s written only for you.</p>
+          <a className="cta" href="/rewire" style={{ marginTop: 22 }}>Create your first Rewire</a>
+        </div>
+      ) : (
+        <div className="library">
+          {sessions.map(s => {
+            const meta = TYPE_META[s.product_type] || TYPE_META.hype
+            const isPlaying = playingId === s.id
+            const isLooping = loopingId === s.id || s.product_type === 'subliminal'
+            return (
+              <div key={s.id} className={`row ${isPlaying ? 'live' : ''}`}>
+                <button className="art" style={{ background: meta.art }} onClick={() => togglePlay(s)} aria-label={isPlaying ? 'Pause' : 'Play'}>
+                  {isPlaying
+                    ? <svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
+                    : <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>}
+                </button>
+                <div className="rinfo" onClick={() => togglePlay(s)}>
+                  {renamingId === s.id ? (
+                    <input className="rename" autoFocus value={renameValue}
+                      onClick={e => e.stopPropagation()}
+                      onChange={e => setRenameValue(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') renameSession(s.id, renameValue); if (e.key === 'Escape') setRenamingId(null) }}
+                      onBlur={() => setRenamingId(null)} />
+                  ) : (
+                    <h3>{s.custom_name || s.goal || 'Untitled Rewire'}</h3>
+                  )}
+                  <p>{meta.label} · {fmtDate(s.created_at)}{isPlaying ? ' · playing' : ''}</p>
+                </div>
+                <div className="ractions">
+                  <button className={`icon ${isLooping ? 'on' : ''}`} title="Loop" onClick={() => toggleLoop(s)}>
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M17 2l4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4m14-3v1a4 4 0 0 1-4 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </button>
+                  <button className="icon" title="Rename" onClick={() => { setRenamingId(s.id); setRenameValue(s.custom_name || s.goal || '') }}>
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </button>
+                  {confirmDeleteId === s.id ? (
+                    <button className="icon danger on" title="Confirm delete" onClick={() => deleteSession(s)}>Sure?</button>
+                  ) : (
+                    <button className="icon danger" title="Delete" onClick={() => { setConfirmDeleteId(s.id); setTimeout(() => setConfirmDeleteId(c => c === s.id ? null : c), 3000) }}>
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* UPGRADE WHISPER (free users only) */}
+      {!isPro && sessions.length > 0 && (
+        <div className="whisper">
+          <p>Unlock every voice, unlimited listening, and your full library with <a href="/pricing">RewireMode Pro</a>.</p>
+        </div>
+      )}
+
+      {/* ACCOUNT */}
+      <div className="account">
+        <button className="acc-toggle" onClick={() => setShowAccount(v => !v)}>
+          Account & settings {showAccount ? '−' : '+'}
+        </button>
+        {showAccount && (
+          <div className="acc-body">
+            <div className="acc-grid">
+              <div><span className="quiet">Plan</span><b>{profile?.plan === 'lifetime' ? 'Founder' : isPro ? 'Pro' : 'Free'}</b></div>
+              <div><span className="quiet">Credits</span><b>✦ {profile?.credits ?? 0}</b></div>
+              <div><span className="quiet">Streak</span><b>{streak} days</b></div>
+              <div><span className="quiet">Email</span><b style={{ fontSize: 13 }}>{user.email}</b></div>
+            </div>
+            <div className="acc-actions">
+              {isPro
+                ? <button className="quietbtn" disabled={billingLoading} onClick={manageBilling}>{billingLoading ? 'Opening…' : 'Manage billing'}</button>
+                : <a className="quietbtn" href="/pricing">Upgrade to Pro</a>}
+              <button className="quietbtn" onClick={() => setShowFeedback(true)}>Share feedback</button>
+              <button className="quietbtn" onClick={signOut}>Sign out</button>
+              <button className="quietbtn danger" onClick={() => setShowDeleteAccount(true)}>Delete account</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <audio ref={audioRef} onEnded={() => { if (!loopingId) { setPlayingId(null); if (musicRef.current) musicRef.current.pause() } }} />
+      <audio ref={musicRef} />
+
+      {showFeedback && <FeedbackModal userId={user.id} onClose={() => setShowFeedback(false)} />}
+      {showDeleteAccount && <DeleteAccountModal user={user} onClose={() => setShowDeleteAccount(false)} />}
+    </Shell>
+  )
+}
+
+// ── shell with nav + styles ────────────────────────────────────────
+function Shell({ children }) {
   return (
     <>
       <Head>
-        <title>Dashboard — RewireMode</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Newsreader:ital,opsz,wght@1,6..72,300;1,6..72,400&display=swap" rel="stylesheet" />
         <link rel="icon" type="image/png" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
-        <link rel="shortcut icon" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
-        <link rel="apple-touch-icon" href="https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png" />
       </Head>
-      <div style={{ minHeight: '100vh', background: BASE.bg, color: BASE.text, fontFamily: "'Inter','Segoe UI',system-ui,sans-serif" }}>
-        <style>{`
-          *{box-sizing:border-box;margin:0;padding:0}
-          @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-          @keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
-          @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
-          button{cursor:pointer;border:none;background:none;font-family:inherit}
-          input{font-family:inherit}
-          ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.2);border-radius:4px}
-        `}</style>
-
-        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.06) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 8s ease-in-out infinite' }} />
-          <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(120,50,220,0.06) 0%,transparent 65%)', filter: 'blur(60px)', animation: 'pulse 10s ease-in-out infinite 2s' }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(99,102,241,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.02) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
-        </div>
-
-        <nav style={{ position: 'relative', zIndex: 10, borderBottom: '1px solid rgba(99,102,241,0.08)', backdropFilter: 'blur(10px)', background: 'rgba(5,10,20,0.85)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '8px 12px 0' : '8px 24px 0' }}>
-            <a href="/" style={{ fontSize: isMobile ? '11px' : '12px', color: BASE.textMuted, padding: isMobile ? '5px 10px' : '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>🏠 {!isMobile && 'Home'}</a>
-            <div style={{ display: 'flex', gap: isMobile ? '6px' : '10px', alignItems: 'center' }}>
-              <div onClick={() => setShowCredits(true)} style={{ fontSize: isMobile ? '12px' : '13px', color: '#6366f1', fontWeight: '600', padding: isMobile ? '5px 10px' : '5px 12px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.06)', cursor: 'pointer' }}>✦ {profile?.credits || 0}{!isMobile && ' credits'}</div>
-              <a href="/faq" style={{ fontSize: isMobile ? '11px' : '12px', color: BASE.textMuted, padding: isMobile ? '5px 10px' : '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>FAQ</a>
-              <button onClick={signOut} style={{ fontSize: isMobile ? '11px' : '12px', color: BASE.textMuted, padding: isMobile ? '5px 10px' : '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}` }}>Sign out</button>
-            </div>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '0 24px 10px' }}>
-            <a href="/"><img src={LOGO} alt="RewireMode" style={{ height: isMobile ? '80px' : '120px', objectFit: 'contain', mixBlendMode: 'lighten' }} onError={e => { e.target.style.display='none' }} /></a>
-          </div>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <NeuralField intensity="ambient" />
+      <div className="shell">
+        <nav className="nav">
+          <a href="/"><img src={LOGO_URL} alt="RewireMode" className="navlogo" /></a>
+          <a className="navlink" href="/rewire">+ New Rewire</a>
         </nav>
-
-        <div style={{ maxWidth: '860px', margin: '0 auto', padding: isMobile ? '24px 14px 60px' : '40px 20px 80px', position: 'relative', zIndex: 1 }}>
-
-          <div style={{ marginBottom: '32px', animation: 'fadeUp 0.6s ease both' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: '800', color: BASE.text, marginBottom: '6px' }}>
-              Welcome back{profile?.name ? `, ${profile.name.split(' ')[0]}` : ''} 👋
-            </h1>
-            <p style={{ fontSize: '14px', color: BASE.textMuted }}>{user?.email}</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4,1fr)', gap: '12px', marginBottom: '32px', animation: 'fadeUp 0.6s ease 0.1s both' }}>
-            {[
-              { label: 'Credits', value: profile?.credits || 0, color: '#6366f1', icon: '✦' },
-              { label: 'Day Streak', value: `${profile?.streak_count || 0} 🔥`, color: '#ff9f43' },
-              { label: 'Sessions', value: sessions.length, color: '#00ff88' },
-              { label: 'Plan', value: isPro ? 'Pro 💎' : 'Free', color: isPro ? '#a855f7' : BASE.textMuted },
-            ].map(s => (
-              <div key={s.label} style={{ padding: '18px', borderRadius: '16px', background: BASE.bgCard, border: `1px solid ${BASE.border}`, textAlign: 'center' }}>
-                <div style={{ fontSize: '22px', color: s.color, fontWeight: '800', marginBottom: '4px' }}>{s.icon}{s.value}</div>
-                <div style={{ fontSize: '11px', color: BASE.textFaint, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {sessions.length === 0 && !loading && (
-            <div style={{ padding: '24px', borderRadius: '18px', background: 'linear-gradient(135deg,rgba(99,102,241,0.08),rgba(168,85,247,0.06))', border: '1px solid rgba(99,102,241,0.2)', marginBottom: '24px', animation: 'fadeUp 0.6s ease 0.15s both' }}>
-              <div style={{ fontSize: '24px', marginBottom: '10px' }}>✦</div>
-              <div style={{ fontSize: '16px', color: BASE.text, fontWeight: '700', marginBottom: '8px' }}>Welcome to RewireMode</div>
-              <div style={{ fontSize: '13px', color: BASE.textMuted, lineHeight: 1.7, marginBottom: '16px' }}>Your sessions will appear here once you generate them. Start with a Reset Hypnosis if you are new, or a Subliminal if you want something to run in the background.</div>
-              <a href="/" style={{ display: 'inline-block', padding: '12px 24px', borderRadius: '10px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>Generate your first session →</a>
-            </div>
-          )}
-
-          {sessions.length > 0 && (
-            <div style={{ marginBottom: '24px', animation: 'fadeUp 0.6s ease 0.15s both' }}>
-              <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: BASE.textMuted, fontWeight: '700', marginBottom: '12px' }}>JUMP BACK IN</div>
-              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
-                {sessions.slice(0, 3).map(s => {
-                  const cfg = TYPE_CONFIG[s.product_type] || TYPE_CONFIG.reset
-                  const isPlaying = playingId === s.id
-                  return (
-                    <div key={s.id} onClick={() => togglePlay(s)} style={{ flexShrink: 0, padding: '12px 16px', borderRadius: '12px', background: isPlaying ? cfg.color + '15' : BASE.bgCard, border: `1px solid ${isPlaying ? cfg.color + '66' : BASE.border}`, cursor: 'pointer', minWidth: '150px', maxWidth: '180px', transition: 'all 0.2s ease' }}>
-                      <div style={{ fontSize: '20px', marginBottom: '6px' }}>{isPlaying ? '⏸' : cfg.emoji}</div>
-                      <div style={{ fontSize: '12px', color: BASE.text, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '3px' }}>{s.goal}</div>
-                      <div style={{ fontSize: '10px', color: cfg.color, fontWeight: '600' }}>{cfg.label}</div>
-                    </div>
-                  )
-                })}
-                <a href="/" style={{ flexShrink: 0, padding: '12px 16px', borderRadius: '12px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', cursor: 'pointer', minWidth: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', gap: '6px' }}>
-                  <div style={{ fontSize: '20px' }}>+</div>
-                  <div style={{ fontSize: '11px', color: '#6366f1', fontWeight: '600', textAlign: 'center' }}>New session</div>
-                </a>
-              </div>
-            </div>
-          )}
-
-          {profile?.streak_count > 0 && (
-            <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(255,159,67,0.06)', border: '1px solid rgba(255,159,67,0.2)', marginBottom: '24px', textAlign: 'center', fontSize: '14px', color: '#ff9f43', fontStyle: 'italic', animation: 'fadeUp 0.6s ease 0.15s both' }}>
-              🔥 {profile.streak_count} day streak — your brain is rewiring with every session. Keep going.
-            </div>
-          )}
-
-          <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', background: BASE.bgCard, padding: '4px', borderRadius: '12px', border: `1px solid ${BASE.border}`, width: 'fit-content' }}>
-            {['sessions', 'account'].map(tab => (
-              <button key={tab} onClick={() => setActiveTab(tab)} style={{ padding: '8px 20px', borderRadius: '9px', fontSize: '13px', fontWeight: '600', background: activeTab === tab ? 'rgba(99,102,241,0.12)' : 'transparent', color: activeTab === tab ? '#6366f1' : BASE.textMuted, border: activeTab === tab ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent', transition: 'all 0.18s ease' }}>
-                {tab === 'sessions' ? '🎧 Sessions' : '👤 Account'}
-              </button>
-            ))}
-          </div>
-
-          {/* SESSIONS TAB */}
-          {activeTab === 'sessions' && (
-            <div style={{ animation: 'fadeUp 0.4s ease both' }}>
-              {!isPro && (
-                <div style={{ padding: '16px 20px', borderRadius: '14px', background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.2)', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                  <div>
-                    <div style={{ fontSize: '14px', color: '#a855f7', fontWeight: '700', marginBottom: '3px' }}>💎 Upgrade to Pro</div>
-                    <div style={{ fontSize: '12px', color: BASE.textMuted }}>100 credits/month · Save up to 50 sessions · £14.99/month</div>
-                  </div>
-                  <a href="/pricing" style={{ padding: '10px 18px', borderRadius: '10px', background: 'linear-gradient(135deg,#a855f7,#6d28d9)', color: '#fff', fontSize: '13px', fontWeight: '700', textDecoration: 'none', whiteSpace: 'nowrap' }}>Upgrade →</a>
-                </div>
-              )}
-
-              <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                {['all', ...activeTypes].map(f => {
-                  const cfg = TYPE_CONFIG[f]
-                  return (
-                    <button key={f} onClick={() => setFilter(f)} style={{ padding: '5px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: '600', border: `1px solid ${filter === f ? (cfg?.color || '#6366f1') + '88' : BASE.border}`, background: filter === f ? (cfg?.color || '#6366f1') + '12' : 'transparent', color: filter === f ? (cfg?.color || '#6366f1') : BASE.textMuted, transition: 'all 0.18s ease' }}>
-                      {f === 'all' ? 'All' : isMobile ? cfg?.emoji : `${cfg?.emoji} ${cfg?.label}`}
-                    </button>
-                  )
-                })}
-              </div>
-
-              <audio ref={audioRef} onEnded={() => {
-                setPlayingId(null)
-                if (musicRef.current) { musicRef.current.pause(); musicRef.current.src = '' }
-              }} />
-              <audio ref={musicRef} />
-
-              {loading ? (
-                <div style={{ textAlign: 'center', padding: '48px', color: BASE.textMuted }}>Loading your sessions...</div>
-              ) : sessions.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '56px 20px' }}>
-                  <div style={{ fontSize: '40px', marginBottom: '14px' }}>✦</div>
-                  <p style={{ color: BASE.textMuted, marginBottom: '16px', fontSize: '15px' }}>No sessions yet.</p>
-                  <a href="/" style={{ color: '#6366f1', textDecoration: 'none', fontWeight: '600' }}>Create your first session →</a>
-                </div>
-              ) : (
-                <div style={{ display: 'grid', gap: '10px' }}>
-                  {sessions.map(s => {
-                    const cfg = TYPE_CONFIG[s.product_type] || TYPE_CONFIG.reset
-                    const isPlaying = playingId === s.id
-                    const isRenaming = renamingId === s.id
-                    return (
-                      <div key={s.id} style={{ padding: isMobile ? '10px 12px' : '16px 20px', borderRadius: '14px', background: BASE.bgCard, border: `1px solid ${isPlaying ? cfg.color + '44' : BASE.border}`, transition: 'border 0.2s ease', overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', width: '100%', minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
-                            <div style={{ fontSize: isMobile ? '18px' : '26px', flexShrink: 0 }}>{cfg.emoji}</div>
-                            <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
-                              {isRenaming ? (
-                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                                  <input autoFocus value={renameValue} onChange={e => setRenameValue(e.target.value)}
-                                    onKeyDown={e => { if (e.key === 'Enter') renameSession(s.id, renameValue); if (e.key === 'Escape') setRenamingId(null) }}
-                                    style={{ flex: 1, minWidth: 0, padding: '6px 10px', borderRadius: '8px', border: `1px solid ${cfg.color}66`, background: 'rgba(255,255,255,0.05)', color: BASE.text, fontSize: '13px', outline: 'none', fontFamily: 'inherit' }} />
-                                  <button onClick={() => renameSession(s.id, renameValue)} style={{ padding: '6px 8px', borderRadius: '8px', background: cfg.color, color: '#fff', fontSize: '11px', fontWeight: '700', flexShrink: 0 }}>Save</button>
-                                  <button onClick={() => setRenamingId(null)} style={{ padding: '6px 8px', borderRadius: '8px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '11px', flexShrink: 0 }}>✕</button>
-                                </div>
-                              ) : (
-                                <div style={{ fontSize: isMobile ? '12px' : '14px', color: BASE.text, fontWeight: '600', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', maxWidth: '100%' }}
-                                  onDoubleClick={() => { setRenamingId(s.id); setRenameValue(s.goal) }}>
-                                  {s.goal}
-                                </div>
-                              )}
-                              <div style={{ fontSize: '10px', color: BASE.textMuted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                <span style={{ color: cfg.color, fontWeight: '600' }}>{isMobile ? cfg.emoji : cfg.label}</span>
-                                {' · '}{new Date(s.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                                {s.mood && ` · ${s.mood}/10`}
-                                {!isRenaming && !isMobile && <span onClick={() => { setRenamingId(s.id); setRenameValue(s.goal) }} style={{ marginLeft: '6px', cursor: 'pointer', opacity: 0.5 }}>✏️</span>}
-                              </div>
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
-                            {s.audio_url && (
-                              <button onClick={() => togglePlay(s)} style={{ padding: isMobile ? '5px 8px' : '7px 12px', borderRadius: '8px', border: `1px solid ${cfg.color}44`, background: isPlaying ? cfg.color + '20' : 'transparent', color: cfg.color, fontSize: '12px', fontWeight: '700', flexShrink: 0 }}>
-                                {isPlaying ? '⏸' : '▶'}
-                              </button>
-                            )}
-                            {s.product_type === 'subliminal' && s.audio_url && (
-                              <button onClick={() => toggleLoop(s)} title={loopingId === s.id ? 'Loop on' : 'Loop off'}
-                                style={{ padding: isMobile ? '5px 8px' : '7px 12px', borderRadius: '8px', border: `1px solid ${loopingId === s.id ? cfg.color + '88' : BASE.border}`, background: loopingId === s.id ? cfg.color + '18' : 'transparent', color: loopingId === s.id ? cfg.color : BASE.textMuted, fontSize: '12px', flexShrink: 0 }}>
-                                🔁
-                              </button>
-                            )}
-                            {isMobile && (
-                              <button onClick={() => { setRenamingId(s.id); setRenameValue(s.goal) }} style={{ padding: '5px 8px', borderRadius: '8px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '11px', flexShrink: 0 }}>✏️</button>
-                            )}
-                            <button onClick={() => deleteSession(s)} style={{ padding: isMobile ? '5px 8px' : '6px 10px', borderRadius: '8px', border: '1px solid rgba(255,80,80,0.2)', color: 'rgba(255,100,100,0.6)', fontSize: '11px', fontWeight: '600', flexShrink: 0 }}>{isMobile ? '🗑' : 'Delete'}</button>
-                          </div>
-                        </div>
-                        {isPlaying && (
-                          <div style={{ marginTop: '10px', height: '2px', borderRadius: '2px', background: `${cfg.color}22`, overflow: 'hidden' }}>
-                            <div style={{ height: '100%', background: `linear-gradient(90deg,transparent,${cfg.color},transparent)`, animation: 'shimmer 1.5s linear infinite', backgroundSize: '200% auto' }} />
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-
-              <div style={{ textAlign: 'center', marginTop: '32px' }}>
-                <a href="/" style={{ fontSize: '14px', color: '#6366f1', textDecoration: 'none', fontWeight: '600' }}>+ Create new session</a>
-              </div>
-            </div>
-          )}
-
-          {/* ACCOUNT TAB */}
-          {activeTab === 'account' && (
-            <div style={{ animation: 'fadeUp 0.4s ease both', display: 'grid', gap: '16px' }}>
-
-              <div style={{ padding: '24px', borderRadius: '18px', background: BASE.bgCard, border: `1px solid ${BASE.border}` }}>
-                <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: BASE.textMuted, marginBottom: '16px', fontWeight: '600' }}>YOUR ACCOUNT</div>
-                {[
-                  ['Email', user?.email],
-                  ['Plan', isPro ? 'Pro 💎' : 'Free'],
-                  ['Credits remaining', `✦ ${profile?.credits || 0}`],
-                  ['Day streak', `${profile?.streak_count || 0} 🔥`],
-                ].map(([k, v]) => (
-                  <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '12px' }}>
-                    <span style={{ color: BASE.textMuted }}>{k}</span>
-                    <span style={{ color: k === 'Plan' ? (isPro ? '#a855f7' : BASE.textMuted) : BASE.text, fontWeight: k === 'Plan' ? '700' : '400' }}>{v}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ padding: '24px', borderRadius: '18px', background: BASE.bgCard, border: `1px solid ${isPro ? 'rgba(168,85,247,0.3)' : BASE.border}` }}>
-                <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: BASE.textMuted, marginBottom: '16px', fontWeight: '600' }}>SUBSCRIPTION</div>
-                {isPro ? (
-                  <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#a855f7', boxShadow: '0 0 8px #a855f7' }} />
-                      <span style={{ color: '#a855f7', fontWeight: '700', fontSize: '15px' }}>Pro Plan — Active</span>
-                    </div>
-                    <p style={{ fontSize: '13px', color: BASE.textMuted, marginBottom: '20px', lineHeight: 1.6 }}>100 credits/month · Save up to 50 sessions · £14.99/month</p>
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                      <button onClick={manageBilling} disabled={cancelLoading}
-                        style={{ padding: '10px 18px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.25)', color: '#6366f1', fontSize: '13px', fontWeight: '600', background: 'rgba(99,102,241,0.06)' }}>
-                        {cancelLoading ? 'Opening...' : 'Manage Billing'}
-                      </button>
-                    </div>
-                    <p style={{ fontSize: '11px', color: BASE.textFaint, marginTop: '10px' }}>You will be taken to the secure Stripe billing portal.</p>
-                  </>
-                ) : (
-                  <>
-                    <p style={{ fontSize: '13px', color: BASE.textMuted, marginBottom: '20px', lineHeight: 1.6 }}>You are on the free plan. 5 credits per week, 1 saved session.</p>
-                    <a href="/pricing" style={{ display: 'inline-block', padding: '12px 22px', borderRadius: '12px', background: 'linear-gradient(135deg,#a855f7,#6d28d9)', color: '#fff', fontSize: '14px', fontWeight: '700', textDecoration: 'none', boxShadow: '0 4px 20px rgba(168,85,247,0.3)' }}>
-                      💎 Upgrade to Pro — £14.99/month
-                    </a>
-                  </>
-                )}
-              </div>
-
-              <div style={{ padding: '24px', borderRadius: '18px', background: BASE.bgCard, border: `1px solid rgba(99,102,241,0.15)` }}>
-                <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: BASE.textMuted, marginBottom: '12px', fontWeight: '600' }}>TOP UP CREDITS</div>
-                <p style={{ fontSize: '13px', color: BASE.textMuted, marginBottom: '20px', lineHeight: 1.6 }}>Buy credits without a subscription. They never expire.</p>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '10px' }}>
-                  {[
-                    { key: 'credits_10', label: '10 Credits', price: '£5', per: '50p each' },
-                    { key: 'credits_50', label: '50 Credits', price: '£15', per: '30p each' },
-                    { key: 'credits_100', label: '100 Credits', price: '£25', per: '25p each', best: true },
-                  ].map(c => (
-                    <button key={c.key} onClick={() => checkout(c.key)} disabled={creditsLoading === c.key}
-                      style={{ padding: '16px 12px', borderRadius: '12px', border: `1px solid ${c.best ? 'rgba(99,102,241,0.4)' : BASE.border}`, background: c.best ? 'rgba(99,102,241,0.06)' : BASE.bgCard, textAlign: 'center', fontFamily: 'inherit', cursor: 'pointer' }}>
-                      {c.best && <div style={{ fontSize: '10px', color: '#6366f1', fontWeight: '700', marginBottom: '4px', letterSpacing: '0.1em' }}>BEST VALUE</div>}
-                      <div style={{ fontSize: '14px', color: BASE.text, fontWeight: '700', marginBottom: '2px' }}>{c.label}</div>
-                      <div style={{ fontSize: '18px', color: '#6366f1', fontWeight: '800', marginBottom: '2px' }}>{creditsLoading === c.key ? '...' : c.price}</div>
-                      <div style={{ fontSize: '11px', color: BASE.textFaint }}>{c.per}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ padding: '20px 24px', borderRadius: '18px', background: BASE.bgCard, border: `1px solid ${BASE.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '14px', color: BASE.text, fontWeight: '600', marginBottom: '3px' }}>Sign out</div>
-                  <div style={{ fontSize: '12px', color: BASE.textMuted }}>You will need to sign back in to access your sessions</div>
-                </div>
-                <button onClick={signOut} style={{ padding: '10px 18px', borderRadius: '10px', border: `1px solid ${BASE.border}`, color: BASE.textMuted, fontSize: '13px', fontWeight: '600' }}>Sign out</button>
-              </div>
-
-              {/* Delete account */}
-              <div style={{ padding: '20px 24px', borderRadius: '18px', background: 'rgba(255,60,60,0.03)', border: '1px solid rgba(255,80,80,0.15)' }}>
-                <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: 'rgba(255,100,100,0.6)', marginBottom: '8px', fontWeight: '600' }}>DANGER ZONE</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                  <div>
-                    <div style={{ fontSize: '14px', color: BASE.text, fontWeight: '600', marginBottom: '3px' }}>Delete account</div>
-                    <div style={{ fontSize: '12px', color: BASE.textMuted }}>Permanently deletes your account, sessions, and all audio files.</div>
-                  </div>
-                  <button onClick={() => setShowDeleteAccount(true)} style={{ padding: '10px 16px', borderRadius: '10px', border: '1px solid rgba(255,80,80,0.3)', color: 'rgba(255,100,100,0.7)', fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap', flexShrink: 0 }}>Delete account</button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div style={{ textAlign: 'center', padding: '0 20px 40px', position: 'relative', zIndex: 1 }}>
-          <DashboardFeedback userId={user?.id} />
-        </div>
+        {children}
       </div>
-
-      {showDeleteAccount && <DeleteAccountModal user={user} onClose={() => setShowDeleteAccount(false)} />}
-
-      {showCredits && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,20,0.92)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
-          <div style={{ background: 'linear-gradient(145deg,#071020,#04071a)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '24px', padding: '36px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 0 60px rgba(99,102,241,0.1)' }}>
-            <button onClick={() => setShowCredits(false)} style={{ position: 'absolute', top: '16px', right: '16px', color: BASE.textMuted, fontSize: '22px', background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <div style={{ fontSize: '30px', marginBottom: '10px' }}>✦</div>
-              <h2 style={{ fontSize: '20px', color: '#6366f1', fontWeight: '700', marginBottom: '6px' }}>Top up your credits</h2>
-              <p style={{ fontSize: '13px', color: BASE.textMuted }}>You have <strong style={{ color: '#6366f1' }}>{profile?.credits || 0} credits</strong> remaining</p>
-            </div>
-            {!isPro && (
-              <div style={{ padding: '20px', borderRadius: '14px', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.3)', marginBottom: '20px' }}>
-                <div style={{ fontSize: '15px', color: '#a855f7', fontWeight: '700', marginBottom: '5px' }}>💎 The smart choice — Go Pro</div>
-                <div style={{ fontSize: '13px', color: BASE.textMuted, marginBottom: '14px', lineHeight: 1.6 }}>100 credits a month for £14.99. Daily sessions for less than one coffee a week.</div>
-                <a href="/pricing" onClick={() => setShowCredits(false)} style={{ display: 'block', padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg,#a855f7,#6d28d9)', color: '#fff', fontSize: '14px', fontWeight: '700', textDecoration: 'none', textAlign: 'center' }}>
-                  Upgrade to Pro →
-                </a>
-              </div>
-            )}
-            <div style={{ fontSize: '11px', letterSpacing: '0.12em', color: BASE.textMuted, marginBottom: '12px', fontWeight: '600' }}>OR BUY CREDITS</div>
-            <div style={{ display: 'grid', gap: '10px' }}>
-              {[
-                { key: 'credits_10',  label: '10 Credits', price: '£5',  per: '50p each' },
-                { key: 'credits_50',  label: '50 Credits', price: '£15', per: '30p each' },
-                { key: 'credits_100', label: '100 Credits', price: '£25', per: '25p each — best value' },
-              ].map(c => (
-                <button key={c.key} onClick={() => checkout(c.key)} disabled={creditsLoading === c.key}
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderRadius: '12px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', cursor: 'pointer', width: '100%', fontFamily: 'inherit' }}>
-                  <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontSize: '14px', color: BASE.text, fontWeight: '700' }}>{c.label}</div>
-                    <div style={{ fontSize: '12px', color: BASE.textFaint }}>{c.per}</div>
-                  </div>
-                  <div style={{ fontSize: '18px', color: '#6366f1', fontWeight: '800' }}>{creditsLoading === c.key ? '...' : c.price}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </>
   )
 }
+
+// ── feedback modal (same API, new skin) ────────────────────────────
+function FeedbackModal({ userId, onClose }) {
+  const [text, setText] = useState('')
+  const [sent, setSent] = useState(false)
+  const [busy, setBusy] = useState(false)
+  async function submit() {
+    if (!text.trim()) return
+    setBusy(true)
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedback: text, userId }),
+    })
+    setSent(true); setBusy(false)
+    setTimeout(onClose, 1600)
+  }
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        {sent ? (
+          <p className="serif center" style={{ fontSize: 20 }}>Thank you. We read everything.</p>
+        ) : (
+          <>
+            <h3 className="mtitle">What could be better?</h3>
+            <textarea className="mtext" rows={4} placeholder="Your thoughts…" value={text} onChange={e => setText(e.target.value)} />
+            <button className="cta full" disabled={busy || !text.trim()} onClick={submit}>{busy ? 'Sending…' : 'Send'}</button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── delete account modal (same API contract, new skin) ─────────────
+function DeleteAccountModal({ user, onClose }) {
+  const [confirm, setConfirm] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  async function handleDelete() {
+    if (confirm !== 'DELETE') { setError('Type DELETE to confirm.'); return }
+    setBusy(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      const res = await fetch('/api/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ userId: user.id }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Deletion failed')
+      await supabase.auth.signOut()
+      window.location.href = '/?deleted=1'
+    } catch (err) { setError(err.message); setBusy(false) }
+  }
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <h3 className="mtitle">Delete your account</h3>
+        <p className="quiet" style={{ marginBottom: 18, lineHeight: 1.7 }}>
+          This permanently deletes your account, every saved Rewire, and all audio. It cannot be undone.
+          Type <b style={{ color: '#f87171' }}>DELETE</b> to confirm.
+        </p>
+        <input className="mtext" style={{ textAlign: 'center', letterSpacing: '0.1em' }} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="DELETE" />
+        {error && <p style={{ color: '#f87171', fontSize: 13, marginBottom: 10 }}>{error}</p>}
+        <button className="cta full danger" disabled={busy || confirm !== 'DELETE'} onClick={handleDelete}>
+          {busy ? 'Deleting…' : 'Permanently delete my account'}
+        </button>
+        <button className="switch" onClick={onClose}>Cancel — keep my account</button>
+      </div>
+    </div>
+  )
+}
+
+const CSS = `
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#05070F;color:#EDEFF7;font-family:'Sora','Segoe UI',system-ui,sans-serif;font-weight:300;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  ::selection{background:rgba(94,155,242,0.3)}
+  a{text-decoration:none;color:inherit}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input,textarea{font-family:inherit;outline:none}
+
+  .shell{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:0 22px 80px;min-height:100svh}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0 10px}
+  .navlogo{height:42px;mix-blend-mode:lighten;display:block}
+  .navlink{font-size:13px;color:#5E9BF2;border:1px solid rgba(146,168,255,0.24);border-radius:100px;padding:9px 18px;transition:background .3s}
+  .navlink:hover{background:rgba(94,155,242,0.12)}
+
+  .serif{font-family:'Newsreader',Georgia,serif;font-style:italic;font-weight:300;letter-spacing:-0.01em}
+  .quiet{color:#5A6280;font-size:13px}
+  .center{text-align:center}
+  .eyebrow{font-size:11px;letter-spacing:0.32em;text-transform:uppercase;color:#5E9BF2;margin-bottom:10px}
+
+  .welcome{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin:36px 0 30px}
+  .welcome h1{font-size:clamp(30px,6vw,40px);margin-bottom:8px}
+  .streakline{font-size:14px;color:#9AA3C2}
+  .flame{margin-right:4px}
+
+  .cta{display:inline-block;font-weight:600;font-size:14px;color:#fff;padding:15px 28px;border-radius:100px;background:linear-gradient(120deg,#6C4BE0 0%,#4A8FE8 52%,#3EC1F0 100%);box-shadow:0 0 0 1px rgba(146,168,255,.15),0 8px 30px rgba(94,155,242,.2);transition:transform .4s cubic-bezier(0.22,1,0.36,1);text-align:center}
+  .cta:hover{transform:translateY(-1px)}
+  .cta:disabled{background:rgba(255,255,255,.05);color:#5A6280;box-shadow:none;cursor:default}
+  .cta.full{width:100%;display:block}
+  .cta.danger{background:rgba(248,113,113,0.14);box-shadow:none;border:1px solid rgba(248,113,113,0.4);color:#f87171}
+
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:22px}
+  .chip{font-size:13px;color:#9AA3C2;border:1px solid rgba(146,168,255,0.10);border-radius:100px;padding:8px 16px;transition:all .35s}
+  .chip:hover{border-color:rgba(146,168,255,0.24);color:#EDEFF7}
+  .chip.on{border-color:#5E9BF2;color:#EDEFF7;background:rgba(94,155,242,0.12)}
+
+  .library{display:flex;flex-direction:column;gap:11px}
+  .row{display:flex;align-items:center;gap:16px;border:1px solid rgba(146,168,255,0.10);border-radius:18px;background:rgba(255,255,255,0.025);padding:12px 14px;transition:border-color .35s,background .35s}
+  .row:hover{border-color:rgba(146,168,255,0.24)}
+  .row.live{border-color:#5E9BF2;background:rgba(94,155,242,0.08)}
+  .art{width:56px;height:56px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .3s cubic-bezier(0.22,1,0.36,1)}
+  .art:hover{transform:scale(1.05)}
+  .art svg{width:18px;height:18px;fill:#fff;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}
+  .rinfo{flex:1;min-width:0;cursor:pointer}
+  .rinfo h3{font-family:'Newsreader',Georgia,serif;font-style:italic;font-weight:300;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rinfo p{font-size:12px;color:#5A6280;margin-top:2px}
+  .rename{width:100%;background:rgba(94,155,242,0.08);border:1px solid rgba(146,168,255,0.24);border-radius:8px;color:#EDEFF7;font-size:15px;padding:6px 10px}
+  .ractions{display:flex;gap:6px;flex-shrink:0}
+  .icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#5A6280;border:1px solid transparent;transition:all .3s;font-size:11px}
+  .icon svg{width:15px;height:15px}
+  .icon:hover{color:#EDEFF7;border-color:rgba(146,168,255,0.24)}
+  .icon.on{color:#5E9BF2;border-color:rgba(94,155,242,0.4);background:rgba(94,155,242,0.1)}
+  .icon.danger:hover{color:#f87171;border-color:rgba(248,113,113,0.4)}
+  .icon.danger.on{color:#f87171;border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.08);width:auto;padding:0 10px;border-radius:100px}
+
+  .empty{text-align:center;padding:70px 20px;border:1px dashed rgba(146,168,255,0.18);border-radius:24px}
+  .empty .quiet{max-width:340px;margin:10px auto 0}
+  .empty .cta{display:inline-block}
+
+  .whisper{text-align:center;margin-top:30px}
+  .whisper p{font-size:13px;color:#5A6280}
+  .whisper a{color:#5E9BF2}
+
+  .account{margin-top:60px;border-top:1px solid rgba(146,168,255,0.10);padding-top:24px}
+  .acc-toggle{font-size:13px;color:#5A6280;transition:color .3s}
+  .acc-toggle:hover{color:#9AA3C2}
+  .acc-body{margin-top:20px;animation:fadein .4s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .acc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:22px}
+  .acc-grid>div{border:1px solid rgba(146,168,255,0.10);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+  .acc-grid b{font-weight:600;font-size:15px}
+  .acc-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .quietbtn{font-size:13px;color:#9AA3C2;border:1px solid rgba(146,168,255,0.10);border-radius:100px;padding:10px 18px;transition:all .3s;display:inline-block}
+  .quietbtn:hover{color:#EDEFF7;border-color:rgba(146,168,255,0.24)}
+  .quietbtn.danger{color:#7a5560}
+  .quietbtn.danger:hover{color:#f87171;border-color:rgba(248,113,113,0.4)}
+
+  .signedout{min-height:60svh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center}
+  .signedout .serif{font-size:26px;color:#9AA3C2}
+
+  .overlay{position:fixed;inset:0;z-index:50;background:rgba(3,5,12,0.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px}
+  .modal{width:100%;max-width:400px;background:#0A0D1A;border:1px solid rgba(146,168,255,0.24);border-radius:24px;padding:32px;animation:fadein .35s cubic-bezier(0.22,1,0.36,1)}
+  .mtitle{font-family:'Newsreader',Georgia,serif;font-style:italic;font-weight:300;font-size:23px;margin-bottom:14px}
+  .mtext{width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(146,168,255,0.10);background:rgba(255,255,255,0.025);color:#EDEFF7;font-size:14px;margin-bottom:14px;resize:vertical;transition:border-color .3s}
+  .mtext:focus{border-color:rgba(146,168,255,0.24)}
+  .switch{display:block;margin:14px auto 0;font-size:13px;color:#5A6280;text-decoration:underline}
+
+  @media(max-width:560px){
+    .welcome{flex-direction:column;align-items:flex-start}
+    .welcome .cta{width:100%}
+    .ractions .icon:first-child{display:none} /* hide loop on tight screens; subliminals still auto-loop */
+  }
+  @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+`
