@@ -280,7 +280,7 @@ export default function Rewire() {
 
       <div className="shell">
         <div className="topbar">
-          <a href="/"><img src={LOGO_URL} alt="RewireMode" /></a>
+          <a href="/"><img src={LOGO_URL} alt="RewireMode" style={{ mixBlendMode: "lighten" }} /></a>
           <a className="leave" href="/dashboard">My library</a>
         </div>
 
