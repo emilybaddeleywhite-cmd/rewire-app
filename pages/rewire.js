@@ -33,6 +33,7 @@ export default function Rewire() {
   const [authEmail, setAuthEmail] = useState('')
   const [authPass, setAuthPass] = useState('')
   const [authErr, setAuthErr] = useState('')
+  const [authNote, setAuthNote] = useState('')
   const [authBusy, setAuthBusy] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
 
@@ -88,29 +89,73 @@ export default function Rewire() {
   }
 
   async function handleAuth() {
-    setAuthErr(''); setAuthBusy(true)
+    setAuthErr(''); setAuthNote('')
+    const email = authEmail.trim()
+    if (!email || !email.includes('@')) { setAuthErr('Please enter a valid email address.'); return }
+    if (authPass.length < 6) { setAuthErr('Password must be at least 6 characters.'); return }
+
+    setAuthBusy(true)
     try {
-      const fn = authMode === 'signin'
-        ? supabase.auth.signInWithPassword({ email: authEmail, password: authPass })
-        : supabase.auth.signUp({ email: authEmail, password: authPass })
-      const { data, error } = await fn
-      if (error) { setAuthErr(error.message); setAuthBusy(false); return }
-      if (data?.user) {
+      if (authMode === 'signin') {
+        const { error } = await supabase.auth.signInWithPassword({ email, password: authPass })
+        if (error) {
+          setAuthErr(
+            /confirm/i.test(error.message)
+              ? 'Please confirm your email first — check your inbox for the link we sent.'
+              : /invalid login|invalid credentials/i.test(error.message)
+              ? 'That email or password doesn\u2019t look right. Try again, or create an account.'
+              : error.message
+          )
+          setAuthBusy(false); return
+        }
+        // A successful sign-in always returns a session.
         setShowAuth(false)
-        if (authMode === 'signup') {
-          // fire-and-forget welcome email, mirrors existing signup flow
-          const { data: { session } } = await supabase.auth.getSession()
-          if (session?.access_token) {
-            fetch('/api/send-welcome', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-              body: JSON.stringify({ email: data.user.email }),
-            }).catch(() => {})
-          }
+        if (pendingGenerateRef.current) { pendingGenerateRef.current = false; setTimeout(beginCreation, 600) }
+        setAuthBusy(false); return
+      }
+
+      // ── sign up ──
+      const { data, error } = await supabase.auth.signUp({ email, password: authPass })
+      if (error) {
+        setAuthErr(
+          /already registered|already exists|user already/i.test(error.message)
+            ? 'That email is already registered — try signing in instead.'
+            : /rate|security purposes|seconds/i.test(error.message)
+            ? 'Too many attempts just now. Please wait a moment, then try again.'
+            : error.message
+        )
+        setAuthBusy(false); return
+      }
+
+      // Supabase returns a user with an empty identities array (and no error) when
+      // the email is already registered — surface that instead of failing silently.
+      const identities = data?.user?.identities
+      if (Array.isArray(identities) && identities.length === 0) {
+        setAuthErr('That email is already registered — try signing in instead.')
+        setAuthMode('signin')
+        setAuthBusy(false); return
+      }
+
+      if (data?.session) {
+        // Email confirmation is OFF — the user is signed in immediately.
+        setShowAuth(false)
+        if (data.session.access_token) {
+          fetch('/api/send-welcome', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.session.access_token}` },
+            body: JSON.stringify({ email: data.user.email }),
+          }).catch(() => {})
         }
         if (pendingGenerateRef.current) { pendingGenerateRef.current = false; setTimeout(beginCreation, 600) }
+      } else {
+        // Email confirmation is ON — the account exists but must be verified first.
+        pendingGenerateRef.current = false
+        setAuthMode('signin')
+        setAuthNote('Account created. Check your inbox to confirm your email, then sign in to begin.')
       }
-    } catch (e) { setAuthErr('Something went wrong. Please try again.') }
+    } catch (e) {
+      setAuthErr('Something went wrong. Please try again.')
+    }
     setAuthBusy(false)
   }
 
@@ -483,14 +528,15 @@ export default function Rewire() {
         <Modal onClose={() => setShowAuth(false)}>
           <h3 className="mtitle">{authMode === 'signin' ? 'Welcome back' : 'Save your Rewire'}</h3>
           <p className="msub">{authMode === 'signin' ? 'Sign in to continue your journey.' : 'Create a free account — your first Rewire is on us.'}</p>
+          {authNote && <p className="note">{authNote}</p>}
           <input className="minput" type="email" placeholder="Email" value={authEmail} onChange={e => setAuthEmail(e.target.value)} />
-          <input className="minput" type="password" placeholder="Password" value={authPass} onChange={e => setAuthPass(e.target.value)}
+          <input className="minput" type="password" placeholder="Password (min 6 characters)" value={authPass} onChange={e => setAuthPass(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleAuth()} />
           {authErr && <p className="error">{authErr}</p>}
           <button className="next full" disabled={authBusy} onClick={handleAuth}>
             {authBusy ? 'One moment…' : authMode === 'signin' ? 'Sign in' : 'Create account'}
           </button>
-          <button className="switch" onClick={() => setAuthMode(m => m === 'signin' ? 'signup' : 'signin')}>
+          <button className="switch" onClick={() => { setAuthErr(''); setAuthNote(''); setAuthMode(m => m === 'signin' ? 'signup' : 'signin') }}>
             {authMode === 'signin' ? 'New here? Create an account' : 'Already have an account? Sign in'}
           </button>
         </Modal>
@@ -671,6 +717,7 @@ const CSS = `
   .hint.center{text-align:center}
   .hint a{color:#5E9BF2}
   .error{color:#f87171;font-size:13px;margin-top:14px}
+  .note{color:#8FD8F2;font-size:13px;line-height:1.6;margin-bottom:14px;padding:12px 14px;border-radius:12px;background:rgba(94,155,242,0.08);border:1px solid rgba(94,155,242,0.2)}
 
   .safety{border:1px solid rgba(146,168,255,0.24);border-radius:18px;padding:22px;margin-top:20px;background:rgba(94,155,242,0.06);animation:stepIn .5s ease}
   .safety.crisis{border-color:rgba(248,113,113,0.35);background:rgba(248,113,113,0.06)}
