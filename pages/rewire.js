@@ -382,14 +382,21 @@ export default function Rewire() {
             <div className="ask">Choose your atmosphere</div>
             <div className="ask-sub">What the world sounds like while you listen.</div>
             <div className="opts">
-              {atmospheresFor(exp.id).map(a => (
-                <button key={a.id} className={`opt ${atmo?.id === a.id ? 'on' : ''}`} onClick={() => setAtmo(a)}>
-                  <div className="mark" />
-                  <h4>{a.name}</h4>
-                  <p>{a.desc}</p>
-                </button>
-              ))}
+              {atmospheresFor(exp.id).map(a => {
+                const locked = a.proOnly && (!profile || profile.plan === 'free')
+                return (
+                  <button key={a.id} className={`opt ${atmo?.id === a.id ? 'on' : ''} ${locked ? 'locked' : ''}`}
+                    onClick={() => { if (!locked) setAtmo(a) }}>
+                    <div className="mark" />
+                    <h4>{a.name} {locked && <span className="pro">Pro</span>}</h4>
+                    <p>{a.desc}</p>
+                  </button>
+                )
+              })}
             </div>
+            {atmospheresFor(exp.id).some(a => a.proOnly) && (!profile || profile.plan === 'free') && (
+              <p className="hint">More atmospheres unlock with <a href="/pricing">RewireMode Pro</a>.</p>
+            )}
             {genError && <p className="error">{genError}</p>}
             <div className="navrow">
               <button className="back" onClick={() => setStep(2)}>Back</button>
@@ -603,6 +610,8 @@ const CSS = `
   .opt p{font-size:12.5px;color:#9AA3C2;line-height:1.5}
   .opt .mark{position:absolute;top:14px;right:14px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(146,168,255,0.24);transition:all .35s ease}
   .opt.on .mark{background:#5E9BF2;border-color:#5E9BF2;box-shadow:0 0 10px rgba(94,155,242,.5)}
+  .opt.locked{opacity:.5;cursor:default}
+  .opt.locked:hover{transform:none;border-color:rgba(146,168,255,0.10)}
 
   .voice{display:flex;align-items:center;gap:16px;width:100%;text-align:left;border:1px solid rgba(146,168,255,0.10);border-radius:16px;background:rgba(255,255,255,0.025);padding:16px 18px;margin-bottom:11px;transition:all .35s ease;cursor:pointer}
   .voice.on{border-color:#5E9BF2;background:rgba(94,155,242,0.12)}
