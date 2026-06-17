@@ -106,7 +106,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 256,
         system: CLASSIFIER_SYSTEM_PROMPT,
         messages: [{ role: 'user', content: `Classify this session prompt: "${truncatedPrompt}"` }],
@@ -116,20 +116,30 @@ export default async function handler(req, res) {
     const data = await response.json()
     const rawText = data.content?.[0]?.text?.trim() ?? ''
 
+    // Be forgiving about the model's wrapping — strip ```json fences and pull
+    // out the first {...} block before parsing, so a stray character never
+    // turns a genuinely-safe prompt into a silent block.
     let result
     try {
-      result = JSON.parse(rawText)
+      const cleaned = rawText.replace(/```json\s*/gi, '').replace(/```/g, '').trim()
+      const match = cleaned.match(/\{[\s\S]*\}/)
+      result = JSON.parse(match ? match[0] : cleaned)
     } catch {
       result = { safe: false, category: 'parse_error', crisis: false, suggested_rewrite: null }
     }
 
-    // Log blocked attempts — no prompt text stored, category + timestamp only
+    // Log blocked attempts — no prompt text stored, category + timestamp only.
+    // Wrapped on its own so a logging hiccup can never block a real user.
     if (!result.safe) {
-      await supabase.from('safety_audit_log').insert({
-        category: result.category ?? 'unknown',
-        is_crisis: result.crisis ?? false,
-        user_id: userId ?? null,
-      })
+      try {
+        await supabase.from('safety_audit_log').insert({
+          category: result.category ?? 'unknown',
+          is_crisis: result.crisis ?? false,
+          user_id: userId ?? null,
+        })
+      } catch (logErr) {
+        console.error('Safety audit log failed:', logErr?.message)
+      }
     }
 
     return res.status(200).json(result)
