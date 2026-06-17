@@ -2,27 +2,46 @@
 // The creation animation: the RewireMode mark draws itself together,
 // pathway by pathway, violet → blue → cyan — then breathes while the
 // real generation completes. No spinners, ever.
+//
+// Geometry traced directly from the real RewireMode logo: a six-node crown
+// (W) with two triangular "ears" and a single crossing diagonal through the
+// centre. Coordinates are measured node centres mapped into the viewBox.
 
 import { useEffect, useRef } from 'react'
 
-const RINGS = { A: [52, 168], B: [124, 92], C: [218, 40], D: [294, 216], E: [332, 92], F: [386, 160] }
-const SHARP = { v1: [168, 208], v2: [262, 152] }
+// Six ring nodes (matches the logo's six circles), left → right.
+const N = {
+  A: [53, 154],  // far left
+  B: [124, 96],  // left peak
+  C: [208, 36],  // centre top (tallest)
+  D: [265, 224], // centre bottom (lowest)
+  E: [318, 96],  // right peak
+  F: [367, 154], // far right
+}
+// Left valley — a bare vertex where the strokes meet (no ring, like the logo).
+const LV = [146, 187]
+
+// Drawn in order, left → right. The LV→E diagonal crosses C→D in the centre.
 const EDGES = [
-  { from: RINGS.A, to: RINGS.B, c: '#6C4BE0' },
-  { from: RINGS.B, to: SHARP.v1, c: '#664FE2' },
-  { from: SHARP.v1, to: RINGS.C, c: '#5B6BE5' },
-  { from: RINGS.C, to: SHARP.v2, c: '#4F82E7' },
-  { from: RINGS.C, to: RINGS.D, c: '#4A8FE8' },
-  { from: SHARP.v2, to: RINGS.E, c: '#44A8EC' },
-  { from: RINGS.D, to: RINGS.E, c: '#41B4EE' },
-  { from: RINGS.E, to: RINGS.F, c: '#3EC1F0' },
+  { from: N.A, to: N.B },
+  { from: N.A, to: LV },
+  { from: N.B, to: LV },
+  { from: LV, to: N.C },
+  { from: N.C, to: N.D },
+  { from: LV, to: N.E },   // crossing diagonal
+  { from: N.D, to: N.E },
+  { from: N.E, to: N.F },
+  { from: N.F, to: N.D },
 ]
+
+// Rings appear shortly after the strokes that reach them.
 const NODE_AT = [
-  { n: RINGS.A, i: 0, c: '#6C4BE0' }, { n: RINGS.B, i: 0, c: '#6850E1' },
-  { n: RINGS.C, i: 2, c: '#5B6BE5' }, { n: RINGS.D, i: 4, c: '#46A0EA' },
-  { n: RINGS.E, i: 5, c: '#41B4EE' }, { n: RINGS.F, i: 7, c: '#3EC1F0' },
+  { n: N.A, i: 0 }, { n: N.B, i: 1 }, { n: N.C, i: 3 },
+  { n: N.D, i: 4 }, { n: N.E, i: 6 }, { n: N.F, i: 7 },
 ]
-const STAG = 0.52, DUR = 1.0, RING_R = 10, RING_W = 4.5
+
+const STAG = 0.32, DUR = 0.8, RING_R = 11, RING_W = 5.5, STROKE_W = 8
+const GRAD = 'url(#rwGrad)'
 
 export default function LogoWeave({ width = 'min(360px, 82vw)' }) {
   const svgRef = useRef(null)
@@ -32,6 +51,22 @@ export default function LogoWeave({ width = 'min(360px, 82vw)' }) {
     if (!svg) return
     const NS = 'http://www.w3.org/2000/svg'
     svg.innerHTML = ''
+
+    // gradient: violet (left) → blue → cyan (right), across the whole mark
+    const defs = document.createElementNS(NS, 'defs')
+    const grad = document.createElementNS(NS, 'linearGradient')
+    grad.setAttribute('id', 'rwGrad')
+    grad.setAttribute('gradientUnits', 'userSpaceOnUse')
+    grad.setAttribute('x1', '40'); grad.setAttribute('y1', '0')
+    grad.setAttribute('x2', '380'); grad.setAttribute('y2', '0')
+    ;[['0%', '#6C4BE0'], ['52%', '#4A8FE8'], ['100%', '#3EC1F0']].forEach(([o, c]) => {
+      const s = document.createElementNS(NS, 'stop')
+      s.setAttribute('offset', o); s.setAttribute('stop-color', c)
+      grad.appendChild(s)
+    })
+    defs.appendChild(grad)
+    svg.appendChild(defs)
+
     const group = document.createElementNS(NS, 'g')
     svg.appendChild(group)
 
@@ -39,7 +74,7 @@ export default function LogoWeave({ width = 'min(360px, 82vw)' }) {
       const l = document.createElementNS(NS, 'line')
       l.setAttribute('x1', e.from[0]); l.setAttribute('y1', e.from[1])
       l.setAttribute('x2', e.to[0]); l.setAttribute('y2', e.to[1])
-      l.setAttribute('stroke', e.c); l.setAttribute('stroke-width', '7')
+      l.setAttribute('stroke', GRAD); l.setAttribute('stroke-width', STROKE_W)
       l.setAttribute('stroke-linecap', 'round')
       const len = Math.hypot(e.to[0] - e.from[0], e.to[1] - e.from[1])
       l.style.strokeDasharray = len
@@ -49,14 +84,14 @@ export default function LogoWeave({ width = 'min(360px, 82vw)' }) {
       requestAnimationFrame(() => requestAnimationFrame(() => { l.style.strokeDashoffset = 0 }))
     })
 
-    NODE_AT.forEach(({ n, i, c }) => {
+    NODE_AT.forEach(({ n, i }) => {
       const halo = document.createElementNS(NS, 'circle')
       halo.setAttribute('cx', n[0]); halo.setAttribute('cy', n[1]); halo.setAttribute('r', RING_R + 9)
-      halo.setAttribute('fill', 'none'); halo.setAttribute('stroke', c)
+      halo.setAttribute('fill', 'none'); halo.setAttribute('stroke', GRAD)
       halo.setAttribute('stroke-width', '1'); halo.setAttribute('opacity', '0')
       const ring = document.createElementNS(NS, 'circle')
       ring.setAttribute('cx', n[0]); ring.setAttribute('cy', n[1]); ring.setAttribute('r', RING_R)
-      ring.setAttribute('fill', '#05070F'); ring.setAttribute('stroke', c)
+      ring.setAttribute('fill', '#05070F'); ring.setAttribute('stroke', GRAD)
       ring.setAttribute('stroke-width', RING_W)
       ring.style.opacity = 0
       ring.style.transformOrigin = `${n[0]}px ${n[1]}px`
