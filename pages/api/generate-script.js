@@ -96,7 +96,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: productType === 'sleep' || productType === 'subliminal' ? 3000 : 1500,
         system: systemPrompts[productType] || systemPrompts.reset,
         messages: [{ role: 'user', content: userPrompt }],
