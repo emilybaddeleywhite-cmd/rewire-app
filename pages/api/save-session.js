@@ -39,7 +39,7 @@ export default async function handler(req, res) {
 
   const {
     userId, goal, productType, script, audioUrl, voiceId, mood,
-    musicUrl: clientMusicUrl, clientDate,
+    musicUrl: clientMusicUrl, clientDate, audioPath,
   } = req.body
   if (userId !== authUser.id) return res.status(403).json({ error: 'Forbidden' })
 
@@ -80,6 +80,9 @@ export default async function handler(req, res) {
 
     const cleanAudioUrl = audioUrl && audioUrl.startsWith('http') ? audioUrl : null
     const musicUrl = (clientMusicUrl && clientMusicUrl.startsWith('http')) ? clientMusicUrl : null
+    // Canonical reference to the audio file. The signed audio_url expires; this
+    // path is what the dashboard re-signs on every load so replay never breaks.
+    const cleanAudioPath = typeof audioPath === 'string' && audioPath ? audioPath : null
 
     const { data: session, error: sessionError } = await supabase
       .from('sessions')
@@ -89,6 +92,7 @@ export default async function handler(req, res) {
         product_type: productType,
         script,
         audio_url: cleanAudioUrl,
+        audio_path: cleanAudioPath,
         voice_id: voiceId,
         mood,
         music_url: musicUrl,
