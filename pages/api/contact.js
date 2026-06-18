@@ -1,6 +1,8 @@
 // pages/api/contact.js
 // Receives contact form submissions and forwards them to office@rewiremode.com via Brevo.
 
+import { checkRateLimit, getClientIp } from '../../lib/rateLimit'
+
 const TOPIC_LABELS = {
   general: 'General question',
   billing: 'Billing or payment',
@@ -13,11 +15,24 @@ const TOPIC_LABELS = {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { name, email, topic, message } = req.body
+  // ── Rate limit by IP: 5 messages/hour. Stops the form being used to spam
+  //    your inbox / burn Brevo send credits. ──
+  const ip = getClientIp(req)
+  const rl = await checkRateLimit(`contact:${ip}`, 5, 3600)
+  if (!rl.allowed) {
+    return res.status(429).json({ error: 'Too many messages. Please try again later.' })
+  }
+
+  let { name, email, topic, message } = req.body
 
   if (!name || !email || !topic || !message) {
     return res.status(400).json({ error: 'Missing required fields' })
   }
+
+  // Light input caps — protect against oversized payloads.
+  name = String(name).slice(0, 120)
+  email = String(email).slice(0, 200)
+  message = String(message).slice(0, 5000)
 
   const topicLabel = TOPIC_LABELS[topic] || topic
 
