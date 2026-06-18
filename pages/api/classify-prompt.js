@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { checkRateLimit, getClientIp } from '../../lib/rateLimit'
 
 export const config = { maxDuration: 30 }
 
@@ -88,6 +89,15 @@ For crisis:
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+
+  // ── Rate limit by IP: 40 checks/hour. This route has no auth (the safety gate
+  //    runs before sign-in is required), so the IP bucket caps abuse of the
+  //    classifier call without locking out genuine users. ──
+  const ip = getClientIp(req)
+  const rl = await checkRateLimit(`classify:${ip}`, 40, 3600)
+  if (!rl.allowed) {
+    return res.status(429).json({ error: 'Too many requests' })
+  }
 
   const { prompt, userId } = req.body
 
