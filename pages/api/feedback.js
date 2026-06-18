@@ -1,3 +1,6 @@
+// pages/api/feedback.js
+import { checkRateLimit, getClientIp } from '../../lib/rateLimit'
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
@@ -8,6 +11,13 @@ export default async function handler(req, res) {
   }
   if (feedback.length > 2000) {
     return res.status(400).json({ error: 'Feedback too long' })
+  }
+
+  // ── Rate limit: 10/hour per user (or per IP if not signed in). ──
+  const bucket = userId ? `feedback:${userId}` : `feedback:${getClientIp(req)}`
+  const rl = await checkRateLimit(bucket, 10, 3600)
+  if (!rl.allowed) {
+    return res.status(429).json({ error: 'Thanks! You’ve sent a lot of feedback — please try again later.' })
   }
 
   const body = `
