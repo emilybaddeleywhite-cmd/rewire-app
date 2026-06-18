@@ -34,16 +34,6 @@ const CREDIT_AMOUNTS = {
   lifetime_founder: 500,
 }
 
-// Helper: get user email from Supabase by userId
-async function getUserEmail(userId) {
-  const { data } = await supabase
-    .from('profiles')
-    .select('email')
-    .eq('id', userId)
-    .single()
-  return data?.email || null
-}
-
 // Helper: format a Unix timestamp as "14 June 2025"
 function formatDate(unixTs) {
   return new Date(unixTs * 1000).toLocaleDateString('en-GB', {
@@ -72,29 +62,28 @@ export default async function handler(req, res) {
     const { userId, productKey } = session.metadata
     const creditAmount = CREDIT_AMOUNTS[productKey] ?? 0
 
-    if (creditAmount > 0 && userId) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('credits')
-        .eq('id', userId)
-        .single()
-
-      if (profile) {
-        await supabase
-          .from('profiles')
-          .update({
-            credits: profile.credits + creditAmount,
-            plan: productKey === 'pro_monthly' ? 'pro'
-                : productKey === 'lifetime_founder' ? 'lifetime'
-                : profile.plan,
-            stripe_customer_id: session.customer,
-          })
-          .eq('id', userId)
-
+    if (userId) {
+      // Add credits atomically (no read-then-write race).
+      if (creditAmount > 0) {
+        await supabase.rpc('add_credits', { p_user_id: userId, p_amount: creditAmount })
         await supabase
           .from('credit_transactions')
           .insert({ user_id: userId, amount: creditAmount, reason: `purchase:${productKey}` })
       }
+
+      // Build the profile update. Only set `plan` for plans that change it, and
+      // only store stripe_subscription_id for actual subscriptions — otherwise a
+      // one-off credit-pack purchase by a Pro user would wipe their sub id and
+      // break cancellation handling.
+      const profileUpdate = { stripe_customer_id: session.customer }
+      if (productKey === 'pro_monthly') {
+        profileUpdate.plan = 'pro'
+        if (session.subscription) profileUpdate.stripe_subscription_id = session.subscription
+      } else if (productKey === 'lifetime_founder') {
+        profileUpdate.plan = 'lifetime'
+      }
+
+      await supabase.from('profiles').update(profileUpdate).eq('id', userId)
     }
 
     // Send confirmation email
@@ -106,11 +95,36 @@ export default async function handler(req, res) {
         } else if (productKey === 'lifetime_founder') {
           await sendFounderConfirmed({ email })
         }
-        // credit top-ups (credits_10/50/100) don't get a separate email —
-        // Stripe's receipt covers it. Add sendCreditTopUp() here if you want one later.
+        // Credit top-ups (credits_10/50/100) rely on Stripe's own receipt.
       } catch (emailErr) {
-        // Log but don't fail the webhook — Stripe will retry if we return non-200
         console.error('Email send failed after purchase:', emailErr.message)
+      }
+    }
+  }
+
+  // ── Subscription renewal succeeded — refresh Pro credits ───────────────────
+  // Fires every billing cycle. We act ONLY on 'subscription_cycle' (true
+  // renewals); the first payment is 'subscription_create' and is already handled
+  // by checkout.session.completed above, so this avoids double-crediting.
+  if (event.type === 'invoice.payment_succeeded') {
+    const invoice = event.data.object
+    if (invoice.billing_reason === 'subscription_cycle' && invoice.customer) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('stripe_customer_id', invoice.customer)
+        .single()
+
+      if (profile) {
+        // Refresh to the monthly allowance (not accumulate) — protects margin.
+        await supabase
+          .from('profiles')
+          .update({ credits: CREDIT_AMOUNTS.pro_monthly, plan: 'pro' })
+          .eq('id', profile.id)
+
+        await supabase
+          .from('credit_transactions')
+          .insert({ user_id: profile.id, amount: CREDIT_AMOUNTS.pro_monthly, reason: 'renewal:pro_monthly' })
       }
     }
   }
@@ -129,7 +143,8 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── Subscription cancelled ───────────────────────────────────────────────
+  // ── Subscription cancelled — downgrade to free ─────────────────────────────
+  // Now matches reliably because we store stripe_subscription_id at checkout.
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object
 
@@ -138,7 +153,6 @@ export default async function handler(req, res) {
       .update({ plan: 'free' })
       .eq('stripe_subscription_id', subscription.id)
 
-    // Get the user's email via customer ID
     try {
       const customer = await stripe.customers.retrieve(subscription.customer)
       const email = customer.email
