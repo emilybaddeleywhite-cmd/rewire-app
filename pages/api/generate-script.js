@@ -1,6 +1,7 @@
 // pages/api/generate-script.js
 import { createClient } from '@supabase/supabase-js'
 import { sendCreditsEmpty, sendGenerationFailed } from '../../lib/brevo'
+import { checkRateLimit } from '../../lib/rateLimit'
 
 export const config = {
   maxDuration: 60,
@@ -43,12 +44,19 @@ export default async function handler(req, res) {
   if (!authUser) return res.status(401).json({ error: 'Unauthorized' })
 
   const { goal, productType, mood, userId, firstName } = req.body
-
   if (userId !== authUser.id) return res.status(403).json({ error: 'Forbidden' })
 
+  // ── Rate limit: 20 generations/hour/user. Credits are the real cap; this just
+  //    stops a script from hammering the endpoint in a tight loop. ──
+  const rl = await checkRateLimit(`script:${authUser.id}`, 20, 3600)
+  if (!rl.allowed) {
+    return res.status(429).json({ error: 'Too many requests. Please wait a moment and try again.' })
+  }
+
+  // Plan + email needed only for the "credits empty" notice
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('credits, plan, email')
+    .select('plan, email')
     .eq('id', authUser.id)
     .single()
 
@@ -56,13 +64,32 @@ export default async function handler(req, res) {
 
   const cost = CREDIT_COSTS[productType] || 1
 
-  if (profile.credits < cost) {
-    // Send credits empty email (fire and forget — don't block the response)
+  // ── Charge the credits ATOMICALLY, BEFORE the expensive Claude call. ──
+  // Returns the new balance, or null if the user couldn't afford it. This single
+  // step fixes: deducting-at-save, the missing server-side check, and the race condition.
+  const { data: newBalance, error: deductError } = await supabase
+    .rpc('deduct_credits', { p_user_id: authUser.id, p_cost: cost })
+
+  if (deductError) {
+    console.error('deduct_credits error:', deductError.message)
+    return res.status(500).json({ error: 'Could not start generation. Please try again.' })
+  }
+
+  if (newBalance === null) {
     if (profile.email && profile.plan === 'free') {
       sendCreditsEmpty({ email: profile.email, resetDate: nextResetDate() })
         .catch(err => console.error('Credits empty email failed:', err.message))
     }
-    return res.status(402).json({ error: 'Not enough credits', credits: profile.credits })
+    return res.status(402).json({ error: 'Not enough credits' })
+  }
+
+  // Give the credits back if generation never produces a usable script.
+  async function refund() {
+    try {
+      await supabase.rpc('add_credits', { p_user_id: authUser.id, p_amount: cost })
+    } catch (e) {
+      console.error('Refund failed:', e?.message)
+    }
   }
 
   const safetyAddendum = `\n\nSAFETY REQUIREMENT: If the goal contains any request to harm self or others, control another person, use dark/occult themes, encourage illegal acts, or promote dangerous behaviour — respond ONLY with the JSON: {"blocked":true} and nothing else.`
@@ -104,8 +131,8 @@ export default async function handler(req, res) {
     })
 
     const data = await response.json()
-    if (!data.content?.[0]) {
-      // Generation failed — email the user (fire and forget)
+    if (!data.content?.[0]?.text) {
+      await refund()
       if (profile.email) {
         sendGenerationFailed({ email: profile.email })
           .catch(err => console.error('Generation failed email error:', err.message))
@@ -113,14 +140,21 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'No script returned' })
     }
 
-    const script = data.content[0].text
+    const script = data.content[0].text.trim()
 
-    return res.status(200).json({ script, cost })
+    // Safety net: the model returns {"blocked":true} when the goal is unsafe.
+    // Don't save that as a script, and refund the credit.
+    if (/^\{[\s\S]*"blocked"\s*:\s*true[\s\S]*\}$/.test(script)) {
+      await refund()
+      return res.status(422).json({ error: 'This intention can’t be turned into a session.', blocked: true })
+    }
+
+    return res.status(200).json({ script, cost, creditsRemaining: newBalance })
   } catch (err) {
-    // Generation failed — email the user (fire and forget)
+    await refund()
     if (profile.email) {
       sendGenerationFailed({ email: profile.email })
-        .catch(err => console.error('Generation failed email error:', err.message))
+        .catch(e => console.error('Generation failed email error:', e.message))
     }
     return res.status(500).json({ error: err.message })
   }
