@@ -230,6 +230,7 @@ export default function Rewire() {
         body: JSON.stringify({
           userId: user.id, goal: intent, productType: exp.id, script: scriptData.script,
           audioUrl: audioData.audioUrl, voiceId: voice.id, mood: 5, musicUrl: atmo?.url || null,
+          audioPath: audioData.audioPath || null,
           // The user's own local date (YYYY-MM-DD) so streaks count their midnight, not UTC's
           clientDate: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` })(),
         }),
