@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { checkRateLimit } from '../../lib/rateLimit'
 
 export const config = {
   maxDuration: 60,
@@ -27,6 +28,18 @@ export default async function handler(req, res) {
   const { text, voiceId, productType, userId } = req.body
 
   if (userId !== authUser.id) return res.status(403).json({ error: 'Forbidden' })
+
+  if (!text || typeof text !== 'string' || !text.trim()) {
+    return res.status(400).json({ error: 'No text provided' })
+  }
+
+  // ── Rate limit: 15 audio generations/hour/user. ElevenLabs is the most
+  //    expensive call in the app, and this route isn't credit-gated on its own,
+  //    so this caps any attempt to loop it directly. ──
+  const rl = await checkRateLimit(`audio:${authUser.id}`, 15, 3600)
+  if (!rl.allowed) {
+    return res.status(429).json({ error: 'Too many audio generations. Please wait a moment and try again.' })
+  }
 
   const CHAR_LIMIT = 4500
   let processedText = text
