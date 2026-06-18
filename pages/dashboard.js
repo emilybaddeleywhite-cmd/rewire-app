@@ -46,12 +46,36 @@ export default function Dashboard({ user, profile, refreshProfile, loading: auth
 
   useEffect(() => { if (user) fetchSessions() }, [user, filter])
 
+  // Resolve the storage path for a session. Prefers the stored audio_path;
+  // falls back to extracting it from an older audio_url so existing sessions
+  // (saved before audio_path existed) still replay.
+  function pathFromSession(s) {
+    if (s.audio_path) return s.audio_path
+    if (!s.audio_url) return null
+    try {
+      const m = new URL(s.audio_url).pathname.match(/\/audio\/(.+)$/)
+      return m ? decodeURIComponent(m[1]) : null
+    } catch { return null }
+  }
+
   async function fetchSessions() {
     setLoading(true)
     let query = supabase.from('sessions').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
     if (filter !== 'all') query = query.eq('product_type', filter)
     const { data } = await query
-    setSessions(data || [])
+    const rows = data || []
+
+    // The audio bucket is private, so signed URLs expire. Mint fresh ones from
+    // the stored paths on every load — saved sessions then replay indefinitely.
+    const paths = [...new Set(rows.map(pathFromSession).filter(Boolean))]
+    const urlByPath = {}
+    if (paths.length) {
+      const { data: signed } = await supabase.storage.from('audio').createSignedUrls(paths, 60 * 60 * 24)
+      if (signed) signed.forEach(s => { if (s.signedUrl && !s.error) urlByPath[s.path] = s.signedUrl })
+    }
+    const withUrls = rows.map(s => ({ ...s, playUrl: urlByPath[pathFromSession(s)] || s.audio_url || null }))
+
+    setSessions(withUrls)
     setLoading(false)
   }
 
@@ -71,7 +95,7 @@ export default function Dashboard({ user, profile, refreshProfile, loading: auth
       const shouldLoop = isSubliminal ? true : loopingId === session.id
       setTimeout(() => {
         if (audioRef.current) {
-          audioRef.current.src = session.audio_url
+          audioRef.current.src = session.playUrl || session.audio_url
           audioRef.current.volume = isSubliminal ? 0.001 : 1.0
           audioRef.current.loop = shouldLoop
           audioRef.current.play().catch(() => setPlayingId(null))
@@ -108,12 +132,10 @@ export default function Dashboard({ user, profile, refreshProfile, loading: auth
   }
 
   async function deleteSession(session) {
-    if (session.audio_url) {
-      try {
-        const url = new URL(session.audio_url)
-        const pathParts = url.pathname.split('/object/public/audio/')
-        if (pathParts[1]) await supabase.storage.from('audio').remove([pathParts[1]])
-      } catch (e) { console.warn('Could not delete audio file from storage:', e) }
+    const path = pathFromSession(session)
+    if (path) {
+      try { await supabase.storage.from('audio').remove([path]) }
+      catch (e) { console.warn('Could not delete audio file from storage:', e) }
     }
     await supabase.from('sessions').delete().eq('id', session.id)
     setConfirmDeleteId(null)
