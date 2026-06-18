@@ -104,8 +104,9 @@ export default async function handler(req, res) {
       return res.send(Buffer.from(audioBuffer))
     }
 
-    // Generate a signed URL valid for 12 hours — only the authenticated user
-    // who just generated this session will need it in that window
+    // Signed URL for the immediate first listen (valid 12h). The PATH is what
+    // gets persisted — the dashboard mints a fresh signed URL from it on every
+    // load, so saved sessions replay forever even though the bucket is private.
     const { data: signedData, error: signedError } = await supabase.storage
       .from('audio')
       .createSignedUrl(filePath, 60 * 60 * 12)
@@ -115,7 +116,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Audio generated but could not create playback URL. Please try again.' })
     }
 
-    return res.status(200).json({ audioUrl: signedData.signedUrl })
+    return res.status(200).json({ audioUrl: signedData.signedUrl, audioPath: filePath })
 
   } catch (err) {
     return res.status(500).json({ error: 'Audio generation failed. Please try again.' })
