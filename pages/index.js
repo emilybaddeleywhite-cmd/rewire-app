@@ -15,9 +15,60 @@ export default function Home() {
   const [weaveKey, setWeaveKey] = useState(0)
   const ritualRef = useRef(null)
 
+  const [goal, setGoal] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [showAuth, setShowAuth] = useState(false)
+  const [authMode, setAuthMode] = useState('signup')
+  const [authEmail, setAuthEmail] = useState('')
+  const [authPass, setAuthPass] = useState('')
+  const [authErr, setAuthErr] = useState('')
+  const [authNote, setAuthNote] = useState('')
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user || null))
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const u = session?.user || null
+      setUser(u)
+      // Resume a pending goal after email confirmation / sign-in.
+      if (u) { try { if (localStorage.getItem('rw_pending_goal')) startChallenge(u) } catch (_) {} }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  function beginRewire() {
+    const g = goal.trim()
+    if (!g) return
+    try { localStorage.setItem('rw_pending_goal', g) } catch (_) {}
+    if (!user) { setAuthMode('signup'); setShowAuth(true); return }
+    startChallenge(user)
+  }
+
+  async function startChallenge(u) {
+    if (busy) return
+    setBusy(true)
+    let g = goal.trim()
+    try { g = g || localStorage.getItem('rw_pending_goal') || '' } catch (_) {}
+    if (!g) { setBusy(false); return }
+    const { data, error } = await supabase.from('challenges').insert({ user_id: u.id, goal: g }).select().single()
+    try { localStorage.removeItem('rw_pending_goal') } catch (_) {}
+    if (error || !data) { setBusy(false); alert('Could not start your Rewire. Please try again.'); return }
+    window.location.href = `/challenge?id=${data.id}`
+  }
+
+  async function handleAuth() {
+    setAuthErr(''); setBusy(true)
+    try {
+      if (authMode === 'signup') {
+        const { data, error } = await supabase.auth.signUp({ email: authEmail.trim(), password: authPass })
+        if (error) throw error
+        if (!data.session) { setAuthNote('Almost there — check your email to confirm, then sign in to begin.'); setAuthMode('signin'); setBusy(false); return }
+        setUser(data.user); setShowAuth(false); startChallenge(data.user)
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail.trim(), password: authPass })
+        if (error) throw error
+        setUser(data.user); setShowAuth(false); startChallenge(data.user)
+      }
+    } catch (e) { setAuthErr(e.message || 'Something went wrong'); setBusy(false) }
+  }
 
   // Scroll reveals + ritual steps lighting up in sequence
   useEffect(() => {
@@ -68,9 +119,14 @@ export default function Home() {
         {/* HERO */}
         <header className="hero">
           <h1>Rewire your mind.<br /><em>Rewrite your reality.</em></h1>
-          <p>Personalised hypnosis and subliminal audio, written for exactly who you are and exactly what you want to change.</p>
-          <div className="cta-row">
-            <a className="cta" href="/rewire">Begin your first Rewire</a>
+          <p>Personalised hypnosis written for exactly who you are and exactly what you want to change. Your free 7-day Rewire begins with one intention — no card.</p>
+          <div className="starter">
+            <input className="goalin" value={goal} onChange={e => setGoal(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') beginRewire() }}
+              placeholder="I want to feel calm under pressure…" aria-label="What would you like to change?" />
+            <button className="cta" onClick={beginRewire} disabled={busy || !goal.trim()}>
+              {busy ? 'Beginning…' : 'Begin my 7-day Rewire'}
+            </button>
             <a className="ghost" href="#ritual">How it works</a>
           </div>
           <div className="scroll-hint">Scroll</div>
@@ -132,10 +188,9 @@ export default function Home() {
           <div className="ritual">
             <div className="ritual-steps reveal" ref={ritualRef}>
               <div className="rstep"><div className="node" /><div><h4>Set your intention</h4><p className="q">What would you like to rewire?</p></div></div>
-              <div className="rstep"><div className="node" /><div><h4>Choose your experience</h4><p>Reset, Sleep, Walking, or Subliminal.</p></div></div>
-              <div className="rstep"><div className="node" /><div><h4>Choose your voice</h4><p>The voice that will speak to your subconscious.</p></div></div>
-              <div className="rstep"><div className="node" /><div><h4>Choose your atmosphere</h4><p>Rain. Ocean. Forest. Cosmic. Silence.</p></div></div>
-              <div className="rstep"><div className="node" /><div><h4>Begin</h4><p>Find somewhere comfortable. Take one slow breath.</p></div></div>
+              <div className="rstep"><div className="node" /><div><h4>Receive your sessions</h4><p>Your goal, shaped into Reset and Walking hypnosis — yours to keep and replay.</p></div></div>
+              <div className="rstep"><div className="node" /><div><h4>Listen daily for seven days</h4><p>A few minutes a day. The more you return, the deeper it settles.</p></div></div>
+              <div className="rstep"><div className="node" /><div><h4>See what changes</h4><p>On day seven, feel how far you&rsquo;ve come.</p></div></div>
             </div>
             <div className="creation reveal">
               <LogoWeave key={weaveKey} />
@@ -171,6 +226,27 @@ export default function Home() {
           <p className="fnote">RewireMode is a wellbeing tool, not a medical treatment. If you&rsquo;re struggling, please speak to a healthcare professional.</p>
           <p className="fcopy">© {new Date().getFullYear()} RewireMode</p>
         </footer>
+
+        {showAuth && (
+          <div className="authwrap" onClick={() => setShowAuth(false)}>
+            <div className="authcard" onClick={e => e.stopPropagation()}>
+              <div className="eyebrow">Your 7-Day Rewire</div>
+              <h3 className="serifh">{authMode === 'signup' ? 'Create your free account' : 'Welcome back'}</h3>
+              <p className="authgoal">&ldquo;{goal}&rdquo;</p>
+              <input className="goalin afield" type="email" placeholder="you@email.com" value={authEmail} onChange={e => setAuthEmail(e.target.value)} />
+              <input className="goalin afield" type="password" placeholder="Password" value={authPass} onChange={e => setAuthPass(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleAuth() }} />
+              {authErr && <p className="autherr">{authErr}</p>}
+              {authNote && <p className="authnote">{authNote}</p>}
+              <button className="cta full" onClick={handleAuth} disabled={busy || !authEmail || !authPass}>
+                {busy ? 'One moment…' : authMode === 'signup' ? 'Create account & begin' : 'Sign in & begin'}
+              </button>
+              <button className="authswitch" onClick={() => { setAuthMode(m => m === 'signup' ? 'signin' : 'signup'); setAuthErr(''); setAuthNote('') }}>
+                {authMode === 'signup' ? 'Already have an account? Sign in' : 'New here? Create an account'}
+              </button>
+            </div>
+          </div>
+        )}
 
       </div>
     </>
@@ -267,4 +343,22 @@ const CSS = `
   @media(prefers-reduced-motion:reduce){
     *{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}
   }
+
+  .starter{display:flex;flex-direction:column;gap:12px;max-width:440px;margin:36px auto 0;width:100%}
+  .goalin{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(146,168,255,.14);border-radius:16px;color:#EDEFF7;font-family:'Newsreader',Georgia,serif;font-style:italic;font-size:18px;padding:16px 18px;outline:none}
+  .goalin:focus{border-color:rgba(146,168,255,.4)}
+  .goalin::placeholder{color:#586089}
+  .starter .cta{width:100%;text-align:center;border:none;cursor:pointer}
+  .starter .cta:disabled{opacity:.5;cursor:default}
+  .starter .ghost{align-self:center}
+  .authwrap{position:fixed;inset:0;z-index:60;background:rgba(3,5,12,.82);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px}
+  .authcard{width:100%;max-width:400px;background:#0A0D1A;border:1px solid rgba(146,168,255,.24);border-radius:24px;padding:30px;text-align:left}
+  .afield{font-family:'Sora',sans-serif;font-style:normal;font-size:15px;margin-top:12px}
+  .serifh{font-family:'Newsreader',Georgia,serif;font-style:italic;font-weight:300;font-size:24px;color:#EDEFF7;margin-top:6px}
+  .authgoal{font-family:'Newsreader',Georgia,serif;font-style:italic;color:#A9C4FF;font-size:15px;margin-top:8px}
+  .autherr{color:#f87171;font-size:13px;margin-top:10px}
+  .authnote{color:#5E9BF2;font-size:13px;margin-top:10px}
+  .cta.full{display:block;width:100%;text-align:center;margin-top:16px;border:none;cursor:pointer}
+  .cta.full:disabled{opacity:.5;cursor:default}
+  .authswitch{display:block;margin:14px auto 0;font-size:13px;color:#5A6280;text-decoration:underline;cursor:pointer}
 `
