@@ -1,9 +1,11 @@
 // pages/api/webhook.js
+// Subscriptions only, no credits. Any successful payment => plan 'pro'
+// (the paid/Unlimited tier). Cancellation => 'free'.
+
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import {
   sendProConfirmed,
-  sendFounderConfirmed,
   sendPaymentFailed,
   sendSubscriptionCancelled,
 } from '../../lib/brevo'
@@ -25,21 +27,9 @@ async function getRawBody(req) {
   })
 }
 
-// Whitelist of valid credit amounts per product — never read from metadata
-const CREDIT_AMOUNTS = {
-  credits_10: 10,
-  credits_50: 50,
-  credits_100: 100,
-  pro_monthly: 100,
-  lifetime_founder: 500,
-}
-
-// Helper: format a Unix timestamp as "14 June 2025"
 function formatDate(unixTs) {
   return new Date(unixTs * 1000).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+    day: 'numeric', month: 'long', year: 'numeric',
   })
 }
 
@@ -56,114 +46,56 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: `Webhook error: ${err.message}` })
   }
 
-  // ── Purchase completed ───────────────────────────────────────────────────
+  // ── Subscription started ───────────────────────────────────────────────
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object
-    const { userId, productKey } = session.metadata
-    const creditAmount = CREDIT_AMOUNTS[productKey] ?? 0
+    const userId = session.metadata?.userId
 
     if (userId) {
-      // Add credits atomically (no read-then-write race).
-      if (creditAmount > 0) {
-        await supabase.rpc('add_credits', { p_user_id: userId, p_amount: creditAmount })
-        await supabase
-          .from('credit_transactions')
-          .insert({ user_id: userId, amount: creditAmount, reason: `purchase:${productKey}` })
-      }
-
-      // Build the profile update. Only set `plan` for plans that change it, and
-      // only store stripe_subscription_id for actual subscriptions — otherwise a
-      // one-off credit-pack purchase by a Pro user would wipe their sub id and
-      // break cancellation handling.
-      const profileUpdate = { stripe_customer_id: session.customer }
-      if (productKey === 'pro_monthly') {
-        profileUpdate.plan = 'pro'
-        if (session.subscription) profileUpdate.stripe_subscription_id = session.subscription
-      } else if (productKey === 'lifetime_founder') {
-        profileUpdate.plan = 'lifetime'
-      }
-
-      await supabase.from('profiles').update(profileUpdate).eq('id', userId)
+      const update = { plan: 'pro', stripe_customer_id: session.customer }
+      if (session.subscription) update.stripe_subscription_id = session.subscription
+      await supabase.from('profiles').update(update).eq('id', userId)
     }
 
-    // Send confirmation email
     const email = session.customer_email
     if (email) {
-      try {
-        if (productKey === 'pro_monthly') {
-          await sendProConfirmed({ email })
-        } else if (productKey === 'lifetime_founder') {
-          await sendFounderConfirmed({ email })
-        }
-        // Credit top-ups (credits_10/50/100) rely on Stripe's own receipt.
-      } catch (emailErr) {
-        console.error('Email send failed after purchase:', emailErr.message)
-      }
+      try { await sendProConfirmed({ email }) }
+      catch (e) { console.error('Confirmation email failed:', e.message) }
     }
   }
 
-  // ── Subscription renewal succeeded — refresh Pro credits ───────────────────
-  // Fires every billing cycle. We act ONLY on 'subscription_cycle' (true
-  // renewals); the first payment is 'subscription_create' and is already handled
-  // by checkout.session.completed above, so this avoids double-crediting.
+  // ── Renewal succeeded — keep them on the paid tier ───────────────────────
   if (event.type === 'invoice.payment_succeeded') {
     const invoice = event.data.object
     if (invoice.billing_reason === 'subscription_cycle' && invoice.customer) {
       const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('stripe_customer_id', invoice.customer)
-        .single()
-
+        .from('profiles').select('id').eq('stripe_customer_id', invoice.customer).single()
       if (profile) {
-        // Refresh to the monthly allowance (not accumulate) — protects margin.
-        await supabase
-          .from('profiles')
-          .update({ credits: CREDIT_AMOUNTS.pro_monthly, plan: 'pro' })
-          .eq('id', profile.id)
-
-        await supabase
-          .from('credit_transactions')
-          .insert({ user_id: profile.id, amount: CREDIT_AMOUNTS.pro_monthly, reason: 'renewal:pro_monthly' })
+        await supabase.from('profiles').update({ plan: 'pro' }).eq('id', profile.id)
       }
     }
   }
 
-  // ── Subscription payment failed ──────────────────────────────────────────
+  // ── Payment failed ───────────────────────────────────────────────────────
   if (event.type === 'invoice.payment_failed') {
-    const invoice = event.data.object
-    const email = invoice.customer_email
-
+    const email = event.data.object.customer_email
     if (email) {
-      try {
-        await sendPaymentFailed({ email })
-      } catch (emailErr) {
-        console.error('Email send failed for payment_failed:', emailErr.message)
-      }
+      try { await sendPaymentFailed({ email }) }
+      catch (e) { console.error('Payment-failed email failed:', e.message) }
     }
   }
 
-  // ── Subscription cancelled — downgrade to free ─────────────────────────────
-  // Now matches reliably because we store stripe_subscription_id at checkout.
+  // ── Subscription cancelled — downgrade to free ───────────────────────────
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object
-
-    await supabase
-      .from('profiles')
-      .update({ plan: 'free' })
+    await supabase.from('profiles').update({ plan: 'free' })
       .eq('stripe_subscription_id', subscription.id)
-
     try {
       const customer = await stripe.customers.retrieve(subscription.customer)
-      const email = customer.email
-      const periodEnd = formatDate(subscription.current_period_end)
-
-      if (email) {
-        await sendSubscriptionCancelled({ email, periodEnd })
+      if (customer?.email) {
+        await sendSubscriptionCancelled({ email: customer.email, periodEnd: formatDate(subscription.current_period_end) })
       }
-    } catch (emailErr) {
-      console.error('Email send failed for subscription cancelled:', emailErr.message)
-    }
+    } catch (e) { console.error('Cancellation email failed:', e.message) }
   }
 
   return res.status(200).json({ received: true })
