@@ -1,125 +1,91 @@
 // components/LogoWeave.js
-// The creation animation: the RewireMode mark draws itself together,
-// pathway by pathway, violet → blue → cyan — then breathes while the
-// real generation completes. No spinners, ever.
+// The creation animation: the exact RewireMode mark BUILDS itself —
+// the wire materialises left-to-right (violet -> blue -> cyan) behind a soft
+// luminous edge, then settles and breathes while generation finishes.
 //
-// Geometry traced directly from the real RewireMode logo: a six-node crown
-// (W) with two triangular "ears" and a single crossing diagonal through the
-// centre. Coordinates are measured node centres mapped into the viewBox.
+// Geometry is the real logo, vectorised directly from the master PNG with
+// potrace (~99% pixel overlap with the original). Resolution-independent;
+// one path. Replaces the old hand-plotted node/edge version.
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-// Six ring nodes (matches the logo's six circles), left → right.
-const N = {
-  A: [53, 154],  // far left
-  B: [124, 96],  // left peak
-  C: [208, 36],  // centre top (tallest)
-  D: [265, 224], // centre bottom (lowest)
-  E: [318, 96],  // right peak
-  F: [367, 154], // far right
-}
-// Left valley — a bare vertex where the strokes meet (no ring, like the logo).
-const LV = [146, 187]
+const MARK_D = 'M6195 8305 c-181 -46 -377 -205 -467 -380 -55 -106 -88 -228 -95 -345 -11 -180 76 -406 216 -560 45 -48 49 -68 29 -147 -13 -53 -50 -186 -79 -278 -35 -115 -90 -301 -110 -370 -11 -38 -29 -92 -39 -120 -10 -27 -28 -88 -40 -135 -12 -47 -30 -112 -40 -145 -10 -33 -30 -105 -45 -160 -15 -55 -50 -167 -76 -250 -27 -82 -67 -220 -90 -305 -22 -85 -49 -186 -60 -225 -29 -101 -54 -192 -94 -345 -19 -74 -51 -184 -70 -245 -65 -200 -83 -259 -104 -332 -47 -163 -65 -223 -97 -329 -19 -61 -43 -144 -54 -185 -12 -41 -27 -94 -34 -119 -7 -25 -28 -97 -46 -160 -18 -63 -47 -164 -66 -225 -18 -60 -43 -146 -54 -190 -44 -164 -52 -190 -66 -217 -8 -15 -18 -29 -24 -33 -14 -9 -45 59 -75 170 -15 55 -36 134 -47 175 -22 81 -59 210 -88 305 -26 85 -39 131 -140 490 -50 176 -99 349 -110 385 -10 36 -27 92 -35 125 -9 33 -27 94 -40 135 -12 41 -40 136 -60 210 -21 74 -48 168 -61 209 -14 42 -21 79 -16 87 4 8 50 58 102 112 137 140 192 255 220 462 29 211 -63 473 -221 628 -104 103 -204 158 -359 197 -95 25 -117 27 -225 22 -145 -7 -244 -35 -355 -101 -184 -109 -287 -237 -347 -433 -22 -74 -26 -107 -27 -213 -1 -135 15 -223 59 -333 14 -33 25 -68 25 -78 0 -26 -55 -76 -378 -346 -161 -134 -314 -263 -340 -286 -27 -23 -64 -55 -83 -72 -20 -16 -78 -67 -130 -112 -211 -182 -302 -253 -326 -253 -13 0 -47 17 -76 39 -57 42 -210 121 -236 121 -9 1 -41 9 -71 20 -72 25 -249 27 -335 4 -33 -9 -78 -20 -99 -26 -70 -16 -208 -96 -273 -155 -87 -82 -181 -227 -203 -314 -6 -21 -15 -58 -21 -81 -21 -77 -16 -272 9 -365 21 -78 80 -206 119 -254 110 -138 235 -231 380 -280 95 -33 102 -34 258 -34 141 0 168 3 230 24 93 32 160 66 215 109 54 43 180 172 180 184 0 16 60 68 78 68 42 0 214 -44 335 -86 73 -25 195 -66 272 -90 126 -40 332 -106 670 -214 66 -22 212 -66 325 -100 113 -34 295 -90 405 -125 293 -94 283 -91 302 -72 15 15 15 27 4 129 -15 136 -34 209 -60 232 -20 18 -238 94 -436 152 -66 19 -142 43 -170 54 -27 10 -151 51 -275 90 -124 39 -247 80 -275 90 -27 10 -144 45 -260 79 -199 59 -387 117 -590 181 -49 16 -106 32 -125 37 -45 11 -57 36 -65 139 -10 114 -15 106 185 274 29 25 90 76 134 114 45 38 106 89 136 115 30 25 100 87 155 136 55 50 123 108 150 130 28 22 56 45 63 52 22 21 270 225 333 274 33 26 72 57 87 71 69 61 107 72 160 44 67 -34 161 -57 262 -63 114 -7 142 -17 158 -61 15 -39 86 -273 112 -367 29 -108 57 -210 75 -270 8 -27 17 -63 20 -80 3 -16 23 -91 45 -165 21 -74 60 -211 85 -305 25 -93 55 -201 66 -240 38 -132 97 -340 123 -435 14 -52 39 -144 57 -205 17 -60 34 -126 39 -145 4 -19 22 -87 40 -150 17 -63 37 -140 44 -170 8 -30 26 -100 41 -155 15 -55 33 -127 41 -160 39 -164 45 -180 77 -209 43 -40 87 -56 150 -56 79 0 143 49 174 135 14 36 65 204 92 300 11 39 38 131 61 205 49 165 126 430 150 525 54 207 72 271 137 480 9 28 21 73 28 100 7 28 29 106 49 175 20 69 46 159 57 200 11 41 38 131 58 200 21 69 48 161 59 205 55 202 115 413 126 445 26 71 56 168 81 265 80 302 123 453 185 650 53 168 83 268 130 435 22 80 47 165 55 190 7 25 23 83 35 130 25 100 115 410 134 460 7 19 21 61 31 93 10 31 25 63 33 70 10 8 52 12 116 13 56 0 140 8 188 18 60 12 92 15 104 8 21 -12 132 -309 262 -697 68 -205 144 -429 152 -450 32 -79 64 -170 105 -295 26 -80 62 -185 80 -235 18 -49 56 -157 84 -240 27 -82 71 -208 97 -280 40 -113 191 -556 267 -785 14 -41 47 -140 75 -220 27 -80 73 -215 101 -300 100 -306 123 -361 166 -406 94 -98 241 -73 346 60 48 60 123 145 279 316 63 70 153 169 200 221 47 52 119 130 161 174 194 205 239 252 265 285 16 19 34 40 40 45 7 6 38 42 70 80 71 85 98 109 102 91 3 -13 -30 -116 -69 -216 -12 -30 -31 -82 -44 -115 -43 -115 -96 -250 -105 -270 -5 -11 -13 -36 -19 -55 -5 -19 -33 -96 -61 -170 -28 -74 -55 -147 -60 -162 -4 -14 -27 -75 -50 -135 -49 -125 -70 -183 -142 -380 -11 -32 -29 -78 -39 -103 -24 -60 -97 -252 -122 -320 -11 -30 -39 -101 -63 -156 -24 -56 -44 -105 -44 -109 0 -4 -6 -21 -14 -38 -25 -54 -66 -163 -66 -174 0 -5 -10 -19 -23 -31 -22 -21 -33 -22 -179 -22 -141 0 -158 2 -181 20 -30 24 -79 92 -234 325 -63 94 -118 177 -124 185 -5 8 -51 74 -102 147 -51 72 -108 157 -127 188 -19 31 -72 111 -117 178 -45 67 -270 403 -500 747 -230 343 -452 672 -493 730 -41 58 -91 130 -110 160 -19 30 -37 57 -40 60 -4 3 -39 55 -78 115 -137 210 -265 389 -326 458 -27 29 -55 21 -73 -20 -57 -134 -113 -292 -113 -320 0 -23 19 -59 66 -130 37 -54 71 -99 75 -101 5 -2 9 -10 9 -17 0 -7 4 -15 9 -17 5 -1 71 -97 146 -213 76 -115 174 -264 218 -330 44 -66 158 -237 253 -380 95 -143 194 -288 220 -323 26 -34 60 -84 77 -110 17 -26 92 -139 166 -251 75 -112 141 -210 146 -219 12 -18 128 -191 230 -340 39 -56 90 -133 115 -171 43 -66 156 -235 270 -401 28 -41 58 -82 66 -91 28 -31 17 -68 -38 -125 -102 -106 -157 -217 -189 -382 -19 -102 -7 -309 25 -405 44 -134 146 -267 276 -362 80 -58 116 -76 216 -112 74 -26 89 -28 239 -28 148 0 166 2 245 28 79 26 208 89 246 119 40 32 152 146 170 172 107 162 142 312 123 531 -6 66 -17 131 -24 145 -8 14 -26 54 -41 90 -15 36 -33 72 -40 80 -6 8 -19 29 -27 46 -9 17 -30 46 -47 64 -38 40 -40 69 -11 132 11 26 21 54 21 62 0 8 4 18 10 21 5 3 16 27 24 53 8 26 26 79 41 117 15 39 46 124 69 190 47 131 86 235 117 305 10 25 33 83 50 130 17 47 42 114 56 150 13 36 28 77 33 92 11 35 57 153 76 195 8 17 14 36 14 42 0 6 9 28 20 48 11 21 20 43 20 48 0 16 120 345 204 560 19 50 42 110 51 135 22 61 49 134 75 200 12 30 40 105 62 165 22 61 51 139 65 175 13 36 32 88 42 115 44 120 92 221 112 238 15 12 39 17 78 17 91 0 213 19 287 44 38 12 76 21 84 18 8 -2 30 -21 48 -41 74 -80 132 -149 168 -196 21 -27 40 -52 44 -55 3 -3 30 -39 60 -80 30 -41 60 -82 67 -90 49 -55 69 -79 154 -186 152 -190 159 -206 119 -284 -40 -79 -81 -224 -87 -307 -3 -44 -8 -85 -12 -90 -5 -8 -94 -40 -321 -119 -25 -8 -142 -47 -260 -86 -118 -38 -294 -96 -390 -128 -96 -32 -267 -88 -380 -125 -226 -74 -261 -94 -282 -170 -6 -22 -15 -45 -20 -51 -12 -17 -40 -223 -34 -250 12 -45 81 -42 241 11 39 13 165 53 280 90 116 37 228 73 250 80 22 7 83 27 135 44 52 16 147 48 210 72 219 79 275 99 380 135 181 61 307 94 327 87 10 -3 59 -48 108 -98 178 -183 343 -244 623 -232 101 4 144 10 212 32 263 84 467 318 506 580 40 265 -11 472 -159 646 -115 135 -220 208 -364 255 -83 27 -97 29 -253 28 -150 0 -173 -3 -255 -28 -100 -30 -124 -29 -151 11 -24 37 -243 310 -319 398 -132 153 -314 391 -321 422 -4 15 5 46 25 87 17 36 31 72 31 81 0 8 7 32 16 53 23 56 38 261 25 350 -30 201 -135 384 -291 504 -96 74 -182 115 -305 145 -87 22 -115 24 -215 19 -172 -8 -295 -48 -427 -137 -49 -33 -168 -148 -190 -184 -7 -11 -24 -37 -38 -58 -14 -21 -25 -42 -25 -47 0 -5 -9 -29 -19 -52 -28 -62 -61 -217 -61 -288 0 -136 47 -294 127 -432 55 -95 58 -90 -126 -283 -36 -38 -102 -113 -146 -165 -88 -105 -211 -247 -236 -270 -8 -8 -44 -49 -80 -91 -35 -41 -118 -135 -184 -209 -66 -73 -138 -154 -160 -180 -38 -45 -273 -315 -324 -372 -26 -30 -52 -36 -70 -15 -6 8 -22 49 -37 93 -14 43 -50 153 -79 244 -56 169 -149 440 -249 725 -31 88 -81 232 -111 320 -30 88 -68 198 -85 245 -17 47 -35 101 -40 120 -5 19 -39 116 -76 215 -93 249 -140 383 -254 715 -50 146 -92 262 -103 290 -4 8 -16 40 -26 70 -11 30 -29 80 -41 110 -55 141 -140 414 -140 448 0 10 20 50 45 91 67 107 93 186 106 326 10 102 9 135 -4 221 -17 107 -56 215 -105 291 -37 58 -166 187 -219 220 -202 126 -423 163 -638 108z m332 -376 c200 -75 316 -284 261 -473 -41 -141 -191 -268 -338 -285 -169 -20 -360 94 -419 249 -30 79 -33 198 -8 254 9 20 25 53 34 73 33 71 131 151 228 185 70 24 170 23 242 -3z m-2885 -2121 c75 -35 147 -104 189 -181 33 -60 34 -66 33 -167 0 -95 -3 -111 -31 -170 -93 -200 -303 -280 -518 -199 -117 44 -234 203 -243 330 -7 98 34 211 105 290 50 55 84 78 161 106 93 33 220 29 304 -9z m6752 -11 c112 -52 173 -118 214 -233 28 -77 28 -141 0 -218 -51 -143 -129 -216 -271 -256 -58 -16 -177 -9 -233 14 -110 46 -208 154 -235 260 -17 70 -7 194 23 252 88 179 322 263 502 181z m-9292 -2001 c89 -31 158 -84 206 -156 51 -75 66 -140 59 -246 -4 -71 -10 -92 -41 -147 -44 -79 -94 -125 -182 -168 -61 -30 -79 -33 -154 -34 -101 0 -157 18 -246 81 -138 97 -198 281 -142 431 30 81 62 126 122 171 66 50 84 59 148 76 79 22 153 19 230 -8z m11004 -18 c189 -69 295 -274 234 -455 -44 -132 -141 -225 -270 -258 -92 -24 -168 -16 -260 27 -93 44 -144 94 -183 178 -28 58 -31 75 -31 160 0 87 3 100 31 156 41 79 124 155 201 184 108 41 183 43 278 8z m-3542 -2482 c89 -45 154 -111 195 -196 22 -46 26 -68 25 -135 -1 -72 -4 -87 -37 -150 -122 -235 -369 -304 -569 -158 -60 43 -99 93 -129 163 -20 45 -24 72 -24 150 0 84 3 101 28 148 74 141 211 223 363 219 61 -2 83 -8 148 -41z'
+const MARK_T = 'translate(0.000000,853.000000) scale(0.100000,-0.100000)'
 
-// Drawn in order, left → right. The LV→E diagonal crosses C→D in the centre.
-const EDGES = [
-  { from: N.A, to: N.B },
-  { from: N.A, to: LV },
-  { from: N.B, to: LV },
-  { from: LV, to: N.C },
-  { from: N.C, to: N.D },
-  { from: LV, to: N.E },   // crossing diagonal
-  { from: N.D, to: N.E },
-  { from: N.E, to: N.F },
-  { from: N.F, to: N.D },
-]
-
-// Rings appear shortly after the strokes that reach them.
-const NODE_AT = [
-  { n: N.A, i: 0 }, { n: N.B, i: 1 }, { n: N.C, i: 3 },
-  { n: N.D, i: 4 }, { n: N.E, i: 6 }, { n: N.F, i: 7 },
-]
-
-const STAG = 0.32, DUR = 0.8, RING_R = 11, RING_W = 5.5, STROKE_W = 8
-const GRAD = 'url(#rwGrad)'
-
-export default function LogoWeave({ width = 'min(360px, 82vw)' }) {
-  const svgRef = useRef(null)
+export default function LogoWeave({ width = 'min(360px, 82vw)', loop = true }) {
+  const [reduced, setReduced] = useState(false)
 
   useEffect(() => {
-    const svg = svgRef.current
-    if (!svg) return
-    const NS = 'http://www.w3.org/2000/svg'
-    svg.innerHTML = ''
-
-    // gradient: violet (left) → blue → cyan (right), across the whole mark
-    const defs = document.createElementNS(NS, 'defs')
-    const grad = document.createElementNS(NS, 'linearGradient')
-    grad.setAttribute('id', 'rwGrad')
-    grad.setAttribute('gradientUnits', 'userSpaceOnUse')
-    grad.setAttribute('x1', '40'); grad.setAttribute('y1', '0')
-    grad.setAttribute('x2', '380'); grad.setAttribute('y2', '0')
-    ;[['0%', '#6C4BE0'], ['52%', '#4A8FE8'], ['100%', '#3EC1F0']].forEach(([o, c]) => {
-      const s = document.createElementNS(NS, 'stop')
-      s.setAttribute('offset', o); s.setAttribute('stop-color', c)
-      grad.appendChild(s)
-    })
-    defs.appendChild(grad)
-    svg.appendChild(defs)
-
-    const group = document.createElementNS(NS, 'g')
-    svg.appendChild(group)
-
-    EDGES.forEach((e, i) => {
-      const l = document.createElementNS(NS, 'line')
-      l.setAttribute('x1', e.from[0]); l.setAttribute('y1', e.from[1])
-      l.setAttribute('x2', e.to[0]); l.setAttribute('y2', e.to[1])
-      l.setAttribute('stroke', GRAD); l.setAttribute('stroke-width', STROKE_W)
-      l.setAttribute('stroke-linecap', 'round')
-      const len = Math.hypot(e.to[0] - e.from[0], e.to[1] - e.from[1])
-      l.style.strokeDasharray = len
-      l.style.strokeDashoffset = len
-      l.style.transition = `stroke-dashoffset ${DUR}s ${0.4 + i * STAG}s cubic-bezier(0.22,1,0.36,1)`
-      group.appendChild(l)
-      requestAnimationFrame(() => requestAnimationFrame(() => { l.style.strokeDashoffset = 0 }))
-    })
-
-    NODE_AT.forEach(({ n, i }) => {
-      const halo = document.createElementNS(NS, 'circle')
-      halo.setAttribute('cx', n[0]); halo.setAttribute('cy', n[1]); halo.setAttribute('r', RING_R + 9)
-      halo.setAttribute('fill', 'none'); halo.setAttribute('stroke', GRAD)
-      halo.setAttribute('stroke-width', '1'); halo.setAttribute('opacity', '0')
-      const ring = document.createElementNS(NS, 'circle')
-      ring.setAttribute('cx', n[0]); ring.setAttribute('cy', n[1]); ring.setAttribute('r', RING_R)
-      ring.setAttribute('fill', '#05070F'); ring.setAttribute('stroke', GRAD)
-      ring.setAttribute('stroke-width', RING_W)
-      ring.style.opacity = 0
-      ring.style.transformOrigin = `${n[0]}px ${n[1]}px`
-      ring.style.transform = 'scale(0.4)'
-      ring.style.transition = `opacity .5s ${0.55 + i * STAG}s ease, transform .7s ${0.55 + i * STAG}s cubic-bezier(0.22,1,0.36,1)`
-      halo.style.transition = `opacity .6s ${0.7 + i * STAG}s ease`
-      group.appendChild(halo); group.appendChild(ring)
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        ring.style.opacity = 1; ring.style.transform = 'scale(1)'; halo.style.opacity = 0.35
-      }))
-    })
-
-    // Once fully formed, the mark breathes — the honest "still creating" state.
-    const formTime = (0.4 + EDGES.length * STAG + DUR) * 1000
-    const t = setTimeout(() => {
-      if (typeof group.animate === 'function') {
-        group.animate(
-          [
-            { filter: 'drop-shadow(0 0 8px rgba(94,155,242,0.25))' },
-            { filter: 'drop-shadow(0 0 18px rgba(94,155,242,0.55))' },
-            { filter: 'drop-shadow(0 0 8px rgba(94,155,242,0.25))' },
-          ],
-          { duration: 3600, iterations: Infinity, easing: 'ease-in-out' }
-        )
-      }
-    }, formTime)
-    return () => clearTimeout(t)
+    const m = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReduced(m.matches)
+    const h = e => setReduced(e.matches)
+    m.addEventListener ? m.addEventListener('change', h) : m.addListener(h)
+    return () => { m.removeEventListener ? m.removeEventListener('change', h) : m.removeListener(h) }
   }, [])
 
-  return <svg ref={svgRef} viewBox="0 0 420 260" style={{ width, height: 'auto', display: 'block' }} aria-label="Your Rewire is being created" />
+  const anim = loop && !reduced
+
+  return (
+    <div className="lw-wrap" style={{ width }}>
+      <svg viewBox="0 0 1295 853" role="img" aria-label="RewireMode">
+        <defs>
+          <linearGradient id="lwGrad" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="1" y2="0.32">
+            <stop offset="0" stopColor="#6C4BE0" />
+            <stop offset="0.42" stopColor="#5566E6" />
+            <stop offset="0.66" stopColor="#4A8FE8" />
+            <stop offset="1" stopColor="#3EC1F0" />
+          </linearGradient>
+          <linearGradient id="lwEdge" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="#fff" />
+            <stop offset="0.80" stopColor="#fff" />
+            <stop offset="1" stopColor="#000" />
+          </linearGradient>
+          <linearGradient id="lwFront" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="#bfe6ff" stopOpacity="0" />
+            <stop offset="0.6" stopColor="#e3f2ff" stopOpacity="0.95" />
+            <stop offset="1" stopColor="#fff" stopOpacity="0" />
+          </linearGradient>
+          <filter id="lwGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="5" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <mask id="lwWipe">
+            <rect className="lw-wipe" x="0" y="0" width="1295" height="853" fill="url(#lwEdge)" />
+          </mask>
+          <clipPath id="lwClip"><path transform={MARK_T} d={MARK_D} /></clipPath>
+        </defs>
+
+        <g transform={MARK_T}><path d={MARK_D} fill="url(#lwGrad)" opacity="0.07" /></g>
+        <g className="lw-built" mask="url(#lwWipe)" filter="url(#lwGlow)">
+          <g transform={MARK_T}><path d={MARK_D} fill="url(#lwGrad)" /></g>
+        </g>
+        <g clipPath="url(#lwClip)"><rect className="lw-front" x="-70" y="0" width="150" height="853" fill="url(#lwFront)" /></g>
+      </svg>
+
+      <style jsx>{`
+        .lw-wrap { margin: 0 auto; }
+        .lw-wrap svg { width: 100%; height: auto; display: block; overflow: visible; }
+        .lw-wipe { transform-box: fill-box; transform-origin: left center; transform: scaleX(${anim ? 0 : 1}); }
+        .lw-front { transform: translateX(-70px); opacity: 0; }
+        ${anim ? `.lw-wrap { animation: lwGroup 5.4s ease-in-out infinite; }
+        .lw-wipe { animation: lwBuild 5.4s cubic-bezier(.45,.02,.2,1) infinite; }
+        .lw-front { animation: lwFront 5.4s cubic-bezier(.45,.02,.2,1) infinite; }` : ``}
+        @keyframes lwBuild { 0% { transform: scaleX(0); } 48% { transform: scaleX(1); } 100% { transform: scaleX(1); } }
+        @keyframes lwFront {
+          0% { transform: translateX(-70px); opacity: 0; }
+          8% { opacity: .95; }
+          46% { transform: translateX(1300px); opacity: .95; }
+          52% { opacity: 0; } 100% { opacity: 0; }
+        }
+        @keyframes lwGroup {
+          0% { opacity: 0; transform: scale(.985); }
+          9% { opacity: 1; }
+          48% { transform: scale(1); }
+          64% { transform: scale(1.012); }
+          80% { opacity: 1; transform: scale(1); }
+          98% { opacity: 0; } 100% { opacity: 0; transform: scale(.985); }
+        }
+      `}</style>
+    </div>
+  )
 }
