@@ -28,6 +28,7 @@ const FILTERS = [
 
 export default function Dashboard({ user, profile, refreshProfile, loading: authLoading }) {
   const [sessions, setSessions] = useState([])
+  const [challenges, setChallenges] = useState([])
   const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [playingId, setPlayingId] = useState(null)
@@ -45,6 +46,12 @@ export default function Dashboard({ user, profile, refreshProfile, loading: auth
   const isPro = profile?.plan === 'pro' || profile?.plan === 'lifetime'
 
   useEffect(() => { if (user) fetchSessions() }, [user, filter])
+  useEffect(() => { if (user) fetchChallenges() }, [user])
+
+  async function fetchChallenges() {
+    const { data } = await supabase.from('challenges').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+    setChallenges(data || [])
+  }
 
   // Resolve the storage path for a session. Prefers the stored audio_path;
   // falls back to extracting it from an older audio_url so existing sessions
@@ -60,7 +67,7 @@ export default function Dashboard({ user, profile, refreshProfile, loading: auth
 
   async function fetchSessions() {
     setLoading(true)
-    let query = supabase.from('sessions').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+    let query = supabase.from('sessions').select('*').eq('user_id', user.id).is('challenge_id', null).order('created_at', { ascending: false })
     if (filter !== 'all') query = query.eq('product_type', filter)
     const { data } = await query
     const rows = data || []
@@ -145,9 +152,10 @@ export default function Dashboard({ user, profile, refreshProfile, loading: auth
 
   async function manageBilling() {
     setBillingLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/billing-portal', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
       body: JSON.stringify({ userId: user.id }),
     })
     const data = await res.json()
@@ -191,6 +199,29 @@ export default function Dashboard({ user, profile, refreshProfile, loading: auth
         </div>
         <a className="cta" href="/rewire">Create a Rewire</a>
       </div>
+
+      {/* CHALLENGES */}
+      {challenges.length > 0 && (
+        <div className="challenges">
+          <div className="eyebrow" style={{ marginBottom: 14 }}>Your Rewires</div>
+          <div className="chgrid">
+            {challenges.map(c => {
+              const started = c.started_at ? new Date(c.started_at) : null
+              const dayNum = started ? Math.min(7, Math.floor((Date.now() - started.getTime()) / 86400000) + 1) : 1
+              return (
+                <a key={c.id} className="chcard" href={`/challenge?id=${c.id}`}>
+                  <div className="chgoal serif">{c.goal}</div>
+                  <div className="chstatus">{c.completed_at ? 'Completed · 7-day streak' : `Day ${dayNum} of 7`}</div>
+                  <span className="chopen">Open →</span>
+                </a>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* LIBRARY */}
+      <div className="eyebrow" style={{ marginBottom: 14 }}>Your library</div>
 
       {/* FILTERS */}
       <div className="chips">
@@ -257,7 +288,7 @@ export default function Dashboard({ user, profile, refreshProfile, loading: auth
       {/* UPGRADE WHISPER (free users only) */}
       {!isPro && sessions.length > 0 && (
         <div className="whisper">
-          <p>Unlock every voice, unlimited listening, and your full library with <a href="/pricing">RewireMode Pro</a>.</p>
+          <p>Unlock Sleep, Subliminal, and unlimited goals with <a href="/pricing">RewireMode Unlimited</a>.</p>
         </div>
       )}
 
@@ -269,15 +300,14 @@ export default function Dashboard({ user, profile, refreshProfile, loading: auth
         {showAccount && (
           <div className="acc-body">
             <div className="acc-grid">
-              <div><span className="quiet">Plan</span><b>{profile?.plan === 'lifetime' ? 'Founder' : isPro ? 'Pro' : 'Free'}</b></div>
-              <div><span className="quiet">Credits</span><b>✦ {profile?.credits ?? 0}</b></div>
+              <div><span className="quiet">Plan</span><b>{isPro ? 'Unlimited' : 'Free'}</b></div>
               <div><span className="quiet">Streak</span><b>{streak} days</b></div>
               <div><span className="quiet">Email</span><b style={{ fontSize: 13 }}>{user.email}</b></div>
             </div>
             <div className="acc-actions">
               {isPro
                 ? <button className="quietbtn" disabled={billingLoading} onClick={manageBilling}>{billingLoading ? 'Opening…' : 'Manage billing'}</button>
-                : <a className="quietbtn" href="/pricing">Upgrade to Pro</a>}
+                : <a className="quietbtn" href="/pricing">Upgrade to Unlimited</a>}
               <button className="quietbtn" onClick={() => setShowFeedback(true)}>Share feedback</button>
               <button className="quietbtn" onClick={signOut}>Sign out</button>
               <button className="quietbtn danger" onClick={() => setShowDeleteAccount(true)}>Delete account</button>
@@ -453,6 +483,14 @@ const CSS = `
   .whisper{text-align:center;margin-top:30px}
   .whisper p{font-size:13px;color:#5A6280}
   .whisper a{color:#5E9BF2}
+
+  .challenges{margin-bottom:30px}
+  .chgrid{display:flex;flex-direction:column;gap:11px}
+  .chcard{display:flex;align-items:center;gap:12px;border:1px solid rgba(146,168,255,0.10);border-radius:18px;background:rgba(255,255,255,0.025);padding:16px 18px;transition:border-color .35s,background .35s}
+  .chcard:hover{border-color:rgba(146,168,255,0.24);background:rgba(94,155,242,0.05)}
+  .chgoal{flex:1;font-size:17px;color:#EDEFF7}
+  .chstatus{font-size:12px;color:#5E9BF2;white-space:nowrap}
+  .chopen{font-size:12px;color:#5A6280;white-space:nowrap}
 
   .account{margin-top:60px;border-top:1px solid rgba(146,168,255,0.10);padding-top:24px}
   .acc-toggle{font-size:13px;color:#5A6280;transition:color .3s}
