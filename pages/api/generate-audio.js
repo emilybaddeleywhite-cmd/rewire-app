@@ -1,9 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { checkRateLimit } from '../../lib/rateLimit'
+import { canGenerate } from '../../lib/catalog'
 
-export const config = {
-  maxDuration: 60,
-}
+export const config = { maxDuration: 60 }
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -13,7 +12,7 @@ const supabase = createClient(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  // ── Auth: verify JWT ──
+  // ── Auth ──
   const token = req.headers.authorization?.split('Bearer ')[1]
   if (!token) return res.status(401).json({ error: 'Unauthorized' })
 
@@ -33,9 +32,15 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'No text provided' })
   }
 
-  // ── Rate limit: 15 audio generations/hour/user. ElevenLabs is the most
-  //    expensive call in the app, and this route isn't credit-gated on its own,
-  //    so this caps any attempt to loop it directly. ──
+  // ── Access gate (defence in depth): free accounts get Reset + Walking only.
+  //    This is the expensive call, so it must verify access independently. ──
+  const { data: profile } = await supabase
+    .from('profiles').select('plan').eq('id', authUser.id).single()
+  if (!canGenerate(productType, profile?.plan)) {
+    return res.status(403).json({ error: 'Sleep and Subliminal are part of Unlimited.', upgrade: true })
+  }
+
+  // ── Rate limit: ElevenLabs is the most expensive call in the app ──
   const rl = await checkRateLimit(`audio:${authUser.id}`, 15, 3600)
   if (!rl.allowed) {
     return res.status(429).json({ error: 'Too many audio generations. Please wait a moment and try again.' })
