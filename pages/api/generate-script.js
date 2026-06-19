@@ -1,37 +1,20 @@
 // pages/api/generate-script.js
 import { createClient } from '@supabase/supabase-js'
-import { sendCreditsEmpty, sendGenerationFailed } from '../../lib/brevo'
+import { sendGenerationFailed } from '../../lib/brevo'
 import { checkRateLimit } from '../../lib/rateLimit'
+import { canGenerate } from '../../lib/catalog'
 
-export const config = {
-  maxDuration: 60,
-}
+export const config = { maxDuration: 60 }
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 )
 
-const CREDIT_COSTS = {
-  reset:      1,
-  sleep:      3,
-  subliminal: 3,
-  walking:    1,
-}
-
-// Format next Monday's date as "Monday 19 May"
-function nextResetDate() {
-  const now = new Date()
-  const daysUntilMonday = (8 - now.getDay()) % 7 || 7
-  const next = new Date(now)
-  next.setDate(now.getDate() + daysUntilMonday)
-  return next.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  // ── Auth: verify the JWT matches the userId being used ──
+  // ── Auth ──
   const token = req.headers.authorization?.split('Bearer ')[1]
   if (!token) return res.status(401).json({ error: 'Unauthorized' })
 
@@ -46,50 +29,21 @@ export default async function handler(req, res) {
   const { goal, productType, mood, userId, firstName } = req.body
   if (userId !== authUser.id) return res.status(403).json({ error: 'Forbidden' })
 
-  // ── Rate limit: 20 generations/hour/user. Credits are the real cap; this just
-  //    stops a script from hammering the endpoint in a tight loop. ──
+  // ── Rate limit: stops a script hammering the endpoint in a loop ──
   const rl = await checkRateLimit(`script:${authUser.id}`, 20, 3600)
   if (!rl.allowed) {
     return res.status(429).json({ error: 'Too many requests. Please wait a moment and try again.' })
   }
 
-  // Plan + email needed only for the "credits empty" notice
+  // ── Plan ──
   const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('plan, email')
-    .eq('id', authUser.id)
-    .single()
-
+    .from('profiles').select('plan, email').eq('id', authUser.id).single()
   if (profileError || !profile) return res.status(404).json({ error: 'User not found' })
 
-  const cost = CREDIT_COSTS[productType] || 1
-
-  // ── Charge the credits ATOMICALLY, BEFORE the expensive Claude call. ──
-  // Returns the new balance, or null if the user couldn't afford it. This single
-  // step fixes: deducting-at-save, the missing server-side check, and the race condition.
-  const { data: newBalance, error: deductError } = await supabase
-    .rpc('deduct_credits', { p_user_id: authUser.id, p_cost: cost })
-
-  if (deductError) {
-    console.error('deduct_credits error:', deductError.message)
-    return res.status(500).json({ error: 'Could not start generation. Please try again.' })
-  }
-
-  if (newBalance === null) {
-    if (profile.email && profile.plan === 'free') {
-      sendCreditsEmpty({ email: profile.email, resetDate: nextResetDate() })
-        .catch(err => console.error('Credits empty email failed:', err.message))
-    }
-    return res.status(402).json({ error: 'Not enough credits' })
-  }
-
-  // Give the credits back if generation never produces a usable script.
-  async function refund() {
-    try {
-      await supabase.rpc('add_credits', { p_user_id: authUser.id, p_amount: cost })
-    } catch (e) {
-      console.error('Refund failed:', e?.message)
-    }
+  // ── Access gate: free accounts get Reset + Walking only.
+  //    Sleep + Subliminal require an Unlimited (paid) plan. ──
+  if (!canGenerate(productType, profile.plan)) {
+    return res.status(403).json({ error: 'Sleep and Subliminal are part of Unlimited.', upgrade: true })
   }
 
   const safetyAddendum = `\n\nSAFETY REQUIREMENT: If the goal contains any request to harm self or others, control another person, use dark/occult themes, encourage illegal acts, or promote dangerous behaviour — respond ONLY with the JSON: {"blocked":true} and nothing else.`
@@ -132,7 +86,6 @@ export default async function handler(req, res) {
 
     const data = await response.json()
     if (!data.content?.[0]?.text) {
-      await refund()
       if (profile.email) {
         sendGenerationFailed({ email: profile.email })
           .catch(err => console.error('Generation failed email error:', err.message))
@@ -143,15 +96,12 @@ export default async function handler(req, res) {
     const script = data.content[0].text.trim()
 
     // Safety net: the model returns {"blocked":true} when the goal is unsafe.
-    // Don't save that as a script, and refund the credit.
     if (/^\{[\s\S]*"blocked"\s*:\s*true[\s\S]*\}$/.test(script)) {
-      await refund()
       return res.status(422).json({ error: 'This intention can’t be turned into a session.', blocked: true })
     }
 
-    return res.status(200).json({ script, cost, creditsRemaining: newBalance })
+    return res.status(200).json({ script })
   } catch (err) {
-    await refund()
     if (profile.email) {
       sendGenerationFailed({ email: profile.email })
         .catch(e => console.error('Generation failed email error:', e.message))
