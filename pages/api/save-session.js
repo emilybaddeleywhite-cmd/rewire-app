@@ -1,26 +1,16 @@
 // pages/api/save-session.js
+// No credits. No streak side-effects (the streak now advances when a session
+// is PLAYED, logged separately). This endpoint just saves the session, stores
+// the durable audio PATH so it replays forever, tags challenge recordings, and
+// keeps free accounts to a single goal.
+
 import { createClient } from '@supabase/supabase-js'
+import { canGenerate } from '../../lib/catalog'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 )
-
-// Resolve "today" from an optional client-supplied local date (YYYY-MM-DD).
-// Falls back to UTC if absent/malformed. Sending the user's own local date makes
-// streaks respect THEIR midnight rather than UTC's.
-function resolveToday(clientDate) {
-  if (typeof clientDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(clientDate)) {
-    return clientDate
-  }
-  return new Date().toISOString().split('T')[0]
-}
-
-function dayBefore(ymd) {
-  const [y, m, d] = ymd.split('-').map(Number)
-  const t = Date.UTC(y, m - 1, d) - 86400000
-  return new Date(t).toISOString().split('T')[0]
-}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -33,56 +23,49 @@ export default async function handler(req, res) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     { global: { headers: { Authorization: `Bearer ${token}` } } }
   )
-
   const { data: { user: authUser } } = await authClient.auth.getUser()
   if (!authUser) return res.status(401).json({ error: 'Unauthorized' })
 
   const {
-    userId, goal, productType, script, audioUrl, voiceId, mood,
-    musicUrl: clientMusicUrl, clientDate, audioPath,
+    userId, goal, productType, script,
+    audioUrl, audioPath, voiceId, mood, musicUrl: clientMusicUrl, challengeId,
   } = req.body
   if (userId !== authUser.id) return res.status(403).json({ error: 'Forbidden' })
 
   try {
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('credits, streak_count, last_session_date')
-      .eq('id', authUser.id)
-      .single()
+      .from('profiles').select('plan').eq('id', authUser.id).single()
+    if (profileError || !profile) return res.status(404).json({ error: 'Profile not found' })
 
-    if (profileError || !profile) {
-      return res.status(404).json({ error: 'Profile not found' })
+    const isPaid = profile.plan && profile.plan !== 'free'
+
+    // Access guard (matches the generation gate): free = Reset + Walking only.
+    if (!canGenerate(productType, profile.plan)) {
+      return res.status(403).json({ error: 'Sleep and Subliminal are part of Unlimited.', upgrade: true })
     }
 
-    // NOTE: credits are NO LONGER deducted here — they're charged atomically at
-    // generation time (generate-script.js). Saving is free, which is what the
-    // 7-day challenge loop needs. The old "1 saved session ever" limit is gone.
-
-    // ── Streak ──
-    const today = resolveToday(clientDate)
-    const yesterday = dayBefore(today)
-    let newStreak = 1
-    let bonusCredits = 0
-
-    if (profile.last_session_date === today) {
-      // Already saved today — keep the streak, award no further bonus.
-      newStreak = profile.streak_count || 1
-    } else if (profile.last_session_date === yesterday) {
-      newStreak = (profile.streak_count || 0) + 1
-      // Milestone bonus fires ONLY on the day the streak advances onto it.
-      if (newStreak === 3) bonusCredits = 1
-      else if (newStreak === 7) bonusCredits = 3
-      else if (newStreak === 30) bonusCredits = 10
-    } else {
-      // Missed a day (or first ever) — streak restarts.
-      newStreak = 1
+    // Free accounts get one goal (their 7-Day Rewire). Same goal can save its
+    // free sessions; a *different* goal needs Unlimited.
+    if (!isPaid && goal) {
+      const { data: otherGoals } = await supabase
+        .from('sessions').select('goal').eq('user_id', authUser.id).neq('goal', goal).limit(1)
+      if (otherGoals && otherGoals.length > 0) {
+        return res.status(403).json({ error: 'Free covers one goal. Upgrade to Unlimited to rewire another.', upgrade: true })
+      }
     }
 
+    // Durable audio path: prefer what the client passes; otherwise pull the
+    // path out of the (temporary) signed URL so replay never breaks.
     const cleanAudioUrl = audioUrl && audioUrl.startsWith('http') ? audioUrl : null
+    let storagePath = audioPath || null
+    if (!storagePath && cleanAudioUrl) {
+      try {
+        const m = new URL(cleanAudioUrl).pathname.match(/\/audio\/(.+)$/)
+        if (m) storagePath = decodeURIComponent(m[1])
+      } catch (_) { /* ignore */ }
+    }
+
     const musicUrl = (clientMusicUrl && clientMusicUrl.startsWith('http')) ? clientMusicUrl : null
-    // Canonical reference to the audio file. The signed audio_url expires; this
-    // path is what the dashboard re-signs on every load so replay never breaks.
-    const cleanAudioPath = typeof audioPath === 'string' && audioPath ? audioPath : null
 
     const { data: session, error: sessionError } = await supabase
       .from('sessions')
@@ -91,11 +74,12 @@ export default async function handler(req, res) {
         goal,
         product_type: productType,
         script,
+        audio_path: storagePath,
         audio_url: cleanAudioUrl,
-        audio_path: cleanAudioPath,
         voice_id: voiceId,
         mood,
         music_url: musicUrl,
+        challenge_id: challengeId || null,
       })
       .select()
       .single()
@@ -107,25 +91,7 @@ export default async function handler(req, res) {
       })
     }
 
-    // Update streak only. Credits are never written here directly — that would
-    // risk clobbering a concurrent spend. Bonuses go through add_credits below.
-    await supabase
-      .from('profiles')
-      .update({ streak_count: newStreak, last_session_date: today })
-      .eq('id', authUser.id)
-
-    let creditsRemaining = profile.credits
-    if (bonusCredits > 0) {
-      const { data: bal } = await supabase
-        .rpc('add_credits', { p_user_id: authUser.id, p_amount: bonusCredits })
-      if (typeof bal === 'number') creditsRemaining = bal
-
-      await supabase
-        .from('credit_transactions')
-        .insert({ user_id: authUser.id, amount: bonusCredits, reason: `streak_reward:${newStreak}days` })
-    }
-
-    return res.status(200).json({ session, streak: newStreak, bonusCredits, creditsRemaining })
+    return res.status(200).json({ session })
   } catch (err) {
     console.error('Save session error:', err)
     return res.status(500).json({ error: 'Something went wrong. Please try again.' })
