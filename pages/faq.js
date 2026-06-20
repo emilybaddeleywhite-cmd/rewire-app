@@ -80,11 +80,11 @@ const FAQS = [
     questions: [
       {
         q: 'What are the four session types?',
-        a: `Reset Hypnosis is a 5-minute daily session for subconscious rewiring. It follows a clinical structure: induction, deepener, therapeutic suggestion, and gentle return. Sleep Hypnosis is a 15-minute session that guides you into deep sleep while your subconscious continues receiving therapeutic suggestion throughout the night. Subliminal is a 30-minute passive listening session, identity-level affirmations layered quietly under music. Hype Coach is a 5-minute high-energy session for immediate state change before something big.`,
+        a: `Reset is a short, roughly 5-minute hypnosis session for everyday subconscious rewiring — induction, deepener, therapeutic suggestion, and a gentle return. Sleep guides you down into deep rest while therapeutic suggestion continues as you drift off. Walking is an eyes-open, fully alert session for listening while you move outdoors, with change woven into each step. Subliminal layers identity-level affirmations quietly beneath ambient music for passive listening. Reset and Walking are free on every account; Sleep and Subliminal are part of Unlimited.`,
       },
       {
-        q: 'What is a Hype Coach session?',
-        a: `A Hype Coach session is high-energy identity activation. It is designed for the moments before something important: a meeting, a sales call, a workout, a difficult conversation. It uses rapid NLP techniques to shift your mental and emotional state and anchor confidence in under 5 minutes. It is not hypnosis. It is performance priming.`,
+        q: 'What is a Walking session?',
+        a: `A Walking session is eyes-open, fully alert hypnosis designed to be listened to while you walk outdoors with headphones. There is no eye-closing or deep physical relaxation — you stay aware and in control the whole time. Present-moment awareness and gentle suggestion are woven through the rhythm of your steps, so change happens while you move through your day. Walking is free on every account.`,
       },
       {
         q: 'Can I use RewireMode every day?',
@@ -95,8 +95,12 @@ const FAQS = [
         a: `Use headphones wherever possible. Find a quiet place where you will not be disturbed. For hypnosis and sleep sessions, close your eyes and allow yourself to follow the voice. You do not need to concentrate hard. Simply let the words land. For subliminal sessions, you can listen while working, resting, or falling asleep. The session works whether you are actively listening or not.`,
       },
       {
-        q: 'What are credits?',
-        a: `Each session uses credits based on its length. Reset Hypnosis and Hype Coach sessions (5 minutes) cost 1 credit. Sleep Hypnosis and Subliminal sessions (15 to 30 minutes) cost 3 credits. Free accounts receive 5 credits per week. Pro accounts receive 100 credits per month.`,
+        q: 'What is free, and what needs a paid plan?',
+        a: `Free accounts get a full 7-Day Rewire for one goal, with Reset and Walking sessions — and you can replay everything you create as often as you like. Replay is always free. Unlimited unlocks Sleep and Subliminal, and lets you create sessions for as many goals as you want.`,
+      },
+      {
+        q: 'How much does Unlimited cost?',
+        a: `Unlimited is £89 per year — that works out at about £7.42 a month, billed yearly — or £14.99 per month. Both unlock every session type for unlimited goals, and you can cancel anytime from your account. Replaying anything you have already created stays free, on any plan.`,
       },
     ],
   },
@@ -149,7 +153,6 @@ export default function FAQ({ user, profile }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px 0' }}>
             <div />
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              {profile && <div style={{ fontSize: '13px', color: '#6366f1', fontWeight: '600', padding: '5px 12px', borderRadius: '100px', border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.06)' }}>✦ {profile.credits} credits</div>}
               <a href="/dashboard" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>Dashboard</a>
               <a href="/" style={{ fontSize: '12px', color: BASE.textMuted, padding: '6px 14px', borderRadius: '8px', border: `1px solid ${BASE.border}`, textDecoration: 'none' }}>← Back</a>
             </div>
@@ -197,7 +200,7 @@ export default function FAQ({ user, profile }) {
             <div style={{ fontSize: '24px', marginBottom: '12px' }}>✦</div>
             <h2 style={{ fontSize: '22px', fontWeight: '800', color: BASE.text, marginBottom: '10px' }}>Ready to start rewiring?</h2>
             <p style={{ fontSize: '14px', color: BASE.textMuted, marginBottom: '24px', lineHeight: 1.7 }}>
-              Your first session is free. No card required. Generated in real time for you.
+              Your 7-day Rewire is free. No card required. Each session is generated in real time, for you.
             </p>
             <a href="/" style={{ display: 'inline-block', padding: '14px 32px', borderRadius: '12px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#03050f', fontSize: '15px', fontWeight: '800', textDecoration: 'none', letterSpacing: '0.02em' }}>
               Start Free →
