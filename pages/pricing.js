@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 const LOGO = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/logo.png'
 const FAVICON = 'https://zlxyxfsgzgippsqffovv.supabase.co/storage/v1/object/public/assets/FLAVICON.png'
 
-// Solstice offer ends midnight 22 Jun BST (UK) = 23:00 UTC on the 21st.
-const SOLSTICE_END = Date.parse('2026-06-21T23:00:00Z')
+// Solstice offer runs through 25 Jun. Ends midnight 26 Jun BST (UK) = 23:00 UTC on the 25th.
+const SOLSTICE_END = Date.parse('2026-06-25T23:00:00Z')
 
 export default function Pricing({ user, profile }) {
   const [loading, setLoading] = useState(null)
@@ -158,7 +158,7 @@ export default function Pricing({ user, profile }) {
                   <div className="cd-box"><div className="cd-num">{pad(cdH)}</div><div className="cd-lbl">hrs</div></div>
                   <div className="cd-box"><div className="cd-num">{pad(cdM)}</div><div className="cd-lbl">min</div></div>
                 </div>
-                <div className="small mt12" style={{ color: '#5A6280' }}>Ends midnight · 21 June (UK time)</div>
+                <div className="small mt12" style={{ color: '#5A6280' }}>Ends midnight · 25 June (UK time)</div>
                 <p style={{ fontSize: 13, color: '#9AA3C2', marginTop: 18, maxWidth: 380, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.7 }}>
                   To mark the longest day, your first month is just £1. Claim it before the timer runs out.
                 </p>
