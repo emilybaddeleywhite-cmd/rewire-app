@@ -23,6 +23,7 @@ export default function Challenge({ user, profile, loading: authLoading }) {
   const [genType, setGenType] = useState(null)
   const [phaseIdx, setPhaseIdx] = useState(0)
   const [playingId, setPlayingId] = useState(null)
+  const [paywall, setPaywall] = useState(null)
   const audioRef = useRef(null)
   const musicRef = useRef(null)
   const phaseRef = useRef(null)
@@ -217,7 +218,7 @@ export default function Challenge({ user, profile, loading: authLoading }) {
               ) : creating ? (
                 <button className="cbtn" disabled>✦ {CREATION_PHASES[phaseIdx]}…</button>
               ) : locked ? (
-                <a className="cbtn lock" href="/pricing">🔒 Unlock with Unlimited</a>
+                <button className="cbtn lock" onClick={() => setPaywall(t)}>🔒 Unlock with Unlimited</button>
               ) : (
                 <button className="cbtn" onClick={() => generate(t)} disabled={!!genType}>Create this session</button>
               )}
@@ -239,6 +240,27 @@ export default function Challenge({ user, profile, loading: authLoading }) {
           <div className="bigserif serif grad">{challenge.goal}</div>
           <p className="quiet" style={{ marginTop: 12 }}>You showed up for seven days. That is how a mind rewires.</p>
           <a className="cta" href="/dashboard" style={{ marginTop: 20 }}>Back to your account</a>
+        </div>
+      )}
+
+      {paywall && (
+        <div className="sheetwrap" onClick={() => setPaywall(null)}>
+          <div className="sheet" onClick={e => e.stopPropagation()}>
+            <div className="eyebrow" style={{ color: '#E2A24A' }}>🔒 {EXPERIENCES.find(e => e.id === paywall)?.name} · Unlimited</div>
+            <h3 className="serif" style={{ fontSize: 23, marginTop: 10 }}>Unlock the deep work</h3>
+            <p className="quiet" style={{ marginTop: 8, lineHeight: 1.7 }}>
+              {paywall === 'sleep'
+                ? 'Sleep hypnosis works your goal in while you drift off — the most powerful time to suggest change. It is part of Unlimited.'
+                : 'Subliminal sessions run beneath the atmosphere, speaking to your subconscious all day. It is part of Unlimited.'}
+            </p>
+            <div style={{ marginTop: 16 }}>
+              <div className="feat2">✦ Sleep & Subliminal for every goal</div>
+              <div className="feat2">✦ Generate for unlimited goals</div>
+              <div className="feat2">✦ Every voice & atmosphere</div>
+            </div>
+            <a className="cta" style={{ display: 'block', width: '100%', textAlign: 'center', marginTop: 16 }} href="/pricing">See Unlimited — from £7.42/mo</a>
+            <button className="sheetdismiss" onClick={() => setPaywall(null)}>Not now</button>
+          </div>
         </div>
       )}
 
@@ -311,4 +333,10 @@ const CSS = `
   .empty{text-align:center;padding:80px 20px}
   @media(max-width:520px){.grid{grid-template-columns:1fr}}
   @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+  .sheetwrap{position:fixed;inset:0;z-index:60;background:rgba(3,5,12,.75);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center}
+  .sheet{width:100%;max-width:620px;background:linear-gradient(180deg,#0C0F1C,#070912);border:1px solid rgba(146,168,255,.24);border-bottom:none;border-radius:26px 26px 0 0;padding:28px 24px 34px;animation:sheetup .35s cubic-bezier(.22,1,.36,1)}
+  @keyframes sheetup{from{transform:translateY(40px);opacity:.4}to{transform:translateY(0);opacity:1}}
+  .feat2{font-size:14px;color:#9AA3C2;margin-bottom:9px}
+  .sheetdismiss{display:block;width:100%;margin-top:12px;font-size:13px;color:#5A6280;text-align:center}
 `
