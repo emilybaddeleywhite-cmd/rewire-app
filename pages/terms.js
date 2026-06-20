@@ -121,7 +121,7 @@ export default function Terms() {
             <h2>8. Payments & Subscriptions</h2>
             <ul>
               <li>Subscriptions renew automatically unless cancelled</li>
-              <li>Credits are non-transferable and non-refundable</li>
+              <li>Your subscription unlocks paid session types and unlimited goals for as long as it remains active</li>
               <li>We may change pricing with notice</li>
               <li>Under the Consumer Contracts Regulations 2013, you have the right to cancel within 14 days of purchase</li>
             </ul>
