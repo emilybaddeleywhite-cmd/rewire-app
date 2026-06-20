@@ -12,7 +12,7 @@ import { useSafetyGate } from '../components/SafetyBlock'
 import NeuralField from '../components/NeuralField'
 import LogoWeave from '../components/LogoWeave'
 
-import { VOICES, EXPERIENCES, atmospheresFor, CREATION_PHASES, LOGO_URL } from '../lib/catalog'
+import { VOICES, EXPERIENCES, atmospheresFor, CREATION_PHASES, LOGO_URL, canGenerate } from '../lib/catalog'
 
 const CHIPS = ['Confidence', 'Calm', 'Sleep', 'Self-belief', 'Focus', 'Letting go', 'Abundance', 'Motivation']
 const FEELS = ['Calmer', 'Clearer', 'Motivated', 'Sleepy', 'Emotional', 'No change yet']
@@ -182,7 +182,9 @@ export default function Rewire() {
   // ── creation ───────────────────────────────────────────────────
   async function beginCreation() {
     if (!user) { pendingGenerateRef.current = true; setShowAuth(true); return }
-    if (!profile || profile.credits < cost) { setShowNoCredits(true); return }
+    // Free types (Reset + Walking) are always available — no credits, no daily cap.
+    // Sleep + Subliminal need Unlimited; send those to pricing instead of blocking.
+    if (!canGenerate(exp.id, profile?.plan)) { window.location.href = '/pricing'; return }
     if (needsDisclaimer()) { pendingGenerateRef.current = true; setShowDisclaimer(true); return }
 
     clearSafety()
