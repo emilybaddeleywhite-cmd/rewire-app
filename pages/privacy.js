@@ -107,9 +107,8 @@ export default function Privacy() {
             <p>We use your data to:</p>
             <ul>
               <li>Provide and personalise the RewireMode service</li>
-              <li>Process payments and manage your subscription or credits</li>
+              <li>Process payments and manage your subscription</li>
               <li>Send transactional emails (account confirmation, session errors, billing updates)</li>
-              <li>Send weekly credit reset notifications (free plan users)</li>
               <li>Improve the platform and monitor for safety and misuse</li>
               <li>Comply with legal obligations</li>
             </ul>
