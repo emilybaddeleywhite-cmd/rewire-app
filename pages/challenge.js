@@ -1,8 +1,10 @@
 // pages/challenge.js
 // The 7-Day Rewire. Loads a challenge by ?id=, shows the streak tracker, builds
 // the toolkit for the goal (Reset + Walking free; Sleep + Subliminal gated to
-// Unlimited), plays sessions (reusing the proven voice+atmosphere mixing) and
-// logs each listen so the streak advances on PLAY, not generation.
+// Unlimited). Each session is created through a setup sheet that lets you choose
+// a voice and an atmosphere and then read the script — mirroring /rewire — and
+// plays sessions (reusing the proven voice+atmosphere mixing), logging each
+// listen so the streak advances on PLAY, not generation.
 // Receives user/profile from _app.js, exactly like the dashboard.
 
 import { useState, useEffect, useRef } from 'react'
@@ -12,6 +14,9 @@ import NeuralField from '../components/NeuralField'
 import { LOGO_URL, EXPERIENCES, VOICES, atmospheresFor, CREATION_PHASES, isTypeFree } from '../lib/catalog'
 
 const ORDER = ['reset', 'walking', 'sleep', 'subliminal']
+
+// Solstice offer runs through 25 Jun. Ends midnight 26 Jun BST (UK) = 23:00 UTC on the 25th.
+const SOLSTICE_END = Date.parse('2026-06-25T23:00:00Z')
 
 export default function Challenge({ user, profile, loading: authLoading }) {
   const [challengeId, setChallengeId] = useState(null)
@@ -24,14 +29,29 @@ export default function Challenge({ user, profile, loading: authLoading }) {
   const [phaseIdx, setPhaseIdx] = useState(0)
   const [playingId, setPlayingId] = useState(null)
   const [paywall, setPaywall] = useState(null)
+
+  // ── setup sheet (voice + atmosphere chooser) ──
+  const [setupType, setSetupType] = useState(null)
+  const [setupVoice, setSetupVoice] = useState(null)
+  const [setupAtmo, setSetupAtmo] = useState(null)
+  const [previewingId, setPreviewingId] = useState(null)
+
+  // ── script panel + checkout ──
+  const [openScript, setOpenScript] = useState(null)
+  const [checkoutBusy, setCheckoutBusy] = useState(null)
+  const [now, setNow] = useState(SOLSTICE_END) // avoids hydration mismatch; real value set on mount
+
   const audioRef = useRef(null)
   const musicRef = useRef(null)
+  const previewRef = useRef(null)
   const phaseRef = useRef(null)
 
   const isPaid = !!(profile?.plan && profile.plan !== 'free')
+  const solsticeLive = now < SOLSTICE_END
 
   useEffect(() => {
     setChallengeId(new URLSearchParams(window.location.search).get('id'))
+    setNow(Date.now())
   }, [])
 
   useEffect(() => {
@@ -41,7 +61,7 @@ export default function Challenge({ user, profile, loading: authLoading }) {
 
   useEffect(() => () => {
     clearInterval(phaseRef.current)
-    audioRef.current?.pause(); musicRef.current?.pause()
+    audioRef.current?.pause(); musicRef.current?.pause(); previewRef.current?.pause()
   }, [])
 
   function localDate(d = new Date()) {
@@ -89,18 +109,42 @@ export default function Challenge({ user, profile, loading: authLoading }) {
 
   function sessionOfType(t) { return sessions.find(s => s.product_type === t) }
 
-  async function generate(typeId) {
-    if (!challenge || genType) return
-    if (!isTypeFree(typeId) && !isPaid) { window.location.href = '/pricing'; return }
+  // ── open the voice + atmosphere chooser for a type ──
+  function openSetup(t) {
+    if (genType || sessionOfType(t)) return
+    if (!isTypeFree(t) && !isPaid) { setPaywall(t); return }
+    const v = VOICES.find(x => x.free) || VOICES[0]
+    const tracks = atmospheresFor(t)
+    const a = tracks.find(x => x.free) || tracks[0]
+    setSetupVoice(v); setSetupAtmo(a); setSetupType(t)
+  }
+
+  // ── voice preview (static sample mp3s — no API cost) ──
+  function togglePreview(v, e) {
+    e?.stopPropagation()
+    if (previewingId === v.id) { previewRef.current?.pause(); setPreviewingId(null); return }
+    if (previewRef.current) previewRef.current.pause()
+    previewRef.current = new Audio(v.preview)
+    previewRef.current.play().catch(() => {})
+    previewRef.current.onended = () => setPreviewingId(null)
+    setPreviewingId(v.id)
+  }
+
+  // ── generation: ONE generation per type, cached. No regeneration. ──
+  async function generate(typeId, voice, atmo) {
+    if (!challenge || genType || sessionOfType(typeId)) return
+    if (!isTypeFree(typeId) && !isPaid) { setPaywall(typeId); return }
+    previewRef.current?.pause(); setPreviewingId(null)
+    setSetupType(null)
     setGenType(typeId); setPhaseIdx(0)
     let pi = 0
     phaseRef.current = setInterval(() => { pi = Math.min(pi + 1, CREATION_PHASES.length - 1); setPhaseIdx(pi) }, 4000)
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token
-      const voice = VOICES[0]
+      const v = voice || VOICES.find(x => x.free) || VOICES[0]
       const tracks = atmospheresFor(typeId)
-      const atmo = tracks.find(a => a.free) || tracks[0]
+      const a = atmo || tracks.find(x => x.free) || tracks[0]
 
       const sr = await fetch('/api/generate-script', {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -111,7 +155,7 @@ export default function Challenge({ user, profile, loading: authLoading }) {
 
       const ar = await fetch('/api/generate-audio', {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ text: sd.script, voiceId: voice.id, productType: typeId, userId: user.id }),
+        body: JSON.stringify({ text: sd.script, voiceId: v.id, productType: typeId, userId: user.id }),
       })
       const ad = await ar.json()
       if (!ar.ok) throw new Error(ad.error || 'Could not create the audio')
@@ -120,14 +164,34 @@ export default function Challenge({ user, profile, loading: authLoading }) {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           userId: user.id, goal: challenge.goal, productType: typeId, script: sd.script,
-          audioUrl: ad.audioUrl, audioPath: ad.audioPath || null, voiceId: voice.id, mood: 5,
-          musicUrl: atmo?.url || null, challengeId,
+          audioUrl: ad.audioUrl, audioPath: ad.audioPath || null, voiceId: v.id, mood: 5,
+          musicUrl: a?.url || null, challengeId,
         }),
       })
       clearInterval(phaseRef.current); setGenType(null); load()
     } catch (e) {
       clearInterval(phaseRef.current); setGenType(null)
       alert(e.message || 'Something went wrong. Please try again.')
+    }
+  }
+
+  // ── in-place Stripe checkout (email already known from signup) ──
+  async function checkout(planKey) {
+    if (!user) { window.location.href = '/pricing'; return }
+    setCheckoutBusy(planKey)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const r = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ plan: planKey, userId: user.id, email: user.email }),
+      })
+      const d = await r.json()
+      if (d.url) { window.location.href = d.url; return }
+      throw new Error(d.error || 'Could not open checkout')
+    } catch (e) {
+      setCheckoutBusy(null)
+      alert(e.message || 'Could not open checkout. Please try again.')
     }
   }
 
@@ -176,6 +240,9 @@ export default function Challenge({ user, profile, loading: authLoading }) {
   if (!user) return <Shell><div className="empty"><p className="serif" style={{ fontSize: 22 }}>Sign in to continue your Rewire.</p><a className="cta" href="/rewire" style={{ marginTop: 18 }}>Sign in</a></div></Shell>
   if (!challenge) return <Shell><div className="empty"><p className="serif" style={{ fontSize: 22 }}>This Rewire couldn&rsquo;t be found.</p><a className="cta" href="/dashboard" style={{ marginTop: 18 }}>Back to your account</a></div></Shell>
 
+  const setupExp = setupType ? EXPERIENCES.find(e => e.id === setupType) : null
+  const setupTracks = setupType ? atmospheresFor(setupType) : []
+
   return (
     <Shell>
       <Head><title>Your 7-Day Rewire — RewireMode</title></Head>
@@ -214,13 +281,21 @@ export default function Challenge({ user, profile, loading: authLoading }) {
               <div className="cmeta">{exp.meta}</div>
               <p className="cdesc">{exp.desc}</p>
               {s ? (
-                <button className="cbtn play" onClick={() => play(s)}>{isPlaying ? '❚❚ Pause' : '▶ Play'}</button>
+                <>
+                  <button className="cbtn play" onClick={() => play(s)}>{isPlaying ? '❚❚ Pause' : '▶ Play'}</button>
+                  <button className="scriptbtn" onClick={() => setOpenScript(openScript === s.id ? null : s.id)}>
+                    {openScript === s.id ? 'Hide the words ↑' : 'Read the words ↓'}
+                  </button>
+                  {openScript === s.id && (
+                    <div className="scriptbox"><p>{s.script}</p></div>
+                  )}
+                </>
               ) : creating ? (
                 <button className="cbtn" disabled>✦ {CREATION_PHASES[phaseIdx]}…</button>
               ) : locked ? (
                 <button className="cbtn lock" onClick={() => setPaywall(t)}>🔒 Unlock with Unlimited</button>
               ) : (
-                <button className="cbtn" onClick={() => generate(t)} disabled={!!genType}>Create this session</button>
+                <button className="cbtn" onClick={() => openSetup(t)} disabled={!!genType}>Create this session</button>
               )}
             </div>
           )
@@ -243,6 +318,61 @@ export default function Challenge({ user, profile, loading: authLoading }) {
         </div>
       )}
 
+      {/* ── SETUP SHEET · choose voice + atmosphere, then create ── */}
+      {setupType && setupExp && (
+        <div className="sheetwrap" onClick={() => { previewRef.current?.pause(); setPreviewingId(null); setSetupType(null) }}>
+          <div className="sheet" onClick={e => e.stopPropagation()}>
+            <div className="eyebrow">{setupExp.name} · {setupExp.meta}</div>
+            <h3 className="serif" style={{ fontSize: 22, marginTop: 8 }}>Shape this session</h3>
+
+            <div className="setlabel">Choose your voice</div>
+            {VOICES.map(v => {
+              const vlocked = v.proOnly && !isPaid
+              return (
+                <div key={v.id}
+                  className={`setrow ${setupVoice?.id === v.id ? 'on' : ''} ${vlocked ? 'locked' : ''}`}
+                  onClick={() => { if (!vlocked) setSetupVoice(v) }}>
+                  <div className="vi">
+                    <h5>{v.name}{vlocked && <span className="pro">Pro</span>}</h5>
+                    <small>{v.desc}</small>
+                  </div>
+                  <button className="setpv" aria-label={`Preview ${v.name}`} onClick={e => togglePreview(v, e)}>
+                    {previewingId === v.id
+                      ? <svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
+                      : <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>}
+                  </button>
+                </div>
+              )
+            })}
+            {VOICES.some(v => v.proOnly) && !isPaid && (
+              <p className="quiet" style={{ marginTop: 4 }}>More voices unlock with <a href="/pricing" style={{ color: '#5E9BF2' }}>Unlimited</a>.</p>
+            )}
+
+            <div className="setlabel">Choose your atmosphere</div>
+            <div className="atmgrid">
+              {setupTracks.map(a => {
+                const alocked = a.proOnly && !isPaid
+                return (
+                  <button key={a.id}
+                    className={`atmo ${setupAtmo?.id === a.id ? 'on' : ''} ${alocked ? 'locked' : ''}`}
+                    onClick={() => { if (!alocked) setSetupAtmo(a) }}>
+                    <h5>{a.name}{alocked && <span className="pro">Pro</span>}</h5>
+                    <small>{a.desc}</small>
+                  </button>
+                )
+              })}
+            </div>
+
+            <button className="cta" style={{ display: 'block', width: '100%', textAlign: 'center', marginTop: 18 }}
+              onClick={() => generate(setupType, setupVoice, setupAtmo)}>
+              Create this session
+            </button>
+            <button className="sheetdismiss" onClick={() => { previewRef.current?.pause(); setPreviewingId(null); setSetupType(null) }}>Not now</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── PAYWALL · in-place checkout for gated sessions ── */}
       {paywall && (
         <div className="sheetwrap" onClick={() => setPaywall(null)}>
           <div className="sheet" onClick={e => e.stopPropagation()}>
@@ -258,7 +388,23 @@ export default function Challenge({ user, profile, loading: authLoading }) {
               <div className="feat2">✦ Generate for unlimited goals</div>
               <div className="feat2">✦ Every voice & atmosphere</div>
             </div>
-            <a className="cta" style={{ display: 'block', width: '100%', textAlign: 'center', marginTop: 16 }} href="/pricing">See Unlimited — from £7.42/mo</a>
+
+            <div className="planbtns">
+              {solsticeLive && (
+                <button className="planbtn gold" disabled={!!checkoutBusy} onClick={() => checkout('solstice')}>
+                  {checkoutBusy === 'solstice' ? 'Opening…' : '£1 for your first month'}
+                  <small>then £14.99/mo · cancel anytime</small>
+                </button>
+              )}
+              <button className="planbtn best" disabled={!!checkoutBusy} onClick={() => checkout('annual')}>
+                {checkoutBusy === 'annual' ? 'Opening…' : 'Annual — £89/year'}
+                <small>just £7.42/mo, billed yearly</small>
+              </button>
+              <button className="planbtn" disabled={!!checkoutBusy} onClick={() => checkout('monthly')}>
+                {checkoutBusy === 'monthly' ? 'Opening…' : 'Monthly — £14.99/mo'}
+                <small>billed monthly · cancel anytime</small>
+              </button>
+            </div>
             <button className="sheetdismiss" onClick={() => setPaywall(null)}>Not now</button>
           </div>
         </div>
@@ -324,6 +470,10 @@ const CSS = `
   .cbtn.play{background:linear-gradient(120deg,#6C4BE0,#4A8FE8 52%,#3EC1F0);color:#fff;border:none}
   .cbtn.lock{color:#E2A24A;border-color:rgba(226,162,74,.32);background:rgba(226,162,74,.05)}
   .cbtn:disabled{opacity:.7;cursor:default}
+  .scriptbtn{display:block;width:100%;text-align:center;margin-top:8px;padding:9px;border-radius:11px;font-size:12px;color:#9AA3C2;border:1px solid rgba(146,168,255,0.12);background:none}
+  .scriptbtn:hover{color:#EDEFF7;border-color:rgba(146,168,255,0.24)}
+  .scriptbox{margin-top:10px;border:1px solid rgba(146,168,255,0.10);border-radius:14px;background:rgba(255,255,255,0.02);padding:14px 16px;max-height:240px;overflow-y:auto}
+  .scriptbox p{font-size:13px;color:#cdd6f4;line-height:1.75;white-space:pre-wrap;font-family:'Newsreader',Georgia,serif;font-style:italic}
   .upsell{text-align:center;margin-top:24px}
   .upsell p{font-size:13px;color:#5A6280}
   .upsell a{color:#5E9BF2}
@@ -334,9 +484,34 @@ const CSS = `
   @media(max-width:520px){.grid{grid-template-columns:1fr}}
   @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
-  .sheetwrap{position:fixed;inset:0;z-index:60;background:rgba(3,5,12,.75);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center}
+  .sheetwrap{position:fixed;inset:0;z-index:60;background:rgba(3,5,12,.75);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;overflow-y:auto}
   .sheet{width:100%;max-width:620px;background:linear-gradient(180deg,#0C0F1C,#070912);border:1px solid rgba(146,168,255,.24);border-bottom:none;border-radius:26px 26px 0 0;padding:28px 24px 34px;animation:sheetup .35s cubic-bezier(.22,1,.36,1)}
   @keyframes sheetup{from{transform:translateY(40px);opacity:.4}to{transform:translateY(0);opacity:1}}
   .feat2{font-size:14px;color:#9AA3C2;margin-bottom:9px}
   .sheetdismiss{display:block;width:100%;margin-top:12px;font-size:13px;color:#5A6280;text-align:center}
+
+  .setlabel{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#5E9BF2;margin:20px 0 10px}
+  .setrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid rgba(146,168,255,0.10);border-radius:14px;background:rgba(255,255,255,0.025);padding:13px 15px;margin-bottom:9px;transition:all .3s ease;cursor:pointer}
+  .setrow.on{border-color:#5E9BF2;background:rgba(94,155,242,0.12)}
+  .setrow.locked{opacity:.5;cursor:default}
+  .setrow .vi{flex:1}
+  .setrow h5{font-size:14px;font-weight:600;color:#EDEFF7}
+  .setrow small{font-size:12px;color:#9AA3C2}
+  .setpv{width:34px;height:34px;border-radius:50%;flex-shrink:0;border:1px solid rgba(146,168,255,0.24);display:flex;align-items:center;justify-content:center}
+  .setpv:hover{background:rgba(94,155,242,0.12)}
+  .setpv svg{width:11px;height:11px;fill:#9AA3C2}
+  .pro{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#3EC1F0;border:1px solid rgba(62,193,240,.4);border-radius:100px;padding:2px 7px;margin-left:7px;vertical-align:middle}
+  .atmgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .atmo{text-align:left;border:1px solid rgba(146,168,255,0.10);border-radius:14px;background:rgba(255,255,255,0.025);padding:13px 14px;transition:all .3s ease}
+  .atmo.on{border-color:#5E9BF2;background:rgba(94,155,242,0.12)}
+  .atmo.locked{opacity:.5;cursor:default}
+  .atmo h5{font-size:13px;font-weight:600;color:#EDEFF7}
+  .atmo small{display:block;font-size:11px;color:#9AA3C2;margin-top:2px}
+
+  .planbtns{display:flex;flex-direction:column;gap:9px;margin-top:18px}
+  .planbtn{display:block;width:100%;text-align:center;padding:14px;border-radius:14px;font-size:14px;font-weight:600;border:1px solid rgba(146,168,255,0.18);color:#EDEFF7;background:rgba(94,155,242,0.06);transition:all .3s ease}
+  .planbtn:disabled{opacity:.7;cursor:default}
+  .planbtn.best{background:linear-gradient(120deg,#6C4BE0,#4A8FE8 52%,#3EC1F0);color:#fff;border:none}
+  .planbtn.gold{border-color:rgba(226,162,74,.45);color:#E2A24A;background:rgba(226,162,74,.06)}
+  .planbtn small{display:block;font-weight:400;font-size:11px;color:inherit;opacity:.85;margin-top:3px;letter-spacing:.01em}
 `
