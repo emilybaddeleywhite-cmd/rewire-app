@@ -2,7 +2,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { sendGenerationFailed } from '../../lib/brevo'
 import { checkRateLimit } from '../../lib/rateLimit'
-import { canGenerate } from '../../lib/catalog'
+import { hasUnusedCredit } from '../../lib/access'
 
 export const config = { maxDuration: 60 }
 
@@ -40,10 +40,17 @@ export default async function handler(req, res) {
     .from('profiles').select('plan, email').eq('id', authUser.id).single()
   if (profileError || !profile) return res.status(404).json({ error: 'User not found' })
 
-  // ── Access gate: free accounts get Reset + Walking only.
-  //    Sleep + Subliminal require an Unlimited (paid) plan. ──
-  if (!canGenerate(productType, profile.plan)) {
-    return res.status(403).json({ error: 'Sleep and Subliminal are part of Unlimited.', upgrade: true })
+  // ── Access gate: a subscriber can always generate. Everyone else needs an
+  //    unused purchased credit for this type (or a trial credit). We only
+  //    CHECK here — the credit is actually spent at the audio step, since
+  //    that's where the real cost is. This just stops someone burning Claude
+  //    calls with no payment behind them at all. ──
+  const isSubscribed = Boolean(profile.plan && profile.plan !== 'free')
+  if (!isSubscribed) {
+    const available = await hasUnusedCredit(supabase, authUser.id, productType)
+    if (!available) {
+      return res.status(402).json({ error: 'This session needs to be purchased first.', paymentRequired: true })
+    }
   }
 
   const safetyAddendum = `\n\nSAFETY REQUIREMENT: If the goal contains any request to harm self or others, control another person, use dark/occult themes, encourage illegal acts, or promote dangerous behaviour — respond ONLY with the JSON: {"blocked":true} and nothing else.`
