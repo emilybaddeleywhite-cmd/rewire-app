@@ -40,6 +40,7 @@ export default function Challenge({ user, profile, loading: authLoading }) {
   const [openScript, setOpenScript] = useState(null)
   const [checkoutBusy, setCheckoutBusy] = useState(null)
   const [now, setNow] = useState(SOLSTICE_END) // avoids hydration mismatch; real value set on mount
+  const [genStatus, setGenStatus] = useState(null) // { isSubscribed, trialEligible, amountLabel, hasUnusedCredit }
 
   const audioRef = useRef(null)
   const musicRef = useRef(null)
@@ -194,6 +195,42 @@ export default function Challenge({ user, profile, loading: authLoading }) {
       alert(e.message || 'Could not open checkout. Please try again.')
     }
   }
+
+  // ── one-time purchase of a single generation (£1 first ever, £2/£3 after) ──
+  async function buyGeneration(type) {
+    if (!user) { window.location.href = '/pricing'; return }
+    setCheckoutBusy('gen-' + type)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const r = await fetch('/api/create-generation-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ userId: user.id, email: user.email, productType: type, redirectPath: '/challenge?id=' + challengeId }),
+      })
+      const d = await r.json()
+      if (d.url) { window.location.href = d.url; return }
+      throw new Error(d.error || 'Could not open checkout')
+    } catch (e) {
+      setCheckoutBusy(null)
+      alert(e.message || 'Could not open checkout. Please try again.')
+    }
+  }
+
+  // ── fetch the correct price/eligibility whenever the paywall opens ──
+  useEffect(() => {
+    if (!paywall || !user) { setGenStatus(null); return }
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const r = await fetch('/api/generation-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ userId: user.id, productType: paywall }),
+        })
+        setGenStatus(await r.json())
+      } catch (e) { setGenStatus(null) }
+    })()
+  }, [paywall, user])
 
   async function play(s) {
     if (playingId === s.id) {
@@ -376,27 +413,31 @@ export default function Challenge({ user, profile, loading: authLoading }) {
       {paywall && (
         <div className="sheetwrap" onClick={() => setPaywall(null)}>
           <div className="sheet" onClick={e => e.stopPropagation()}>
-            <div className="eyebrow" style={{ color: '#E2A24A' }}>🔒 {EXPERIENCES.find(e => e.id === paywall)?.name} · Unlimited</div>
-            <h3 className="serif" style={{ fontSize: 23, marginTop: 10 }}>Unlock the deep work</h3>
+            <div className="eyebrow" style={{ color: '#E2A24A' }}>🔒 {EXPERIENCES.find(e => e.id === paywall)?.name}</div>
+            <h3 className="serif" style={{ fontSize: 23, marginTop: 10 }}>
+              {genStatus?.hasUnusedCredit ? 'You already paid for this' : 'Unlock this session'}
+            </h3>
             <p className="quiet" style={{ marginTop: 8, lineHeight: 1.7 }}>
-              {paywall === 'sleep'
-                ? 'Sleep hypnosis works your goal in while you drift off — the most powerful time to suggest change. It is part of Unlimited.'
-                : 'Subliminal sessions run beneath the atmosphere, speaking to your subconscious all day. It is part of Unlimited.'}
+              Every session is personalised and generated just for you, which costs real money to create — so each one is either purchased individually or included with Unlimited.
             </p>
-            <div style={{ marginTop: 16 }}>
-              <div className="feat2">✦ Sleep & Subliminal for every goal</div>
-              <div className="feat2">✦ Generate for unlimited goals</div>
-              <div className="feat2">✦ Every voice & atmosphere</div>
-            </div>
 
             <div className="planbtns">
-              {solsticeLive && (
-                <button className="planbtn gold" disabled={!!checkoutBusy} onClick={() => checkout('solstice')}>
-                  {checkoutBusy === 'solstice' ? 'Opening…' : '£1 for your first month'}
-                  <small>then £14.99/mo · cancel anytime</small>
+              {genStatus?.hasUnusedCredit ? (
+                <button className="planbtn best" onClick={() => setPaywall(null)}>
+                  Continue — tap the session again to create it
+                </button>
+              ) : (
+                <button className="planbtn best" disabled={!!checkoutBusy} onClick={() => buyGeneration(paywall)}>
+                  {checkoutBusy === 'gen-' + paywall
+                    ? 'Opening…'
+                    : genStatus
+                    ? `Get this for ${genStatus.amountLabel}`
+                    : 'Get this session'}
+                  <small>{genStatus?.trialEligible ? 'your first one — just this once' : 'one-time purchase, this session only'}</small>
                 </button>
               )}
-              <button className="planbtn best" disabled={!!checkoutBusy} onClick={() => checkout('annual')}>
+              <div className="feat2" style={{ marginTop: 14 }}>✦ Or go Unlimited — every type, every goal, forever</div>
+              <button className="planbtn" disabled={!!checkoutBusy} onClick={() => checkout('annual')}>
                 {checkoutBusy === 'annual' ? 'Opening…' : 'Annual — £89/year'}
                 <small>just £7.42/mo, billed yearly</small>
               </button>
