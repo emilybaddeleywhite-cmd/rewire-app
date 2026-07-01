@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { checkRateLimit } from '../../lib/rateLimit'
-import { canGenerate } from '../../lib/catalog'
+import { consumeCredit } from '../../lib/access'
 
 export const config = { maxDuration: 60 }
 
@@ -32,12 +32,18 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'No text provided' })
   }
 
-  // ── Access gate (defence in depth): free accounts get Reset + Walking only.
-  //    This is the expensive call, so it must verify access independently. ──
+  // ── Access gate (defence in depth): this is THE expensive call (ElevenLabs),
+  //    so it must independently verify payment. A subscriber generates freely;
+  //    everyone else must spend one purchased credit, consumed right here. ──
   const { data: profile } = await supabase
     .from('profiles').select('plan').eq('id', authUser.id).single()
-  if (!canGenerate(productType, profile?.plan)) {
-    return res.status(403).json({ error: 'Sleep and Subliminal are part of Unlimited.', upgrade: true })
+  const isSubscribed = Boolean(profile?.plan && profile.plan !== 'free')
+
+  if (!isSubscribed) {
+    const consumed = await consumeCredit(supabase, authUser.id, productType)
+    if (!consumed) {
+      return res.status(402).json({ error: 'This session needs to be purchased first.', paymentRequired: true })
+    }
   }
 
   // ── Rate limit: ElevenLabs is the most expensive call in the app ──
