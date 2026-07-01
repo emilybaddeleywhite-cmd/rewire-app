@@ -184,7 +184,7 @@ export default function Rewire() {
     if (!user) { pendingGenerateRef.current = true; setShowAuth(true); return }
     // Free types (Reset + Walking) are always available — no credits, no daily cap.
     // Sleep + Subliminal need Unlimited; send those to pricing instead of blocking.
-    if (!canGenerate(exp.id, profile?.plan)) { window.location.href = '/pricing'; return }
+    if (!canGenerate(exp.id, profile?.plan)) { window.location.href = '/pricing?type=' + exp.id; return }
     if (needsDisclaimer()) { pendingGenerateRef.current = true; setShowDisclaimer(true); return }
 
     clearSafety()
