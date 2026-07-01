@@ -1,11 +1,11 @@
 // pages/api/save-session.js
-// No credits. No streak side-effects (the streak now advances when a session
-// is PLAYED, logged separately). This endpoint just saves the session, stores
-// the durable audio PATH so it replays forever, tags challenge recordings, and
-// keeps free accounts to a single goal.
+// No credits-based gating here — payment was already verified upstream, at
+// generate-script (checked) and generate-audio (spent). This endpoint just
+// saves the result: stores the durable audio PATH so it replays forever, and
+// tags challenge recordings. The old "free accounts get one goal" rule is
+// gone because there's no more free generation to restrict.
 
 import { createClient } from '@supabase/supabase-js'
-import { canGenerate } from '../../lib/catalog'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -33,27 +33,6 @@ export default async function handler(req, res) {
   if (userId !== authUser.id) return res.status(403).json({ error: 'Forbidden' })
 
   try {
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles').select('plan').eq('id', authUser.id).single()
-    if (profileError || !profile) return res.status(404).json({ error: 'Profile not found' })
-
-    const isPaid = profile.plan && profile.plan !== 'free'
-
-    // Access guard (matches the generation gate): free = Reset + Walking only.
-    if (!canGenerate(productType, profile.plan)) {
-      return res.status(403).json({ error: 'Sleep and Subliminal are part of Unlimited.', upgrade: true })
-    }
-
-    // Free accounts get one goal (their 7-Day Rewire). Same goal can save its
-    // free sessions; a *different* goal needs Unlimited.
-    if (!isPaid && goal) {
-      const { data: otherGoals } = await supabase
-        .from('sessions').select('goal').eq('user_id', authUser.id).neq('goal', goal).limit(1)
-      if (otherGoals && otherGoals.length > 0) {
-        return res.status(403).json({ error: 'Free covers one goal. Upgrade to Unlimited to rewire another.', upgrade: true })
-      }
-    }
-
     // Durable audio path: prefer what the client passes; otherwise pull the
     // path out of the (temporary) signed URL so replay never breaks.
     const cleanAudioUrl = audioUrl && audioUrl.startsWith('http') ? audioUrl : null
