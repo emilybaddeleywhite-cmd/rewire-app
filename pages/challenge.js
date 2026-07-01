@@ -113,7 +113,6 @@ export default function Challenge({ user, profile, loading: authLoading }) {
   // ── open the voice + atmosphere chooser for a type ──
   function openSetup(t) {
     if (genType || sessionOfType(t)) return
-    if (!isTypeFree(t) && !isPaid) { setPaywall(t); return }
     const v = VOICES.find(x => x.free) || VOICES[0]
     const tracks = atmospheresFor(t)
     const a = tracks.find(x => x.free) || tracks[0]
@@ -134,7 +133,7 @@ export default function Challenge({ user, profile, loading: authLoading }) {
   // ── generation: ONE generation per type, cached. No regeneration. ──
   async function generate(typeId, voice, atmo) {
     if (!challenge || genType || sessionOfType(typeId)) return
-    if (!isTypeFree(typeId) && !isPaid) { setPaywall(typeId); return }
+    if (!isTypeFree(typeId) && !isPaid) { setSetupType(null); setPaywall(typeId); return }
     previewRef.current?.pause(); setPreviewingId(null)
     setSetupType(null)
     setGenType(typeId); setPhaseIdx(0)
@@ -308,12 +307,10 @@ export default function Challenge({ user, profile, loading: authLoading }) {
         {ORDER.map(t => {
           const exp = EXPERIENCES.find(e => e.id === t)
           const s = sessionOfType(t)
-          const free = isTypeFree(t)
-          const locked = !free && !isPaid
           const isPlaying = s && playingId === s.id
           const creating = genType === t
           return (
-            <div key={t} className={`card ${locked ? 'locked' : ''}`}>
+            <div key={t} className="card">
               <div className="cname">{exp.name}</div>
               <div className="cmeta">{exp.meta}</div>
               <p className="cdesc">{exp.desc}</p>
@@ -329,8 +326,6 @@ export default function Challenge({ user, profile, loading: authLoading }) {
                 </>
               ) : creating ? (
                 <button className="cbtn" disabled>✦ {CREATION_PHASES[phaseIdx]}…</button>
-              ) : locked ? (
-                <button className="cbtn lock" onClick={() => setPaywall(t)}>🔒 Unlock with Unlimited</button>
               ) : (
                 <button className="cbtn" onClick={() => openSetup(t)} disabled={!!genType}>Create this session</button>
               )}
@@ -341,9 +336,10 @@ export default function Challenge({ user, profile, loading: authLoading }) {
 
       {!isPaid && (
         <div className="upsell">
-          <p>Sleep & Subliminal — and a new goal whenever you want — are part of <a href="/pricing">Unlimited</a>.</p>
+          <p>Each session is personalised just for you. Go <a href="/pricing">Unlimited</a> for every type, every goal, forever.</p>
         </div>
       )}
+
 
       {/* day 7 */}
       {completed && (
