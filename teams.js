@@ -8,11 +8,11 @@ import { LOGO_URL } from '../lib/catalog'
 //  Until you paste real URLs, the buttons safely fall back to the contact email.
 // ─────────────────────────────────────────────────────────────
 const STRIPE_LINKS = {
-  team:    'PASTE_STRIPE_PAYMENT_LINK_FOR_TEAM_750',
-  company: 'PASTE_STRIPE_PAYMENT_LINK_FOR_COMPANY_2500',
-  growth:  'PASTE_STRIPE_PAYMENT_LINK_FOR_GROWTH_5000',
+  team:    'https://buy.stripe.com/8x200j7lWfMLb4watQ0Fi00',
+  company: 'https://buy.stripe.com/7sY6oHfSs587dcEatQ0Fi01',
+  growth:  'https://buy.stripe.com/4gM9AT9u4cAzc8A1Xk0Fi02',
 }
-const CONTACT_EMAIL = 'hello@rewiremode.com'
+const CONTACT_EMAIL = 'office@rewiremode.com'
 
 const PACKAGES = [
   { id: 'team',    name: 'Team',    seats: 'Up to 25 staff',  price: '£750',   perHead: '≈ £30 per person / year', featured: false },
