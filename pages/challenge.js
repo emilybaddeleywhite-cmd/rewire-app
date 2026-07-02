@@ -133,7 +133,23 @@ export default function Challenge({ user, profile, loading: authLoading }) {
   // ── generation: ONE generation per type, cached. No regeneration. ──
   async function generate(typeId, voice, atmo) {
     if (!challenge || genType || sessionOfType(typeId)) return
-    if (!isTypeFree(typeId) && !isPaid) { setSetupType(null); setPaywall(typeId); return }
+    if (!isTypeFree(typeId) && !isPaid) {
+      // Check for an already-purchased credit before blocking — someone who
+      // paid for this type must be let straight through, never shown the
+      // paywall again. Without this check, a credit holder tapping "create"
+      // gets sent to the paywall every single time, with no way through.
+      let credited = false
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const r = await fetch('/api/generation-status', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ userId: user.id, productType: typeId }),
+        })
+        const d = await r.json()
+        credited = !!d.hasUnusedCredit
+      } catch (e) { /* fall through to the paywall on any error */ }
+      if (!credited) { setSetupType(null); setPaywall(typeId); return }
+    }
     previewRef.current?.pause(); setPreviewingId(null)
     setSetupType(null)
     setGenType(typeId); setPhaseIdx(0)
