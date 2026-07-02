@@ -182,9 +182,25 @@ export default function Rewire() {
   // ── creation ───────────────────────────────────────────────────
   async function beginCreation() {
     if (!user) { pendingGenerateRef.current = true; setShowAuth(true); return }
-    // Free types (Reset + Walking) are always available — no credits, no daily cap.
-    // Sleep + Subliminal need Unlimited; send those to pricing instead of blocking.
-    if (!canGenerate(exp.id, profile?.plan)) { window.location.href = '/pricing?type=' + exp.id; return }
+    // Nothing generates for free any more. A subscriber can always create.
+    // Everyone else needs either a live subscription check here, OR an
+    // already-purchased one-time credit for this type — without checking
+    // for that credit, anyone who just paid via /pricing (which redirects
+    // back to this exact page) gets bounced straight back to pricing again,
+    // even though they already paid seconds ago.
+    if (!canGenerate(exp.id, profile?.plan)) {
+      let credited = false
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const r = await fetch('/api/generation-status', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ userId: user.id, productType: exp.id }),
+        })
+        const d = await r.json()
+        credited = !!d.hasUnusedCredit
+      } catch (e) { /* fall through to pricing on any error */ }
+      if (!credited) { window.location.href = '/pricing?type=' + exp.id; return }
+    }
     if (needsDisclaimer()) { pendingGenerateRef.current = true; setShowDisclaimer(true); return }
 
     clearSafety()
@@ -560,12 +576,12 @@ export default function Rewire() {
         </Modal>
       )}
 
-      {/* ── OUT OF REWIRES ── */}
+      {/* ── PAYMENT REQUIRED ── */}
       {showNoCredits && (
         <Modal onClose={() => setShowNoCredits(false)}>
-          <h3 className="mtitle">You&rsquo;ve used today&rsquo;s Rewires</h3>
-          <p className="msub">Your next free Rewire is on its way. Or unlock unlimited listening and daily creation with Pro.</p>
-          <a className="next full center-btn" href="/pricing">See plans</a>
+          <h3 className="mtitle">This session needs to be purchased</h3>
+          <p className="msub">Every session is generated fresh, just for you, which costs real money to create — so it's either bought individually or included with Unlimited.</p>
+          <a className="next full center-btn" href={'/pricing?type=' + (exp?.id || '')}>See price</a>
         </Modal>
       )}
     </>
